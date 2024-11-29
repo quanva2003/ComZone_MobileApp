@@ -2,14 +2,16 @@ import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import React from "react";
 import tw from "twrnc";
 import { Icon } from "react-native-elements";
+import { useNavigation } from "@react-navigation/native";
 
-const HeaderInfo = () => {
+const HeaderInfo = (currentUser) => {
+  const navigate = useNavigation();
   return (
     <View style={tw`flex flex-row items-center justify-between`}>
       <View style={tw`flex flex-row gap-2 items-center`}>
         <Image
           source={{
-            uri: "https://i.pinimg.com/736x/d5/bc/2f/d5bc2f4a1a5334706760c89ee8b9f0ec.jpg",
+            uri: currentUser.currentUser?.avatar,
           }}
           style={tw`w-15 h-15 rounded-full border-2 border-white shadow-lg`}
         />
@@ -17,7 +19,9 @@ const HeaderInfo = () => {
           <Text style={[tw`text-xs`, { fontFamily: "REM_thin" }]}>
             Xin chào,
           </Text>
-          <Text style={[tw`text-base`, { fontFamily: "REM_bold" }]}>Wuan</Text>
+          <Text style={[tw`text-base`, { fontFamily: "REM_bold" }]}>
+            {currentUser.currentUser?.name}
+          </Text>
         </View>
       </View>
       <View style={tw`flex flex-row gap-2`}>
@@ -36,7 +40,7 @@ const HeaderInfo = () => {
             <Icon type="MaterialIcons" name="notifications-none" size={20} />
           </View>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigate.push("SignUp")}>
+        <TouchableOpacity onPress={() => navigate.push("Cart")}>
           <View style={[styles.shadowContainer, tw`p-2 rounded-full bg-white`]}>
             <Icon type="MaterialIcons" name="shopping-cart" size={20} />
           </View>

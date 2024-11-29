@@ -10,11 +10,42 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useNavigation } from "@react-navigation/native";
-
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const SignIn = () => {
   const navigate = useNavigation();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
+  const logInGoogle = async () => {
+    axios.get(`${process.env.BASE_URL}auth/google/login`);
+  };
+  const logInAccount = async () => {
+    const responseLogin = await axios.post(
+      `${process.env.BASE_URL}auth/login`,
+      {
+        email,
+        password,
+      }
+    );
+    const token = responseLogin.data.accessToken;
+    await AsyncStorage.setItem("token", token);
+    console.log("Login Successful, Token Saved");
+    if (token) {
+      const responseUserInfo = await axios.get(
+        `${process.env.BASE_URL}users/profile`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log("User Profile:", responseUserInfo.data);
+      const userInfo = responseUserInfo.data;
+      await AsyncStorage.setItem("currentUser", JSON.stringify(userInfo));
+      navigate.push("Main");
+    }
+  };
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
@@ -28,12 +59,19 @@ const SignIn = () => {
         <Text style={styles.subHeader}>Đăng nhập</Text>
       </View>
 
-      <TextInput placeholder="Email" style={styles.input} />
+      <TextInput
+        placeholder="Email"
+        style={styles.input}
+        value={email}
+        onChangeText={setEmail}
+      />
       <View style={styles.passwordContainer}>
         <TextInput
           placeholder="Mật khẩu"
           secureTextEntry={!showPassword}
           style={styles.inputPass}
+          value={password}
+          onChangeText={setPassword}
         />
         <TouchableOpacity
           onPress={toggleShowPassword}
@@ -47,7 +85,7 @@ const SignIn = () => {
         </TouchableOpacity>
       </View>
       <Text style={styles.forgot}>Quên mật khẩu?</Text>
-      <TouchableOpacity style={styles.signInButton}>
+      <TouchableOpacity style={styles.signInButton} onPress={logInAccount}>
         <Text style={styles.buttonText}>Đăng nhập</Text>
       </TouchableOpacity>
       <View
@@ -61,7 +99,7 @@ const SignIn = () => {
         <Text style={styles.orText}>hoặc</Text>
         <View style={{ height: 1, width: 145, backgroundColor: "#000" }}></View>
       </View>
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={() => logInGoogle()}>
         <Image
           source={require("../../assets/gg-logo.png")}
           style={styles.icon}
@@ -132,7 +170,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     marginBottom: 10,
     padding: 10,
-    fontFamily: "REM_thin",
+    fontFamily: "REM_regular",
   },
   inputPass: {
     backgroundColor: "#ffffff",
@@ -142,7 +180,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     flex: 1,
-    fontFamily: "REM_thin",
+    fontFamily: "REM_regular",
   },
   iconContainer: {
     position: "absolute",

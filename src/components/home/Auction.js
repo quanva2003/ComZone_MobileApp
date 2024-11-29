@@ -13,13 +13,15 @@ import CurrencySplitter from "../../assistants/Spliter";
 import CountDown from "react-native-countdown-component";
 
 const Auction = () => {
-  const [auctions, setAuctions] = useState([]);
+  const [ongoingAuctions, setOngoingAuctions] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const fetchAuctions = async () => {
     try {
-      const response = await axios.get("http://10.0.2.2:3000/auction");
-      setAuctions(response.data.slice(0, 6));
+      const response = await axios.get(`${process.env.BASE_URL}auction`);
+      const auctionComics = response.data.filter(
+        (auction) => auction.status === "ONGOING"
+      );
+      setOngoingAuctions(auctionComics);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching auctions:", error);
@@ -89,15 +91,10 @@ const Auction = () => {
             timeLabels={{ d: "Ngày", h: "Giờ", m: "Phút", s: "Giây" }}
           />
         </View>
-        <View style={tw`flex-row mt-3`}>
-          <TouchableOpacity style={tw`bg-black py-1 px-3 rounded-md mr-2`}>
+        <View style={tw`mt-3 flex items-center w-full`}>
+          <TouchableOpacity style={tw`bg-black py-1 px-3 rounded-md `}>
             <Text style={[tw`text-white text-xs`, { fontFamily: "REM" }]}>
-              RA GIÁ
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={tw`bg-gray-200 py-1 px-3 rounded-md`}>
-            <Text style={[tw`text-gray-700 text-xs`, { fontFamily: "REM" }]}>
-              XEM
+              XEM CHI TIẾT
             </Text>
           </TouchableOpacity>
         </View>
@@ -110,15 +107,23 @@ const Auction = () => {
       {loading ? (
         <ActivityIndicator size="large" color="#000" />
       ) : (
-        <FlatList
-          data={auctions}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id.toString()}
-          numColumns={2}
-          showsHorizontalScrollIndicator={false}
-          columnWrapperStyle={tw`justify-around`}
-          key="auction-list"
-        />
+        <View>
+          <FlatList
+            data={ongoingAuctions}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id.toString()}
+            numColumns={2}
+            showsHorizontalScrollIndicator={false}
+            columnWrapperStyle={tw`justify-around`}
+            key="auction-list"
+          />
+
+          <View style={tw`items-center`}>
+            <TouchableOpacity>
+              <Text>Xem thêm</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       )}
     </View>
   );

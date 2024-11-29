@@ -7,17 +7,35 @@ import {
   View,
   FlatList, // Import FlatList instead of ScrollView
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import tw from "twrnc";
 import { useNavigation } from "@react-navigation/native";
 import { Icon } from "react-native-elements";
 import HeaderInfo from "../components/home/HeaderInfo";
 import ComicSealed from "../components/home/ComicSealed";
 import Auction from "../components/home/Auction";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Home = () => {
   const navigate = useNavigation();
   const [searchText, setSearchText] = useState("");
+  const [currentUser, setCurrentUser] = useState(null);
+
+  const fetchCurrentUser = async () => {
+    try {
+      const storedUser = await AsyncStorage.getItem("currentUser");
+      if (storedUser) {
+        const parsedUser = JSON.parse(storedUser);
+        setCurrentUser(parsedUser);
+        console.log("Current User:", parsedUser);
+      }
+    } catch (error) {
+      console.error("Error retrieving currentUser:", error);
+    }
+  };
+  useEffect(() => {
+    fetchCurrentUser();
+  }, []);
 
   const data = [
     { type: "header" },
@@ -37,7 +55,7 @@ const Home = () => {
   const renderItem = ({ item }) => {
     switch (item.type) {
       case "header":
-        return <HeaderInfo />;
+        return <HeaderInfo currentUser={currentUser} />;
       case "search":
         return (
           <View
