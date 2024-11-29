@@ -12,16 +12,15 @@ import tw from "twrnc";
 import CurrencySplitter from "../../assistants/Spliter";
 import { useNavigation } from "@react-navigation/native";
 
-const ComicSealed = () => {
+const ComicsOfSeller = (seller) => {
   const [comics, setComics] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
   const fetchComics = async () => {
     try {
       const response = await axios.get(
-        `${process.env.BASE_URL}comics/status/available`
+        `${process.env.BASE_URL}comics/seller/${seller.seller.id}`
       );
-
       setComics(response.data.slice(0, 20));
       setLoading(false);
     } catch (error) {
@@ -78,17 +77,22 @@ const ComicSealed = () => {
       {loading ? (
         <ActivityIndicator size="large" color="#000" />
       ) : (
-        <FlatList
-          data={comics}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id.toString()}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={tw`flex-row`}
-        />
+        <View>
+          <Text style={[tw`text-lg mb-3`, { fontFamily: "REM_bold" }]}>
+            Truyện của {seller.seller.name}
+          </Text>
+          <FlatList
+            data={comics}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id.toString()}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={tw`flex-row`}
+          />
+        </View>
       )}
     </View>
   );
 };
 
-export default ComicSealed;
+export default ComicsOfSeller;

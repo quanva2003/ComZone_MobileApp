@@ -13,6 +13,9 @@ import * as SplashScreen from "expo-splash-screen";
 import { useFonts } from "expo-font";
 import { useEffect } from "react";
 import ComicDetail from "./src/screens/ComicDetail";
+import Profile from "./src/screens/Profile";
+import Cart from "./src/screens/Cart";
+import Checkout from "./src/screens/Checkout";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -87,7 +90,7 @@ const MainTabs = () => {
       />
       <Tab.Screen
         name="Tôi"
-        component={Exchange}
+        component={Profile}
         options={{
           tabBarIcon: ({ color, focused }) => (
             <Icon
@@ -133,12 +136,14 @@ export default function App() {
             headerShown: false,
             contentStyle: { marginTop: 25 },
           }}
-          initialRouteName="Main"
+          initialRouteName="SignIn"
         >
           <Stack.Screen name="SignIn" component={SignIn} />
           <Stack.Screen name="SignUp" component={SignUp} />
           <Stack.Screen name="Main" component={MainTabs} />
           <Stack.Screen name="ComicDetail" component={ComicDetail} />
+          <Stack.Screen name="Cart" component={Cart} />
+          <Stack.Screen name="Checkout" component={Checkout} />
         </Stack.Navigator>
       </SafeAreaProvider>
     </NavigationContainer>

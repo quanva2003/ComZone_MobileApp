@@ -1,12 +1,19 @@
-// src/screens/ComicDetail.js
-
-import React, { useState } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+  Modal,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons"; // Icon library
 import tw from "twrnc";
 import CurrencySplitter from "../assistants/Spliter";
 import { Icon } from "react-native-elements";
+import ComicsOfSeller from "../components/comicDetail/ComicsOfSeller";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ComicDetail = ({ route }) => {
   const navigation = useNavigation();
@@ -14,15 +21,54 @@ const ComicDetail = ({ route }) => {
   const allImages = [comic.coverImage, ...comic.previewChapter];
   const [currentImage, setCurrentImage] = useState(comic.coverImage);
   const currentIndex = allImages.indexOf(currentImage) + 1;
+  const scrollViewRef = useRef(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [isInCart, setIsInCart] = useState(false);
+  const checkIfInCart = async () => {
+    try {
+      const cartData = await AsyncStorage.getItem("cart");
+      const cart = cartData ? JSON.parse(cartData) : [];
+      const comicInCart = cart.find((item) => item.id === comic.id);
+      setIsInCart(!!comicInCart);
+    } catch (error) {
+      console.error("Failed to check if comic is in cart:", error);
+    }
+  };
+  const addToCart = async () => {
+    try {
+      const cartData = await AsyncStorage.getItem("cart");
+      let cart = cartData ? JSON.parse(cartData) : [];
+
+      cart.push(comic);
+
+      await AsyncStorage.setItem("cart", JSON.stringify(cart));
+      setIsInCart(true);
+      setModalVisible(true);
+    } catch (error) {
+      console.error("Failed to add comic to cart:", error);
+    }
+  };
+  useEffect(() => {
+    setCurrentImage(comic.coverImage);
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: true });
+    }
+    checkIfInCart();
+  }, [comic]);
   return (
-    <ScrollView style={tw`flex-1`}>
+    <ScrollView style={tw`flex-1`} ref={scrollViewRef}>
       <TouchableOpacity
         style={tw`absolute top-4 left-4 z-10 bg-white rounded-full p-2 shadow`}
         onPress={() => navigation.goBack()}
       >
         <Ionicons name="arrow-back" size={24} color="black" />
       </TouchableOpacity>
-
+      <TouchableOpacity
+        onPress={() => navigation.push("Cart")}
+        style={tw`absolute top-4 right-4 z-10 bg-white rounded-full p-2 shadow`}
+      >
+        <Icon type="MaterialIcons" name="shopping-cart" size={20} />
+      </TouchableOpacity>
       <View style={tw`relative`}>
         <Image source={{ uri: currentImage }} style={tw`w-full h-100 mb-4`} />
         <View
@@ -76,16 +122,24 @@ const ComicDetail = ({ route }) => {
             {CurrencySplitter(comic.price)} đ
           </Text>
           <View style={tw`flex-row gap-3 justify-between`}>
-            <TouchableOpacity style={tw`flex-1`}>
+            <TouchableOpacity
+              style={tw`flex-1`}
+              onPress={addToCart}
+              disabled={isInCart}
+            >
               <View
-                style={tw`flex-row gap-2 border-2 border-black rounded-lg p-3 justify-center`}
+                style={tw`flex-row gap-2 border-2 rounded-lg p-3 justify-center ${
+                  isInCart && "bg-emerald-700"
+                }`}
               >
                 <Icon type="MaterialIcons" name="shopping-cart" size={20} />
-                <Text style={{ fontFamily: "REM" }}>Thêm vào giỏ hàng</Text>
+                <Text style={{ fontFamily: "REM" }}>
+                  {isInCart ? "Đã có trong giỏ hàng" : "Thêm vào giỏ hàng"}
+                </Text>
               </View>
             </TouchableOpacity>
             <TouchableOpacity style={tw`flex-1`}>
-              <View style={tw`bg-black rounded-lg p-3.6 items-center`}>
+              <View style={tw`bg-black rounded-lg p-3.7 items-center`}>
                 <Text style={[tw`text-white`, { fontFamily: "REM" }]}>
                   Mua ngay
                 </Text>
@@ -102,6 +156,31 @@ const ComicDetail = ({ route }) => {
           </Text>
         </View>
       </View>
+      <View style={tw`px-6 py-2`}>
+        <ComicsOfSeller seller={comic.sellerId} />
+      </View>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View
+          style={tw`flex-1 justify-center items-center bg-gray-800 bg-opacity-50`}
+        >
+          <View style={tw`bg-white p-4 rounded-lg`}>
+            <Text style={tw`text-center text-xl font-bold`}>
+              Truyện đã được thêm vào giỏ hàng!
+            </Text>
+            <TouchableOpacity
+              onPress={() => setModalVisible(false)}
+              style={tw`mt-4 bg-black p-2 rounded-lg`}
+            >
+              <Text style={tw`text-white text-center`}>Đóng</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };
