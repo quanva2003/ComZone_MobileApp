@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 
 const CurrentAddress = (userAddress) => {
   const addresses = userAddress.userAddress;
-  console.log("asdasd", addresses);
 
   return (
     <View>

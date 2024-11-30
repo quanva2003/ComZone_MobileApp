@@ -163,7 +163,7 @@ const Cart = ({ navigation }) => {
       </View>
 
       {/* Content */}
-      <ScrollView style={tw`flex-1 p-4 mb-10`}>
+      <ScrollView style={tw`flex-1 p-4`}>
         {Object.keys(groupedComics).length === 0 ? (
           <View style={tw`flex-1 justify-center items-center`}>
             <Text style={tw`text-xl font-bold`}>Giỏ hàng của bạn trống</Text>
@@ -275,9 +275,7 @@ const Cart = ({ navigation }) => {
       </ScrollView>
 
       {/* Footer */}
-      <View
-        style={tw`absolute bottom-0 left-0 right-0 bg-white flex flex-row items-center `}
-      >
+      <View style={tw` bg-white flex flex-row items-center `}>
         <TouchableOpacity
           style={tw`flex-row items-center w-1/6`}
           onPress={handleSelectAll}

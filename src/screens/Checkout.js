@@ -2,10 +2,20 @@ import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
 import tw from "twrnc";
 import CurrentAddress from "../components/address/CurrentAddress";
 import Svg, { Circle, Path } from "react-native-svg";
+import PaymentMethod from "../components/checkout/PaymentMethod";
+import CurrencySplitter from "../assistants/Spliter";
 
 const Checkout = ({ route, navigation }) => {
   const { selectedComics } = route.params || { selectedComics: [] };
@@ -14,32 +24,49 @@ const Checkout = ({ route, navigation }) => {
   const [token, setToken] = useState(null);
   const [userAddress, setUserAddress] = useState(null);
   const [selectedAddress, setSelectedAddress] = useState();
+  const [isLoading, setIsLoading] = useState(false);
+  const [userInfo, setUserInfo] = useState(null);
+  const [selectedMethod, setSelectedMethod] = useState(null);
   const currentUserAddress = async () => {
     if (token) {
-      const resUserAddress = await axios.get(
-        `${process.env.BASE_URL}user-addresses/user`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      console.log(resUserAddress.data);
+      try {
+        setIsLoading(true);
+        const resUserAddress = await axios.get(
+          `${process.env.BASE_URL}user-addresses/user`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        console.log(resUserAddress.data);
 
-      const addresses = resUserAddress.data || [];
-      const defaultAddress = addresses.find(
-        (address) => address.isDefault === true
-      );
-      console.log("fff", defaultAddress);
+        const addresses = resUserAddress.data || [];
+        const defaultAddress = addresses.find(
+          (address) => address.isDefault === true
+        );
 
-      setSelectedAddress(defaultAddress);
-      const sortedAddresses = [
-        defaultAddress,
-        ...addresses.filter((address) => address.is_default !== 1),
-      ];
-      console.log("a", sortedAddresses);
+        setSelectedAddress(defaultAddress);
+        const sortedAddresses = [
+          defaultAddress,
+          ...addresses.filter((address) => address.is_default !== 1),
+        ];
 
-      setUserAddress(sortedAddresses);
+        setUserAddress(sortedAddresses);
+        const resUserInfo = await axios.get(
+          `${process.env.BASE_URL}users/profile`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setUserInfo(resUserInfo.data);
+      } catch (error) {
+        console.error("Error fetching address:", error);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
   const groupBySeller = (comics) => {
@@ -55,26 +82,214 @@ const Checkout = ({ route, navigation }) => {
   };
 
   const groupedComics = groupBySeller(selectedComics);
+  const handleSubmit = async () => {
+    // Validate inputs
+    if (!selectedAddress) {
+      Alert.alert("Lỗi", "Vui lòng chọn địa chỉ giao hàng");
+      return;
+    }
 
+    if (!selectedMethod) {
+      Alert.alert("Lỗi", "Vui lòng chọn phương thức thanh toán");
+      return;
+    }
+
+    setIsLoading(true);
+
+    // Group comics by seller
+    const groupedSelectedComics = selectedComics.reduce((acc, comic) => {
+      const sellerId = comic.sellerId.id;
+      if (!acc[sellerId]) {
+        acc[sellerId] = {
+          comics: [],
+        };
+      }
+      acc[sellerId].comics.push({
+        comic,
+        currentPrice: comic.price,
+      });
+      return acc;
+    }, {});
+
+    try {
+      const orderedComicIds = [];
+      for (const sellerId in groupedSelectedComics) {
+        const sellerGroup = groupedSelectedComics[sellerId];
+        console.log(
+          "Seller Group Details:",
+          sellerGroup.comics.map((item) => ({
+            comicId: item.comic.id,
+            comicTitle: item.comic.title,
+            currentPrice: item.currentPrice,
+          }))
+        );
+
+        // Calculate total price for this seller
+        const sellerTotalPrice = sellerGroup.comics.reduce(
+          (total, { comic, currentPrice }) => {
+            const price = currentPrice || comic?.price;
+            return total + Number(price);
+          },
+          0
+        );
+
+        // done
+        // const resUserAddress = await axios.post(
+        //   `${process.env.BASE_URL}delivery-information`,
+        //   {
+        //     name: selectedAddress.fullName,
+        //     phone: selectedAddress.phone,
+        //     provinceId: selectedAddress.province.id,
+        //     districtId: selectedAddress.district.id,
+        //     wardId: selectedAddress.ward.id,
+        //     address: selectedAddress.detailedAddress,
+        //   },
+        //   {
+        //     headers: {
+        //       Authorization: `Bearer ${token}`,
+        //     },
+        //   }
+        // );
+        console.log("sellerid", sellerId);
+        const fetchSellerAddress = await axios.get(
+          `${process.env.BASE_URL}seller-details/user/${sellerId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        console.log("asdasd", fetchSellerAddress.data);
+        const sellerDetails = fetchSellerAddress.data;
+        const resSellerAddress = await axios.post(
+          `${process.env.BASE_URL}delivery-information`,
+          {
+            name: sellerDetails.name,
+            phone: sellerDetails.phone,
+            provinceId: sellerDetails.province.id,
+            districtId: sellerDetails.district.id,
+            wardId: sellerDetails.ward.id,
+            address: sellerDetails.detailedAddress,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        console.log("done");
+
+        // Create delivery
+        const resDelivery = await axios.post(
+          `${process.env.BASE_URL}deliveries/order`,
+          {
+            fromAddressId: resSellerAddress.data.id,
+            toAddressId: resUserAddress.data.id,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        // Determine order type
+        const orderType = sellerGroup.comics.some(
+          ({ comic }) => comic.isAuction
+        )
+          ? "AUCTION"
+          : "TRADITIONAL";
+
+        // Create order
+        const resOrder = await axios.post(
+          `${process.env.BASE_URL}orders`,
+          {
+            sellerId: sellerId,
+            totalPrice: Number(sellerTotalPrice),
+            paymentMethod: selectedMethod.toUpperCase(),
+            deliveryId: resDelivery.data.id,
+            addressId: selectedAddress.id,
+            note: notes[sellerId] || "",
+            type: orderType,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const orderId = resOrder.data.id;
+
+        // Create order items
+        for (const { comic, currentPrice } of sellerGroup.comics) {
+          const price = currentPrice || comic?.price;
+          await axios.post(
+            `${process.env.BASE_URL}order-items`,
+            {
+              comics: comic.id,
+              order: orderId,
+              price,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          orderedComicIds.push(comic.id);
+        }
+      }
+
+      const cartData = await AsyncStorage.getItem("cart");
+      if (cartData) {
+        let parsedCart = JSON.parse(cartData);
+
+        parsedCart = parsedCart.filter(
+          (cartItem) => !orderedComicIds.includes(cartItem.id)
+        );
+
+        await AsyncStorage.setItem("cart", JSON.stringify(parsedCart));
+      }
+
+      await AsyncStorage.removeItem("selectedComics");
+      navigation.navigate("OrderComplete");
+
+      Alert.alert("Thành công", "Đơn hàng đã được đặt thành công!");
+    } catch (error) {
+      console.error("Error submitting order:", error);
+      Alert.alert("Lỗi", "Không thể đặt hàng. Vui lòng thử lại.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const calculateTotalPrice = () => {
     const total = selectedComics.reduce((acc, comic) => acc + comic.price, 0);
     setTotalPrice(total);
   };
   const fetchToken = async () => {
-    const storedToken = await AsyncStorage.getItem("token");
-    console.log(token);
-
-    setToken(storedToken);
+    try {
+      const storedToken = await AsyncStorage.getItem("token");
+      console.log("Token fetched:", storedToken);
+      if (storedToken) {
+        setToken(storedToken);
+      }
+    } catch (error) {
+      console.error("Error fetching token:", error);
+    }
   };
-  useEffect(() => {
-    calculateTotalPrice();
-    fetchToken();
-  }, [selectedComics]);
-  useEffect(() => {
-    if (token) currentUserAddress();
-  }, [token]);
-  console.log("bbb", selectedAddress.fullName);
 
+  useEffect(() => {
+    fetchToken();
+  }, []);
+
+  useEffect(() => {
+    if (token) {
+      currentUserAddress();
+    }
+    calculateTotalPrice();
+  }, [token, selectedComics]);
+  console.log(userInfo);
   return (
     <View style={tw`flex-1`}>
       {/* Header */}
@@ -97,58 +312,68 @@ const Checkout = ({ route, navigation }) => {
 
       {/* Content */}
       <ScrollView style={tw`flex-1 p-4 mb-10`}>
-        {/* <CurrentAddress userAddress={userAddress} /> */}
+        {/* Address */}
         <View style={tw`bg-white rounded-xl mb-3`}>
-          <View style={tw`flex-1 p-3 flex-row gap-2`}>
-            <Svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#000000"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="lucide lucide-map-pin"
-              style={tw`mt-2`}
-            >
-              <Path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
-              <Circle cx="12" cy="10" r="3" />
-            </Svg>
-            <View style={tw`flex`}>
-              <View style={tw`flex-row gap-1`}>
-                <Text style={[tw`text-base`, { fontFamily: "REM_bold" }]}>
-                  {selectedAddress.fullName}
-                </Text>
-                <Text
-                  style={[tw`text-base`, { fontFamily: "REM_regular" }]}
-                >{`(${selectedAddress.phone})`}</Text>
-              </View>
-              <Text
-                style={[tw`text-sm`, { fontFamily: "REM_regular" }]}
-                numberOfLines={2}
-              >
-                {selectedAddress.fullAddress}
-              </Text>
+          {isLoading ? (
+            <View style={tw`flex-1 items-center justify-center p-4`}>
+              <ActivityIndicator size="large" color="#000" />
             </View>
-            <Svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#000000"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="lucide lucide-chevron-right"
-              style={tw`mt-2`}
-            >
-              <Path d="m9 18 6-6-6-6" />
-            </Svg>
-          </View>
+          ) : selectedAddress ? (
+            <TouchableOpacity style={tw`p-3 flex flex-row gap-2`}>
+              <Svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#000000"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="lucide lucide-map-pin"
+                style={tw`mt-2 w-1/6`}
+              >
+                <Path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
+                <Circle cx="12" cy="10" r="3" />
+              </Svg>
+              <View style={tw`w-4/5`}>
+                <View style={tw`flex-row gap-1`}>
+                  <Text style={[tw`text-base`, { fontFamily: "REM_bold" }]}>
+                    {selectedAddress.fullName}
+                  </Text>
+                  <Text
+                    style={[tw`text-base`, { fontFamily: "REM_regular" }]}
+                  >{`(${selectedAddress.phone})`}</Text>
+                </View>
+                <Text
+                  style={[tw`text-sm`, { fontFamily: "REM_regular" }]}
+                  numberOfLines={2}
+                >
+                  {selectedAddress.fullAddress}
+                </Text>
+              </View>
+
+              <Svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#000000"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="lucide lucide-chevron-right"
+                style={tw`mt-5 w-full`}
+              >
+                <Path d="m9 18 6-6-6-6" />
+              </Svg>
+            </TouchableOpacity>
+          ) : (
+            <Text style={tw`text-center py-4`}>Không có địa chỉ nào</Text>
+          )}
         </View>
+        {/* Comic */}
         {Object.keys(groupedComics).length === 0 ? (
           <View style={tw`flex-1 justify-center items-center`}>
             <Text style={tw`text-xl font-bold`}>Giỏ hàng của bạn trống</Text>
@@ -194,6 +419,24 @@ const Checkout = ({ route, navigation }) => {
             </View>
           ))
         )}
+        <View style={tw`my-3`}>
+          {isLoading ? (
+            <View style={tw`flex-1 items-center justify-center p-4`}>
+              <ActivityIndicator size="large" color="#000" />
+            </View>
+          ) : (
+            userInfo &&
+            totalPrice && (
+              <PaymentMethod
+                userInfo={userInfo}
+                totalPrice={totalPrice}
+                selectedMethod={selectedMethod}
+                setSelectedMethod={setSelectedMethod}
+              />
+            )
+          )}
+        </View>
+        <View style={tw`h-6`}></View>
       </ScrollView>
 
       {/* Footer */}
@@ -205,18 +448,19 @@ const Checkout = ({ route, navigation }) => {
             Tổng thanh toán:
           </Text>
           <Text style={[tw`text-xl`, { fontFamily: "REM_bold" }]}>
-            {totalPrice.toLocaleString()} đ
+            {CurrencySplitter(totalPrice)} đ
           </Text>
         </View>
 
         <TouchableOpacity
           style={tw`bg-black py-4 px-4 justify-center items-center w-2/6`}
-          onPress={() => console.log("Proceed to Payment")}
+          onPress={handleSubmit}
+          disabled={isLoading || !selectedAddress || !selectedMethod}
         >
           <Text
             style={[tw`text-white text-center`, { fontFamily: "REM_bold" }]}
           >
-            ĐẶT HÀNG
+            {isLoading ? "Đang xử lý..." : "ĐẶT HÀNG"}
           </Text>
         </TouchableOpacity>
       </View>

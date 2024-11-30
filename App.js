@@ -16,6 +16,7 @@ import ComicDetail from "./src/screens/ComicDetail";
 import Profile from "./src/screens/Profile";
 import Cart from "./src/screens/Cart";
 import Checkout from "./src/screens/Checkout";
+import OrderComplete from "./src/screens/OrderComplete";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -144,6 +145,7 @@ export default function App() {
           <Stack.Screen name="ComicDetail" component={ComicDetail} />
           <Stack.Screen name="Cart" component={Cart} />
           <Stack.Screen name="Checkout" component={Checkout} />
+          <Stack.Screen name="OrderComplete" component={OrderComplete} />
         </Stack.Navigator>
       </SafeAreaProvider>
     </NavigationContainer>
