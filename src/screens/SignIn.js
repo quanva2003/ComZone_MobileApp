@@ -53,7 +53,7 @@ const SignIn = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Image
-          source={require("../../assets/hcn-logo.png")}
+          source={require("../../assets/square-logo.png")}
           style={styles.imageHeader}
         />
         <Text style={styles.subHeader}>Đăng nhập</Text>
@@ -132,8 +132,8 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   imageHeader: {
-    height: 100,
-    width: 300,
+    height: 150,
+    width: 150,
   },
   subHeader: {
     fontSize: 20,
