@@ -17,6 +17,7 @@ import Profile from "./src/screens/Profile";
 import Cart from "./src/screens/Cart";
 import Checkout from "./src/screens/Checkout";
 import OrderComplete from "./src/screens/OrderComplete";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -129,26 +130,28 @@ export default function App() {
     return null;
   }
   return (
-    <NavigationContainer>
-      <SafeAreaProvider>
-        <StatusBar style="auto" />
-        <Stack.Navigator
-          screenOptions={{
-            headerShown: false,
-            contentStyle: { marginTop: 25 },
-          }}
-          initialRouteName="SignIn"
-        >
-          <Stack.Screen name="SignIn" component={SignIn} />
-          <Stack.Screen name="SignUp" component={SignUp} />
-          <Stack.Screen name="Main" component={MainTabs} />
-          <Stack.Screen name="ComicDetail" component={ComicDetail} />
-          <Stack.Screen name="Cart" component={Cart} />
-          <Stack.Screen name="Checkout" component={Checkout} />
-          <Stack.Screen name="OrderComplete" component={OrderComplete} />
-        </Stack.Navigator>
-      </SafeAreaProvider>
-    </NavigationContainer>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <NavigationContainer>
+        <SafeAreaProvider>
+          <StatusBar style="auto" />
+          <Stack.Navigator
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { marginTop: 25 },
+            }}
+            initialRouteName="OrderComplete"
+          >
+            <Stack.Screen name="SignIn" component={SignIn} />
+            <Stack.Screen name="SignUp" component={SignUp} />
+            <Stack.Screen name="Main" component={MainTabs} />
+            <Stack.Screen name="ComicDetail" component={ComicDetail} />
+            <Stack.Screen name="Cart" component={Cart} />
+            <Stack.Screen name="Checkout" component={Checkout} />
+            <Stack.Screen name="OrderComplete" component={OrderComplete} />
+          </Stack.Navigator>
+        </SafeAreaProvider>
+      </NavigationContainer>
+    </GestureHandlerRootView>
   );
 }
 
