@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -16,6 +16,8 @@ import CurrentAddress from "../components/address/CurrentAddress";
 import Svg, { Circle, Path } from "react-native-svg";
 import PaymentMethod from "../components/checkout/PaymentMethod";
 import CurrencySplitter from "../assistants/Spliter";
+import PaymentDetail from "../components/checkout/PaymentDetail";
+import BottomSheet, { BottomSheetTextInput } from "@gorhom/bottom-sheet";
 
 const Checkout = ({ route, navigation }) => {
   const { selectedComics } = route.params || { selectedComics: [] };
@@ -27,6 +29,33 @@ const Checkout = ({ route, navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
   const [selectedMethod, setSelectedMethod] = useState(null);
+  const [deliveryDetails, setDeliveryDetails] = useState([]);
+  const [sellerDetailsGroup, setSellerDetailsGroup] = useState([]);
+  const [totalDeliveryPrice, setTotalDeliveryPrice] = useState(0);
+  const [isInvalidOrder, setIsInvalidOrder] = useState(false);
+  const [notes, setNotes] = useState({});
+  const bottomSheetRef = useRef(null);
+  const [currentNoteSellerId, setCurrentNoteSellerId] = useState(null);
+  const snapPoints = useMemo(() => ["25%"], []);
+  const openNoteBottomSheet = (sellerId) => {
+    console.log("Opening bottom sheet for seller", sellerId);
+    setCurrentNoteSellerId(sellerId);
+
+    // Try different methods to open
+    if (bottomSheetRef.current) {
+      bottomSheetRef.current.expand(); // Another method
+    } else {
+      console.error("Bottom sheet ref is null");
+    }
+  };
+
+  const saveSellerNote = () => {
+    if (currentNoteSellerId) {
+      bottomSheetRef.current?.close();
+      setCurrentNoteSellerId(null);
+    }
+  };
+
   const currentUserAddress = async () => {
     if (token) {
       try {
@@ -81,6 +110,115 @@ const Checkout = ({ route, navigation }) => {
     }, {});
   };
 
+  const fetchDeliveryDetails = async () => {
+    if (!selectedAddress) {
+      setIsLoading(false);
+    } else {
+      setIsLoading(true);
+      setDeliveryDetails([]);
+      setSellerDetailsGroup([]);
+      setTotalDeliveryPrice(0);
+      setIsInvalidOrder(false);
+
+      const groupedSelectedComics = selectedComics.reduce((acc, comic) => {
+        const sellerId = comic.sellerId.id;
+        if (!acc[sellerId]) {
+          acc[sellerId] = {
+            comics: [],
+          };
+        }
+        acc[sellerId].comics.push({
+          comic,
+          currentPrice: comic.price,
+        });
+        return acc;
+      }, {});
+      console.log("asdjalkjsdklajklsdjlkajds", groupedSelectedComics);
+
+      try {
+        const deliveryDetailsPromises = Object.keys(groupedSelectedComics).map(
+          async (sellerId) => {
+            const sellerDetails = await axios.get(
+              `${process.env.BASE_URL}seller-details/user/${sellerId}`,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+            console.log("seller details", sellerDetails);
+            setSellerDetailsGroup((prev) => [...prev, sellerDetails.data]);
+
+            const sellerAddress = {
+              district: sellerDetails.data.district.id,
+              ward: sellerDetails.data.ward.id,
+            };
+
+            if (sellerDetails && selectedAddress) {
+              try {
+                // Use complete URL for deliveries endpoint
+                const res = await axios.post(
+                  `${process.env.BASE_URL}deliveries/details`,
+                  {
+                    fromDistrict: sellerAddress.district,
+                    fromWard: sellerAddress.ward,
+                    toDistrict: selectedAddress.district.id,
+                    toWard: selectedAddress.ward.id,
+                    comicsQuantity:
+                      groupedSelectedComics[sellerId].comics.length,
+                  },
+                  {
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
+                  }
+                );
+
+                return {
+                  sellerId: sellerId,
+                  deliveryFee: parseInt(res.data.deliveryFee),
+                  estDeliveryTime: res.data.estDeliveryTime,
+                };
+              } catch (err) {
+                console.log(err);
+                Alert.alert(
+                  "Lỗi",
+                  "Địa chỉ không phù hợp! Thông tin địa chỉ không hợp lệ hoặc ngoài vùng giao hàng của chúng tôi! Vui lòng sử dụng địa chỉ nhận hàng khác!"
+                );
+                setIsInvalidOrder(true);
+                return null;
+              }
+            }
+            return null;
+          }
+        );
+
+        const deliveryDetails = await Promise.all(deliveryDetailsPromises);
+
+        // Filter out null values and update state
+        const validDeliveryDetails = deliveryDetails.filter(
+          (detail) => detail !== null
+        );
+        setDeliveryDetails(validDeliveryDetails);
+
+        // Calculate total delivery price
+        const totalPrice = validDeliveryDetails.reduce(
+          (sum, detail) => sum + detail.deliveryFee,
+          0
+        );
+        setTotalDeliveryPrice(totalPrice);
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchDeliveryDetails();
+  }, [selectedAddress]);
+
   const groupedComics = groupBySeller(selectedComics);
   const handleSubmit = async () => {
     // Validate inputs
@@ -134,23 +272,24 @@ const Checkout = ({ route, navigation }) => {
         );
 
         // done
-        // const resUserAddress = await axios.post(
-        //   `${process.env.BASE_URL}delivery-information`,
-        //   {
-        //     name: selectedAddress.fullName,
-        //     phone: selectedAddress.phone,
-        //     provinceId: selectedAddress.province.id,
-        //     districtId: selectedAddress.district.id,
-        //     wardId: selectedAddress.ward.id,
-        //     address: selectedAddress.detailedAddress,
-        //   },
-        //   {
-        //     headers: {
-        //       Authorization: `Bearer ${token}`,
-        //     },
-        //   }
-        // );
+        const newUserDeliveryInfo = await axios.post(
+          `${process.env.BASE_URL}delivery-information`,
+          {
+            name: selectedAddress.fullName,
+            phone: selectedAddress.phone,
+            provinceId: selectedAddress.province.id,
+            districtId: selectedAddress.district.id,
+            wardId: selectedAddress.ward.id,
+            address: selectedAddress.detailedAddress,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         console.log("sellerid", sellerId);
+        console.log("done new user delivery info");
         const fetchSellerAddress = await axios.get(
           `${process.env.BASE_URL}seller-details/user/${sellerId}`,
           {
@@ -161,7 +300,7 @@ const Checkout = ({ route, navigation }) => {
         );
         console.log("asdasd", fetchSellerAddress.data);
         const sellerDetails = fetchSellerAddress.data;
-        const resSellerAddress = await axios.post(
+        const newSellerDeliveryInfo = await axios.post(
           `${process.env.BASE_URL}delivery-information`,
           {
             name: sellerDetails.name,
@@ -177,14 +316,14 @@ const Checkout = ({ route, navigation }) => {
             },
           }
         );
-        console.log("done");
+        console.log("done new seller delivery info");
 
         // Create delivery
         const resDelivery = await axios.post(
           `${process.env.BASE_URL}deliveries/order`,
           {
-            fromAddressId: resSellerAddress.data.id,
-            toAddressId: resUserAddress.data.id,
+            fromAddressId: newUserDeliveryInfo.data.id,
+            toAddressId: newSellerDeliveryInfo.data.id,
           },
           {
             headers: {
@@ -192,6 +331,7 @@ const Checkout = ({ route, navigation }) => {
             },
           }
         );
+        console.log("done delivery order");
 
         // Determine order type
         const orderType = sellerGroup.comics.some(
@@ -218,7 +358,7 @@ const Checkout = ({ route, navigation }) => {
             },
           }
         );
-
+        console.log("done create order");
         const orderId = resOrder.data.id;
 
         // Create order items
@@ -240,7 +380,7 @@ const Checkout = ({ route, navigation }) => {
           orderedComicIds.push(comic.id);
         }
       }
-
+      console.log("done create order items");
       const cartData = await AsyncStorage.getItem("cart");
       if (cartData) {
         let parsedCart = JSON.parse(cartData);
@@ -290,6 +430,8 @@ const Checkout = ({ route, navigation }) => {
     calculateTotalPrice();
   }, [token, selectedComics]);
   console.log(userInfo);
+  console.log("delivery detail", deliveryDetails);
+  console.log("total deli", totalDeliveryPrice);
   return (
     <View style={tw`flex-1`}>
       {/* Header */}
@@ -416,6 +558,30 @@ const Checkout = ({ route, navigation }) => {
                   </View>
                 </View>
               ))}
+              <View style={tw`p-2 border-t border-gray-200`}>
+                <TouchableOpacity
+                  onPress={() => openNoteBottomSheet(sellerId)}
+                  style={tw`flex-row items-center justify-between`}
+                >
+                  <View style={tw`flex-row items-center`}>
+                    <Ionicons
+                      name="chatbubble-outline"
+                      size={20}
+                      style={tw`mr-2`}
+                    />
+                    <Text style={tw`text-base`}>
+                      {notes[sellerId]
+                        ? `Ghi chú: ${notes[sellerId]}`
+                        : "Thêm ghi chú cho người bán"}
+                    </Text>
+                  </View>
+                  {notes[sellerId] ? (
+                    <Ionicons name="create-outline" size={20} />
+                  ) : (
+                    <Ionicons name="add-outline" size={20} />
+                  )}
+                </TouchableOpacity>
+              </View>
             </View>
           ))
         )}
@@ -436,7 +602,53 @@ const Checkout = ({ route, navigation }) => {
             )
           )}
         </View>
+        <View style={tw`my-3`}>
+          {isLoading ? (
+            <View style={tw`flex-1 items-center justify-center p-4`}>
+              <ActivityIndicator size="large" color="#000" />
+            </View>
+          ) : (
+            userInfo &&
+            totalPrice && (
+              <PaymentDetail
+                totalPrice={totalPrice}
+                totalDeliveryPrice={totalDeliveryPrice}
+              />
+            )
+          )}
+        </View>
         <View style={tw`h-6`}></View>
+        <BottomSheet
+          ref={bottomSheetRef}
+          index={-1}
+          snapPoints={snapPoints}
+          enablePanDownToClose
+        >
+          <View style={tw`p-4`}>
+            <Text style={[tw`text-xl mb-3`, { fontFamily: "REM_bold" }]}>
+              Ghi chú cho đơn hàng
+            </Text>
+            <BottomSheetTextInput
+              multiline
+              numberOfLines={4}
+              value={notes[currentNoteSellerId] || ""}
+              onChangeText={(text) =>
+                setNotes((prev) => ({
+                  ...prev,
+                  [currentNoteSellerId]: text,
+                }))
+              }
+              placeholder="Nhập ghi chú cho người bán (không bắt buộc)"
+              style={tw`border border-gray-300 rounded-md p-2 h-24`}
+            />
+            <TouchableOpacity
+              onPress={saveSellerNote}
+              style={tw`bg-black py-3 rounded-md mt-3`}
+            >
+              <Text style={tw`text-white text-center`}>Lưu ghi chú</Text>
+            </TouchableOpacity>
+          </View>
+        </BottomSheet>
       </ScrollView>
 
       {/* Footer */}
@@ -448,7 +660,7 @@ const Checkout = ({ route, navigation }) => {
             Tổng thanh toán:
           </Text>
           <Text style={[tw`text-xl`, { fontFamily: "REM_bold" }]}>
-            {CurrencySplitter(totalPrice)} đ
+            {CurrencySplitter(totalPrice + totalDeliveryPrice)} đ
           </Text>
         </View>
 
