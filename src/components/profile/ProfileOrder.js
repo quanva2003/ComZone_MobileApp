@@ -2,14 +2,18 @@ import { View, Text, TouchableOpacity } from "react-native";
 import React from "react";
 import tw from "twrnc";
 import Svg, { Circle, Path } from "react-native-svg";
+import { useNavigation } from "@react-navigation/native";
 
 const ProfileOrder = () => {
+  const navigate = useNavigation();
   return (
     <View style={tw`bg-neutral-300 px-5 pt-3 pb-5 flex flex-col gap-2`}>
       <Text style={[tw`text-lg`, { fontFamily: "REM_bold" }]}>ĐƠN MUA</Text>
       <View style={tw`bg-white rounded-3xl w-full p-3 flex flex-col `}>
         <View style={tw`flex flex-row items-stretch justify-between `}>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigate.navigate("OrderManagement")}
+          >
             <View style={tw`flex flex-col items-center px-2`}>
               <Svg
                 xmlns="http://www.w3.org/2000/svg"

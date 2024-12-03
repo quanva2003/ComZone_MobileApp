@@ -429,7 +429,7 @@ const Checkout = ({ route, navigation }) => {
     }
     calculateTotalPrice();
   }, [token, selectedComics]);
-  console.log(userInfo);
+  console.log("token", token);
   console.log("delivery detail", deliveryDetails);
   console.log("total deli", totalDeliveryPrice);
   return (
@@ -461,7 +461,10 @@ const Checkout = ({ route, navigation }) => {
               <ActivityIndicator size="large" color="#000" />
             </View>
           ) : selectedAddress ? (
-            <TouchableOpacity style={tw`p-3 flex flex-row gap-2`}>
+            <TouchableOpacity
+              style={tw`p-3 flex flex-row gap-2`}
+              onPress={() => navigation.navigate("AddressList")}
+            >
               <Svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
