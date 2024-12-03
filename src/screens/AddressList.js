@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import tw from "twrnc";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -15,17 +15,18 @@ import { Ionicons } from "@expo/vector-icons";
 
 const AddressList = () => {
   const navigation = useNavigation();
+  const route = useRoute();
   const [addresses, setAddresses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
+  const { selectedAddress } = route.params || {};
   const MAX_ADDRESSES = 3;
 
   const fetchAddresses = async () => {
     try {
       setLoading(true);
       const token = await AsyncStorage.getItem("token");
-      console.log(token);
       const resUserAddress = await axios.get(
         `${process.env.BASE_URL}user-addresses/user`,
         {
@@ -34,11 +35,6 @@ const AddressList = () => {
           },
         }
       );
-      console.log(
-        "Raw address data:",
-        JSON.stringify(resUserAddress.data, null, 2)
-      );
-
       setAddresses(resUserAddress.data);
     } catch (err) {
       setError(err.message);
@@ -50,10 +46,35 @@ const AddressList = () => {
   useEffect(() => {
     fetchAddresses();
   }, []);
+  useEffect(() => {
+    if (selectedAddress) {
+      console.log("b", selectedAddress.id);
+
+      setSelectedAddressId(selectedAddress.id);
+    }
+  }, [selectedAddress]);
+  const handleSelectAddress = (address) => {
+    setSelectedAddressId(address.id);
+    console.log(address);
+
+    // Navigate back to Checkout with selected address
+    navigation.navigate({
+      name: "Checkout",
+      params: { selectedAddress: address },
+      merge: true,
+    });
+  };
 
   const renderAddressItem = ({ item }) => {
+    const isSelected = item.id === selectedAddressId;
     return (
-      <View style={tw`p-3 flex flex-row gap-2 bg-white mb-3 rounded-lg`}>
+      <TouchableOpacity
+        onPress={() => handleSelectAddress(item)}
+        style={[
+          tw`p-3 flex flex-row gap-2 bg-white mb-3 rounded-lg`,
+          isSelected ? tw`border-2 border-black` : tw`border-2 border-white`,
+        ]}
+      >
         <Svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -98,13 +119,10 @@ const AddressList = () => {
             {item.fullAddress}
           </Text>
         </View>
-
-        <View>
-          <Text style={[tw`text-sm`, { fontFamily: "REM_regular" }]}>Sửa</Text>
-        </View>
-      </View>
+      </TouchableOpacity>
     );
   };
+
   return (
     <View style={tw`flex-1 bg-gray-100`}>
       <View style={tw`bg-black py-5 shadow-lg`}>

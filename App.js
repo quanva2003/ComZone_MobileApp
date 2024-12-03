@@ -20,6 +20,7 @@ import OrderComplete from "./src/screens/OrderComplete";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import OrderManagement from "./src/screens/OrderManagement";
 import AddressList from "./src/screens/AddressList";
+import WalletDeposit from "./src/screens/WalletDeposit";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -152,6 +153,7 @@ export default function App() {
             <Stack.Screen name="OrderComplete" component={OrderComplete} />
             <Stack.Screen name="OrderManagement" component={OrderManagement} />
             <Stack.Screen name="AddressList" component={AddressList} />
+            <Stack.Screen name="WalletDeposit" component={WalletDeposit} />
           </Stack.Navigator>
         </SafeAreaProvider>
       </NavigationContainer>

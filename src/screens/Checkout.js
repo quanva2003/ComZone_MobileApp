@@ -18,6 +18,7 @@ import PaymentMethod from "../components/checkout/PaymentMethod";
 import CurrencySplitter from "../assistants/Spliter";
 import PaymentDetail from "../components/checkout/PaymentDetail";
 import BottomSheet, { BottomSheetTextInput } from "@gorhom/bottom-sheet";
+import { useRoute } from "@react-navigation/native";
 
 const Checkout = ({ route, navigation }) => {
   const { selectedComics } = route.params || { selectedComics: [] };
@@ -424,14 +425,23 @@ const Checkout = ({ route, navigation }) => {
   }, []);
 
   useEffect(() => {
+    console.log("NEW TOKEN SET:", token);
     if (token) {
       currentUserAddress();
     }
     calculateTotalPrice();
   }, [token, selectedComics]);
+  useEffect(() => {
+    // Check if there is a new selectedAddress coming from AddressList screen
+    if (route.params?.selectedAddress) {
+      setSelectedAddress(route.params.selectedAddress); // Update selected address
+    }
+  }, [route.params?.selectedAddress]);
   console.log("token", token);
   console.log("delivery detail", deliveryDetails);
   console.log("total deli", totalDeliveryPrice);
+  console.log("selected address:", selectedAddress);
+
   return (
     <View style={tw`flex-1`}>
       {/* Header */}
@@ -463,7 +473,11 @@ const Checkout = ({ route, navigation }) => {
           ) : selectedAddress ? (
             <TouchableOpacity
               style={tw`p-3 flex flex-row gap-2`}
-              onPress={() => navigation.navigate("AddressList")}
+              onPress={() =>
+                navigation.navigate("AddressList", {
+                  selectedAddress: selectedAddress,
+                })
+              }
             >
               <Svg
                 xmlns="http://www.w3.org/2000/svg"
