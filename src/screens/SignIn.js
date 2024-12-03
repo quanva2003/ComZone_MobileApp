@@ -21,6 +21,8 @@ const SignIn = () => {
     axios.get(`${process.env.BASE_URL}auth/google/login`);
   };
   const logInAccount = async () => {
+    await AsyncStorage.removeItem("token", token);
+
     const responseLogin = await axios.post(
       `${process.env.BASE_URL}auth/login`,
       {
