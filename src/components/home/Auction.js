@@ -50,7 +50,7 @@ const Auction = () => {
         >
           {item.comics.title}
         </Text>
-        <Text
+        {/* <Text
           style={[tw`text-xs text-gray-500`, { fontFamily: "REM_regular" }]}
         >
           {item.comics.sellerId.name}
@@ -60,7 +60,7 @@ const Auction = () => {
           <Text style={[tw`text-sm`, { fontFamily: "REM_bold" }]}>
             {CurrencySplitter(item.currentPrice)}đ
           </Text>
-        </View>
+        </View> */}
         <View style={tw`flex-col gap-2 mt-2 items-center`}>
           <Text
             style={[tw`text-xs text-gray-500`, { fontFamily: "REM_regular" }]}
