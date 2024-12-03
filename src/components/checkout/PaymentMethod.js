@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import tw from "twrnc";
 import Svg, { Circle, Path, Rect } from "react-native-svg";
 import CurrencySplitter from "../../assistants/Spliter";
+import { useNavigation } from "@react-navigation/native";
 
 const PaymentMethod = ({
   userInfo,
@@ -22,7 +23,7 @@ const PaymentMethod = ({
       isDisabled: false,
     },
   ];
-
+  const navigate = useNavigation();
   const handleSelectMethod = (methodId) => {
     setSelectedMethod(methodId);
   };
@@ -96,7 +97,10 @@ const PaymentMethod = ({
         ))}
 
         {userInfo.balance < totalPrice && (
-          <TouchableOpacity style={tw`p-2 border rounded-lg bg-sky-800 mt-3`}>
+          <TouchableOpacity
+            style={tw`p-2 border rounded-lg bg-sky-800 mt-3`}
+            onPress={() => navigate.navigate("WalletDeposit", { userInfo })}
+          >
             <Text
               style={[
                 tw`text-base text-white text-center`,
