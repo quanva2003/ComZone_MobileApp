@@ -18,6 +18,8 @@ import Cart from "./src/screens/Cart";
 import Checkout from "./src/screens/Checkout";
 import OrderComplete from "./src/screens/OrderComplete";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import OrderManagement from "./src/screens/OrderManagement";
+import AddressList from "./src/screens/AddressList";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -139,7 +141,7 @@ export default function App() {
               headerShown: false,
               contentStyle: { marginTop: 25 },
             }}
-            initialRouteName="OrderComplete"
+            initialRouteName="SignIn"
           >
             <Stack.Screen name="SignIn" component={SignIn} />
             <Stack.Screen name="SignUp" component={SignUp} />
@@ -148,6 +150,8 @@ export default function App() {
             <Stack.Screen name="Cart" component={Cart} />
             <Stack.Screen name="Checkout" component={Checkout} />
             <Stack.Screen name="OrderComplete" component={OrderComplete} />
+            <Stack.Screen name="OrderManagement" component={OrderManagement} />
+            <Stack.Screen name="AddressList" component={AddressList} />
           </Stack.Navigator>
         </SafeAreaProvider>
       </NavigationContainer>

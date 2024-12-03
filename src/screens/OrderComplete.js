@@ -7,7 +7,7 @@ import { Ionicons } from "@expo/vector-icons"; // Icon library
 const OrderComplete = () => {
   const navigation = useNavigation();
   const handleNavigateToHome = () => {
-    navigation.navigate("Home");
+    navigation.navigate("Main");
   };
 
   return (
