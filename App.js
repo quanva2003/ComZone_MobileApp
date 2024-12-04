@@ -21,6 +21,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import OrderManagement from "./src/screens/OrderManagement";
 import AddressList from "./src/screens/AddressList";
 import WalletDeposit from "./src/screens/WalletDeposit";
+import AuctionDetail from "./src/screens/AuctionDetail";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -148,6 +149,7 @@ export default function App() {
             <Stack.Screen name="SignUp" component={SignUp} />
             <Stack.Screen name="Main" component={MainTabs} />
             <Stack.Screen name="ComicDetail" component={ComicDetail} />
+            <Stack.Screen name="AuctionDetail" component={AuctionDetail} />
             <Stack.Screen name="Cart" component={Cart} />
             <Stack.Screen name="Checkout" component={Checkout} />
             <Stack.Screen name="OrderComplete" component={OrderComplete} />

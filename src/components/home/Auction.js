@@ -11,10 +11,12 @@ import tw from "twrnc";
 import axios from "axios";
 import CurrencySplitter from "../../assistants/Spliter";
 import CountDown from "react-native-countdown-component";
+import { useNavigation } from "@react-navigation/native";
 
 const Auction = () => {
   const [ongoingAuctions, setOngoingAuctions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigation();
   const fetchAuctions = async () => {
     try {
       const response = await axios.get(`${process.env.BASE_URL}auction`);
@@ -92,7 +94,12 @@ const Auction = () => {
           />
         </View>
         <View style={tw`mt-3 flex items-center w-full`}>
-          <TouchableOpacity style={tw`bg-black py-1 px-3 rounded-md `}>
+          <TouchableOpacity
+            style={tw`bg-black py-1 px-3 rounded-md `}
+            onPress={() =>
+              navigate.navigate("AuctionDetail", { auction: item })
+            }
+          >
             <Text style={[tw`text-white text-xs`, { fontFamily: "REM" }]}>
               XEM CHI TIẾT
             </Text>
