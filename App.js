@@ -21,6 +21,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import OrderManagement from "./src/screens/OrderManagement";
 import AddressList from "./src/screens/AddressList";
 import WalletDeposit from "./src/screens/WalletDeposit";
+import AuctionDetail from "./src/screens/AuctionDetail";
 import socket, { connectSocket } from "./src/utils/socket";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -124,9 +125,9 @@ export default function App() {
         console.log("userId", userId);
 
         if (token && userId) {
-          const url = process.env.BASE_URL; // Ensure this environment variable is set
-          const socketInstance = await connectSocket(url); // Wait for the socket to connect
-          socketInstance.emit("joinRoom", userId); // Emit event after ensuring socket is ready
+          const url = process.env.BASE_URL;
+          const socketInstance = await connectSocket(url);
+          socketInstance.emit("joinRoom", userId);
         }
       } catch (error) {
         console.error("Error fetching token or userId:", error);
