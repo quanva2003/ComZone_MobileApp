@@ -13,8 +13,10 @@ import { Ionicons } from "@expo/vector-icons";
 import tw from "twrnc";
 import CurrencySplitter from "../assistants/Spliter";
 import { Icon } from "react-native-elements";
+import CountDown from "react-native-countdown-component";
 // import ComicsOfSeller from "../components/AuctionDetail/ComicsOfSeller";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import CustomCountDown from "../components/countdown/CustomCountdown";
 
 // Utility functions for cart management
 const getCart = async () => {
@@ -40,6 +42,9 @@ const AuctionDetail = ({ route }) => {
   const { auction } = route.params;
   console.log("auction", auction);
   console.log("asdasd", auction.comics.coverImage);
+  const endTime = auction?.endTime
+    ? new Date(auction.endTime).getTime()
+    : Date.now(); // Fallback to prevent errors
 
   const allImages = [
     auction.comics.coverImage,
@@ -169,6 +174,41 @@ const AuctionDetail = ({ route }) => {
           </View> */}
         </View>
 
+        <View style={tw`flex-col gap-2 mt-2 items-center`}>
+          <Text
+            style={[
+              tw`text-xs text-gray-500`,
+              { fontFamily: "REM_regular" || "System" },
+            ]}
+          >
+            Thời gian còn lại:{" "}
+          </Text>
+
+          <CustomCountDown endTime={new Date(auction?.endTime).getTime()} />
+          {/* <CountDown
+            until={(endTime - Date.now()) / 1000}
+            size={16}
+            onFinish={() => console.log("Auction ended")}
+            digitStyle={{
+              backgroundColor: "white",
+              borderWidth: 1,
+              borderColor: "#ccc",
+              borderRadius: 5,
+            }}
+            digitTxtStyle={{ color: "black" }}
+            timeLabelStyle={{
+              color: "grey",
+              fontWeight: "semi-bold",
+              fontSize: 16,
+              fontFamily: "REM",
+            }}
+            separatorStyle={{
+              color: "black",
+            }}
+            timeToShow={["H", "M", "S"]}
+            timeLabels={{ d: "Ngày", h: "Giờ", m: "Phút", s: "Giây" }}
+          /> */}
+        </View>
         {/* Description */}
         <View style={tw`px-4 py-2`}>
           <Text style={[tw`text-lg`, { fontFamily: "REM_bold" }]}>

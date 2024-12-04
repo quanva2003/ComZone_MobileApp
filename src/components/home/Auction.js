@@ -6,12 +6,14 @@ import {
   Image,
   FlatList,
   ActivityIndicator,
+  AppState,
 } from "react-native";
 import tw from "twrnc";
 import axios from "axios";
 import CurrencySplitter from "../../assistants/Spliter";
 import CountDown from "react-native-countdown-component";
 import { useNavigation } from "@react-navigation/native";
+import CustomCountDown from "../countdown/CustomCountdown";
 
 const Auction = () => {
   const [ongoingAuctions, setOngoingAuctions] = useState([]);
@@ -63,7 +65,7 @@ const Auction = () => {
             {CurrencySplitter(item.currentPrice)}đ
           </Text>
         </View> */}
-        <View style={tw`flex-col gap-2 mt-2 items-center`}>
+        {/* <View style={tw`flex-col gap-2 mt-2 items-center`}>
           <Text
             style={[tw`text-xs text-gray-500`, { fontFamily: "REM_regular" }]}
           >
@@ -92,7 +94,9 @@ const Auction = () => {
             timeToShow={["H", "M", "S"]}
             timeLabels={{ d: "Ngày", h: "Giờ", m: "Phút", s: "Giây" }}
           />
-        </View>
+          
+        </View> */}
+        <CustomCountDown endTime={new Date(item?.endTime).getTime()} />
         <View style={tw`mt-3 flex items-center w-full`}>
           <TouchableOpacity
             style={tw`bg-black py-1 px-3 rounded-md `}

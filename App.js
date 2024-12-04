@@ -1,7 +1,7 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import { AppState, StyleSheet, Text, View } from "react-native";
 import Home from "./src/screens/Home";
 import Exchange from "./src/screens/Exchange";
 import { NavigationContainer } from "@react-navigation/native";
@@ -179,6 +179,7 @@ export default function App() {
             <Stack.Screen name="SignUp" component={SignUp} />
             <Stack.Screen name="Main" component={MainTabs} />
             <Stack.Screen name="ComicDetail" component={ComicDetail} />
+            <Stack.Screen name="AuctionDetail" component={AuctionDetail} />
             <Stack.Screen name="Cart" component={Cart} />
             <Stack.Screen name="Checkout" component={Checkout} />
             <Stack.Screen name="OrderComplete" component={OrderComplete} />
