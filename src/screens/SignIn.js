@@ -30,9 +30,10 @@ const SignIn = () => {
         password,
       }
     );
-    const token = responseLogin.data.accessToken;
-    console.log("TOKEN", token);
+    console.log(responseLogin.data.id);
 
+    const token = responseLogin.data.accessToken;
+    AsyncStorage.setItem("userId", responseLogin.data.id);
     await AsyncStorage.setItem("token", token);
     console.log("Login Successful, Token Saved");
     if (token) {
