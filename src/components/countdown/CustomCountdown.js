@@ -28,12 +28,49 @@ const CustomCountDown = ({ endTime }) => {
       "0"
     );
     const seconds = String(totalSeconds % 60).padStart(2, "0");
-    return `${hours}:${minutes}:${seconds}`;
+    return { hours, minutes, seconds };
   };
+  const time = formatTime(timeRemaining);
 
   return (
-    <View style={tw`flex-col items-center`}>
-      <Text style={tw`text-lg text-gray-800`}>{formatTime(timeRemaining)}</Text>
+    <View style={tw`flex-row items-center gap-3 mt-2`}>
+      <View style={tw`flex-col items-center gap-2`}>
+        <View
+          style={tw`p-1 bg-white border border-gray-300 rounded-lg w-10 h-10 flex items-center justify-between`}
+        >
+          <Text style={[tw`text-lg`, { fontFamily: "REM_bold" }]}>
+            {String(time.hours)}
+          </Text>
+        </View>
+        <Text style={[tw`text-xs text-white`, { fontFamily: "REM_bold" }]}>
+          Giờ
+        </Text>
+      </View>
+      <View style={tw`flex-col items-center gap-2`}>
+        <View
+          style={tw`p-1 bg-white border border-gray-300 rounded-lg w-10 h-10 flex items-center justify-between`}
+        >
+          <Text style={[tw`text-lg`, { fontFamily: "REM_bold" }]}>
+            {String(time.minutes)}
+          </Text>
+        </View>
+        <Text style={[tw`text-xs text-white`, { fontFamily: "REM_bold" }]}>
+          Phút
+        </Text>
+      </View>
+      <View style={tw`flex-col items-center gap-2`}>
+        <View
+          style={tw`p-1 bg-white border border-gray-300 rounded-lg w-10 h-10 flex items-center justify-between`}
+        >
+          <Text style={[tw`text-lg`, { fontFamily: "REM_bold" }]}>
+            {String(time.seconds)}
+          </Text>
+        </View>
+        <Text style={[tw`text-xs text-white`, { fontFamily: "REM_bold" }]}>
+          Giây
+        </Text>
+      </View>
+      {/* <Text style={tw`text-lg text-gray-800`}>{formatTime(timeRemaining)}</Text> */}
     </View>
   );
 };

@@ -50,7 +50,7 @@ const Auction = () => {
         />
         <Text
           style={[tw`text-sm mt-2 text-gray-800`, { fontFamily: "REM" }]}
-          numberOfLines={1}
+          numberOfLines={2}
         >
           {item.comics.title}
         </Text>
