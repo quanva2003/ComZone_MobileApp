@@ -28,11 +28,7 @@ import { CartProvider } from "./src/context/CartContext";
 import SearchResults from "./src/screens/SearchResult";
 import Auction from "./src/screens/Auction";
 import Comic from "./src/screens/Comic";
-import { CartProvider } from "./src/context/CartContext";
-import SearchResults from "./src/screens/SearchResult";
-import Auction from "./src/screens/Auction";
-import Comic from "./src/screens/Comic";
-
+import { io } from "socket.io-client";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 SplashScreen.preventAutoHideAsync();
@@ -65,7 +61,6 @@ const MainTabs = () => {
       <Tab.Screen
         name="Đấu giá"
         component={Auction}
-        component={Auction}
         options={{
           tabBarIcon: ({ color, focused }) => (
             <Icon
@@ -79,7 +74,6 @@ const MainTabs = () => {
       />
       <Tab.Screen
         name="Truyện tranh"
-        component={Comic}
         component={Comic}
         options={{
           tabBarIcon: ({ color, focused }) => (
@@ -111,34 +105,34 @@ const MainTabs = () => {
 };
 
 export default function App() {
-  useEffect(() => {
-    const initializeSocket = async () => {
-      try {
-        const token = await AsyncStorage.getItem("token");
-        const userId = await AsyncStorage.getItem("userId");
+  // useEffect(() => {
+  //   const initializeSocket = async () => {
+  //     try {
+  //       const token = await AsyncStorage.getItem("token");
+  //       const userId = await AsyncStorage.getItem("userId");
 
-        console.log("token", token);
-        console.log("userId", userId);
+  //       console.log("token", token);
+  //       console.log("userId", userId);
 
-        if (token && userId) {
-          const url = process.env.BASE_URL;
-          const socketInstance = await connectSocket(url);
-          socketInstance.emit("joinRoom", userId);
-        }
-      } catch (error) {
-        console.error("Error fetching token or userId:", error);
-      }
-    };
+  //       if (token && userId) {
+  //         const url = process.env.BASE_URL;
+  //         const socketInstance = await connectSocket(url);
+  //         socketInstance.emit("joinRoom", userId);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching token or userId:", error);
+  //     }
+  //   };
 
-    initializeSocket();
+  //   initializeSocket();
 
-    return () => {
-      if (socket?.connected) {
-        socket.disconnect();
-        console.log("Socket disconnected");
-      }
-    };
-  }, []);
+  //   return () => {
+  //     if (socket?.connected) {
+  //       socket.disconnect();
+  //       console.log("Socket disconnected");
+  //     }
+  //   };
+  // }, []);
   const [loaded, error] = useFonts({
     REM: require("./assets/fonts/REM.ttf"),
     REM_italic: require("./assets/fonts/REM-Italic.ttf"),
@@ -161,36 +155,6 @@ export default function App() {
   }
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <CartProvider>
-        <NavigationContainer>
-          <SafeAreaProvider>
-            <StatusBar style="auto" />
-            <Stack.Navigator
-              screenOptions={{
-                headerShown: false,
-                contentStyle: { marginTop: 25 },
-              }}
-              initialRouteName="SignIn"
-            >
-              <Stack.Screen name="SignIn" component={SignIn} />
-              <Stack.Screen name="SignUp" component={SignUp} />
-              <Stack.Screen name="Main" component={MainTabs} />
-              <Stack.Screen name="ComicDetail" component={ComicDetail} />
-              <Stack.Screen name="AuctionDetail" component={AuctionDetail} />
-              <Stack.Screen name="Cart" component={Cart} />
-              <Stack.Screen name="Checkout" component={Checkout} />
-              <Stack.Screen name="OrderComplete" component={OrderComplete} />
-              <Stack.Screen
-                name="OrderManagement"
-                component={OrderManagement}
-              />
-              <Stack.Screen name="AddressList" component={AddressList} />
-              <Stack.Screen name="WalletDeposit" component={WalletDeposit} />
-              <Stack.Screen name="SearchResults" component={SearchResults} />
-            </Stack.Navigator>
-          </SafeAreaProvider>
-        </NavigationContainer>
-      </CartProvider>
       <CartProvider>
         <NavigationContainer>
           <SafeAreaProvider>
