@@ -1,28 +1,32 @@
+// useSocket.js
+import { useState, useEffect } from "react";
 import { io } from "socket.io-client";
 
-let socket;
+const useSocket = () => {
+  const [socket, setSocket] = useState(null);
 
-export const connectSocket = async (url) => {
-  if (!socket || !socket.connected) {
-    socket = io(url, {
-      reconnection: true,
+  useEffect(() => {
+    const socketInstance = io(process.env.BASE_URL); // Adjust to your base URL
+
+    socketInstance.on("connect", () => {
+      console.log("Socket connected:", socketInstance.id);
+      setSocket(socketInstance);
     });
 
-    return new Promise((resolve, reject) => {
-      socket.on("connect", () => {
-        console.log("Socket connected:", socket.id);
-        resolve(socket);
-      });
-
-      socket.on("connect_error", (error) => {
-        console.error("Socket connection error:", error);
-        reject(error);
-      });
+    socketInstance.on("connect_error", (error) => {
+      console.error("Socket connection error:", error);
     });
-  } else {
-    console.log("Socket is already connected:", socket.id);
-    return socket;
-  }
+
+    // Cleanup socket connection on unmount
+    return () => {
+      if (socketInstance) {
+        socketInstance.disconnect();
+        console.log("Socket disconnected");
+      }
+    };
+  }, []);
+
+  return socket;
 };
 
-export default socket;
+export default useSocket;

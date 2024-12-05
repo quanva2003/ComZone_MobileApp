@@ -26,6 +26,8 @@ import CountDown from "react-native-countdown-component";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import CustomCountDown from "../components/countdown/CustomCountdown";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import { io } from "socket.io-client";
+import useSocket from "../utils/socket";
 
 // Utility functions for cart management
 const getCart = async () => {
@@ -63,29 +65,48 @@ const AuctionDetail = ({ route }) => {
   const handleOpenBottomSheet = useCallback(() => {
     bottomSheetRef.current?.snapToIndex(0);
   }, []);
-  const handleSubmitBid = () => {
+  const socket = useSocket(); // Use the socket from custom hook
+
+  const handleSubmitBid = async () => {
     const numericBidPrice = parseFloat(bidPrice.replace(/[^0-9]/g, ""));
     const currentPrice = auction.currentPrice;
 
     if (numericBidPrice <= currentPrice) {
       Alert.alert(
         "Bid Error",
-        `Bid must be higher than current price of ${CurrencySplitter(
+        `Bid must be higher than the current price of ${CurrencySplitter(
           currentPrice
         )} đ`
       );
       return;
     }
 
-    // TODO: Implement actual bid submission logic
-    Alert.alert(
-      "Bid Submitted",
-      `Your bid of ${CurrencySplitter(numericBidPrice)} đ has been placed`
-    );
+    const userId = await AsyncStorage.getItem("userId");
+    const bidPayload = {
+      auctionId: auction.id,
+      userId: userId,
+      price: numericBidPrice,
+    };
+    console.log("bidPayload", bidPayload);
+
+    // Ensure socket is connected before emitting the event
+    if (socket) {
+      socket.emit("placeBid", bidPayload, (response) => {
+        console.log("Bid placed successfully:", response);
+      });
+
+      Alert.alert(
+        "Bid Submitted",
+        `Your bid of ${CurrencySplitter(numericBidPrice)} đ has been placed`
+      );
+    } else {
+      console.error("Socket not connected.");
+    }
 
     // Close bottom sheet after bid
     bottomSheetRef.current?.close();
   };
+
   const endTime = auction?.endTime
     ? new Date(auction.endTime).getTime()
     : Date.now(); // Fallback to prevent errors
@@ -216,7 +237,7 @@ const AuctionDetail = ({ route }) => {
       <View style={tw`w-full flex items-center justify-center py-2`}>
         <TouchableOpacity style={tw`py-2 px-6 rounded-lg bg-black`}>
           <Text style={[tw`text-xl text-white`, { fontFamily: "REM_bold" }]}>
-            MUA NGAY
+            MUA NGAY VỚI GIÁ {auction.maxPrice.toLocaleString("vi-VN")}đ
           </Text>
         </TouchableOpacity>
       </View>

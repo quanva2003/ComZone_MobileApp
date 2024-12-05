@@ -11,7 +11,7 @@ import SignUp from "./src/screens/SignUp";
 import { Icon } from "react-native-elements";
 import * as SplashScreen from "expo-splash-screen";
 import { useFonts } from "expo-font";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import ComicDetail from "./src/screens/ComicDetail";
 import Profile from "./src/screens/Profile";
 import Cart from "./src/screens/Cart";
@@ -24,6 +24,7 @@ import WalletDeposit from "./src/screens/WalletDeposit";
 import AuctionDetail from "./src/screens/AuctionDetail";
 import socket, { connectSocket } from "./src/utils/socket";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { io } from "socket.io-client";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -115,34 +116,6 @@ const MainTabs = () => {
 };
 
 export default function App() {
-  useEffect(() => {
-    const initializeSocket = async () => {
-      try {
-        const token = await AsyncStorage.getItem("token");
-        const userId = await AsyncStorage.getItem("userId");
-
-        console.log("token", token);
-        console.log("userId", userId);
-
-        if (token && userId) {
-          const url = process.env.BASE_URL;
-          const socketInstance = await connectSocket(url);
-          socketInstance.emit("joinRoom", userId);
-        }
-      } catch (error) {
-        console.error("Error fetching token or userId:", error);
-      }
-    };
-
-    initializeSocket();
-
-    return () => {
-      if (socket?.connected) {
-        socket.disconnect();
-        console.log("Socket disconnected");
-      }
-    };
-  }, []);
   const [loaded, error] = useFonts({
     REM: require("./assets/fonts/REM.ttf"),
     REM_italic: require("./assets/fonts/REM-Italic.ttf"),

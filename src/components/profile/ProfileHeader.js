@@ -1,10 +1,35 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, Image, TouchableOpacity, Alert } from "react-native";
 import React from "react";
 import tw from "twrnc";
 import Svg, { Circle, Path } from "react-native-svg";
 import CurrencySplitter from "../../assistants/Spliter";
+import { useNavigation } from "@react-navigation/native";
+import { privateAxios } from "../../middleware/axiosInstance";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ProfileHeader = (currentUser) => {
+  const navigation = useNavigation(); // Call useNavigation inside the component
+
+  const handleLogout = async () => {
+    try {
+      // Call the API to log out the user
+      const response = await privateAxios.post("/auth/logout");
+
+      console.log("re", response);
+
+      // Assuming the logout API returns a success message
+      await AsyncStorage.removeItem("userToken");
+      await AsyncStorage.removeItem("userId");
+
+      // Use the navigation to redirect after logout
+      navigation.navigate("SignIn");
+
+      Alert.alert("Success", "You have logged out successfully!");
+    } catch (error) {
+      console.error("Logout error:", error);
+      Alert.alert("Logout Error", "Something went wrong. Please try again.");
+    }
+  };
   console.log(currentUser);
 
   return (
@@ -22,6 +47,18 @@ const ProfileHeader = (currentUser) => {
           <Text style={[{ fontFamily: "REM_bold" }, tw`text-lg text-white`]}>
             {currentUser.currentUser?.name}
           </Text>
+          <TouchableOpacity onPress={handleLogout}>
+            <View>
+              <Text
+                style={[
+                  { fontFamily: "REM_regular", color: "white" },
+                  tw`text-lg`,
+                ]}
+              >
+                Log out
+              </Text>
+            </View>
+          </TouchableOpacity>
         </View>
         <View>
           <TouchableOpacity>
