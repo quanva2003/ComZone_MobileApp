@@ -28,6 +28,10 @@ import { CartProvider } from "./src/context/CartContext";
 import SearchResults from "./src/screens/SearchResult";
 import Auction from "./src/screens/Auction";
 import Comic from "./src/screens/Comic";
+import { CartProvider } from "./src/context/CartContext";
+import SearchResults from "./src/screens/SearchResult";
+import Auction from "./src/screens/Auction";
+import Comic from "./src/screens/Comic";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -61,6 +65,7 @@ const MainTabs = () => {
       <Tab.Screen
         name="Đấu giá"
         component={Auction}
+        component={Auction}
         options={{
           tabBarIcon: ({ color, focused }) => (
             <Icon
@@ -74,6 +79,7 @@ const MainTabs = () => {
       />
       <Tab.Screen
         name="Truyện tranh"
+        component={Comic}
         component={Comic}
         options={{
           tabBarIcon: ({ color, focused }) => (
@@ -155,6 +161,36 @@ export default function App() {
   }
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
+      <CartProvider>
+        <NavigationContainer>
+          <SafeAreaProvider>
+            <StatusBar style="auto" />
+            <Stack.Navigator
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { marginTop: 25 },
+              }}
+              initialRouteName="SignIn"
+            >
+              <Stack.Screen name="SignIn" component={SignIn} />
+              <Stack.Screen name="SignUp" component={SignUp} />
+              <Stack.Screen name="Main" component={MainTabs} />
+              <Stack.Screen name="ComicDetail" component={ComicDetail} />
+              <Stack.Screen name="AuctionDetail" component={AuctionDetail} />
+              <Stack.Screen name="Cart" component={Cart} />
+              <Stack.Screen name="Checkout" component={Checkout} />
+              <Stack.Screen name="OrderComplete" component={OrderComplete} />
+              <Stack.Screen
+                name="OrderManagement"
+                component={OrderManagement}
+              />
+              <Stack.Screen name="AddressList" component={AddressList} />
+              <Stack.Screen name="WalletDeposit" component={WalletDeposit} />
+              <Stack.Screen name="SearchResults" component={SearchResults} />
+            </Stack.Navigator>
+          </SafeAreaProvider>
+        </NavigationContainer>
+      </CartProvider>
       <CartProvider>
         <NavigationContainer>
           <SafeAreaProvider>
