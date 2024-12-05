@@ -1,4 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   View,
   Text,
@@ -7,6 +13,8 @@ import {
   TouchableOpacity,
   Modal,
   ActivityIndicator,
+  TextInput,
+  Alert,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
@@ -17,6 +25,7 @@ import CountDown from "react-native-countdown-component";
 // import ComicsOfSeller from "../components/AuctionDetail/ComicsOfSeller";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import CustomCountDown from "../components/countdown/CustomCountdown";
+import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 
 // Utility functions for cart management
 const getCart = async () => {
@@ -42,6 +51,41 @@ const AuctionDetail = ({ route }) => {
   const { auction } = route.params;
   console.log("auction", auction);
   console.log("asdasd", auction.comics.coverImage);
+  const bottomSheetRef = useRef(null);
+
+  // Bottom sheet snap points
+  const snapPoints = useMemo(() => ["60%"], []);
+
+  // State for bid input
+  const [bidPrice, setBidPrice] = useState("");
+
+  // Callback to open bottom sheet
+  const handleOpenBottomSheet = useCallback(() => {
+    bottomSheetRef.current?.snapToIndex(0);
+  }, []);
+  const handleSubmitBid = () => {
+    const numericBidPrice = parseFloat(bidPrice.replace(/[^0-9]/g, ""));
+    const currentPrice = auction.currentPrice;
+
+    if (numericBidPrice <= currentPrice) {
+      Alert.alert(
+        "Bid Error",
+        `Bid must be higher than current price of ${CurrencySplitter(
+          currentPrice
+        )} đ`
+      );
+      return;
+    }
+
+    // TODO: Implement actual bid submission logic
+    Alert.alert(
+      "Bid Submitted",
+      `Your bid of ${CurrencySplitter(numericBidPrice)} đ has been placed`
+    );
+
+    // Close bottom sheet after bid
+    bottomSheetRef.current?.close();
+  };
   const endTime = auction?.endTime
     ? new Date(auction.endTime).getTime()
     : Date.now(); // Fallback to prevent errors
@@ -138,116 +182,98 @@ const AuctionDetail = ({ route }) => {
               {auction.comics.sellerId.name}
             </Text>
           </View>
-          {/* <Text
-            style={[
-              tw`text-lg text-red-500 text-3xl my-3`,
-              { fontFamily: "REM_bold" },
-            ]}
-          >
-            {CurrencySplitter(comic.price)} đ
-          </Text> */}
-          {/* <View style={tw`flex-row gap-3 justify-between`}>
-            <TouchableOpacity
-              style={tw`flex-1`}
-              onPress={addToCart}
-              disabled={isInCart}
-            >
-              <View
-                style={tw`flex-row gap-2 border-2 rounded-lg p-3 justify-center ${
-                  isInCart && "bg-emerald-700"
-                }`}
-              >
-                <Icon type="MaterialIcons" name="shopping-cart" size={20} />
-                <Text style={{ fontFamily: "REM" }}>
-                  {isInCart ? "Đã có trong giỏ hàng" : "Thêm vào giỏ hàng"}
-                </Text>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={tw`flex-1`}>
-              <View style={tw`bg-black rounded-lg p-3.7 items-center`}>
-                <Text style={[tw`text-white`, { fontFamily: "REM" }]}>
-                  Mua ngay
-                </Text>
-              </View>
-            </TouchableOpacity>
-          </View> */}
         </View>
 
-        <View style={tw`flex-col gap-2 mt-2 items-center`}>
-          <Text
-            style={[
-              tw`text-xs text-gray-500`,
-              { fontFamily: "REM_regular" || "System" },
-            ]}
-          >
-            Thời gian còn lại:{" "}
-          </Text>
-
-          <CustomCountDown endTime={new Date(auction?.endTime).getTime()} />
-          {/* <CountDown
-            until={(endTime - Date.now()) / 1000}
-            size={16}
-            onFinish={() => console.log("Auction ended")}
-            digitStyle={{
-              backgroundColor: "white",
-              borderWidth: 1,
-              borderColor: "#ccc",
-              borderRadius: 5,
-            }}
-            digitTxtStyle={{ color: "black" }}
-            timeLabelStyle={{
-              color: "grey",
-              fontWeight: "semi-bold",
-              fontSize: 16,
-              fontFamily: "REM",
-            }}
-            separatorStyle={{
-              color: "black",
-            }}
-            timeToShow={["H", "M", "S"]}
-            timeLabels={{ d: "Ngày", h: "Giờ", m: "Phút", s: "Giây" }}
-          /> */}
-        </View>
         {/* Description */}
-        <View style={tw`px-4 py-2`}>
-          <Text style={[tw`text-lg`, { fontFamily: "REM_bold" }]}>
-            Mô tả nội dung
-          </Text>
-          <Text style={[tw`text-sm mt-2`, { fontFamily: "REM_italic" }]}>
-            {auction.comics.description}
-          </Text>
+      </View>
+      <View style={tw`flex-col gap-2 mt-2 items-center bg-[#232323] p-2`}>
+        <Text style={[tw`text-xs text-white`, { fontFamily: "REM_regular" }]}>
+          Thời gian còn lại:{" "}
+        </Text>
+
+        <CustomCountDown endTime={new Date(auction?.endTime).getTime()} />
+        <View style={tw`flex-row w-full p-2 justify-between`}>
+          <View style={tw`flex-col gap-2 items-center w-1/2`}>
+            <Text
+              style={[tw`text-sm text-white`, { fontFamily: "REM_regular" }]}
+            >
+              Giá hiện tại
+            </Text>
+            <Text style={[tw`text-2xl text-white`, { fontFamily: "REM_bold" }]}>
+              {CurrencySplitter(auction.currentPrice)} đ
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={tw`py-2 px-3 rounded-lg bg-black w-1/2 items-center justify-center`}
+            onPress={handleOpenBottomSheet}
+          >
+            <Text style={[tw`text-xl text-white`, { fontFamily: "REM_bold" }]}>
+              RA GIÁ
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
-
-      {/* Seller's Other Comics */}
-      {/* <View style={tw`px-6 py-2`}>
-        <ComicsOfSeller seller={comic.sellerId} />
-      </View> */}
-
-      {/* Confirmation Modal */}
-      {/* <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
+      <View style={tw`w-full flex items-center justify-center py-2`}>
+        <TouchableOpacity style={tw`py-2 px-6 rounded-lg bg-black`}>
+          <Text style={[tw`text-xl text-white`, { fontFamily: "REM_bold" }]}>
+            MUA NGAY
+          </Text>
+        </TouchableOpacity>
+      </View>
+      <View style={tw`px-4 py-2`}>
+        <Text style={[tw`text-lg`, { fontFamily: "REM_bold" }]}>
+          Mô tả nội dung
+        </Text>
+        <Text style={[tw`text-sm mt-2`, { fontFamily: "REM_italic" }]}>
+          {auction.comics.description}
+        </Text>
+      </View>
+      <BottomSheet
+        ref={bottomSheetRef}
+        index={-1}
+        snapPoints={snapPoints}
+        enablePanDownToClose
       >
-        <View
-          style={tw`flex-1 justify-center items-center bg-gray-800 bg-opacity-50`}
-        >
-          <View style={tw`bg-white p-4 rounded-lg`}>
-            <Text style={tw`text-center text-xl font-bold`}>
-              Truyện đã được thêm vào giỏ hàng!
+        <BottomSheetView style={tw`p-4`}>
+          <Text style={[tw`text-xl mb-4`, { fontFamily: "REM_bold" }]}>
+            Ra giá
+          </Text>
+
+          {/* <Text style={[tw`text-xl mb-4`, { fontFamily: "REM_bold" }]}>
+            ĐẶT CỌC
+            </Text> */}
+          <View style={tw`flex-row gap-2 items-center`}>
+            <Text style={[tw`text-sm mb-2`, { fontFamily: "REM_regular" }]}>
+              Giá hiện tại:
             </Text>
-            <TouchableOpacity
-              onPress={() => setModalVisible(false)}
-              style={tw`mt-4 bg-black p-2 rounded-lg`}
-            >
-              <Text style={tw`text-white text-center`}>Đóng</Text>
-            </TouchableOpacity>
+            <Text style={[tw`text-lg mb-2`, { fontFamily: "REM_bold" }]}>
+              {CurrencySplitter(auction.currentPrice)} đ
+            </Text>
           </View>
-        </View>
-      </Modal> */}
+          <TextInput
+            style={tw`border border-gray-300 p-2 rounded-lg mb-4`}
+            placeholder="Nhập giá"
+            keyboardType="numeric"
+            value={bidPrice}
+            onChangeText={(text) => {
+              // Format input as currency
+              const cleaned = text.replace(/[^0-9]/g, "");
+              setBidPrice(CurrencySplitter(cleaned));
+            }}
+          />
+
+          <TouchableOpacity
+            style={tw`bg-black p-3 rounded-lg`}
+            onPress={handleSubmitBid}
+          >
+            <Text
+              style={[tw`text-white text-center`, { fontFamily: "REM_bold" }]}
+            >
+              XÁC NHẬN
+            </Text>
+          </TouchableOpacity>
+        </BottomSheetView>
+      </BottomSheet>
     </ScrollView>
   );
 };
