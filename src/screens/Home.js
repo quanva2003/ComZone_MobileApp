@@ -15,12 +15,13 @@ import HeaderInfo from "../components/home/HeaderInfo";
 import ComicSealed from "../components/home/ComicSealed";
 import Auction from "../components/home/Auction";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import { debounce } from "lodash";
+import axios from "axios";
 const Home = () => {
-  const navigate = useNavigation();
+  const navigation = useNavigation();
   const [searchText, setSearchText] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
-
+  const [searchResults, setSearchResults] = useState([]);
   const fetchCurrentUser = async () => {
     try {
       const storedUser = await AsyncStorage.getItem("currentUser");
@@ -33,6 +34,33 @@ const Home = () => {
       console.error("Error retrieving currentUser:", error);
     }
   };
+  const handleSearch = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.BASE_URL}comics/status/available`
+      );
+      const comics = response.data;
+
+      const filteredComics = comics.filter((comic) =>
+        comic.title.toLowerCase().includes(searchText.toLowerCase())
+      );
+
+      setSearchResults(filteredComics);
+      navigation.navigate("SearchResults", {
+        results: filteredComics,
+        searchText: searchText,
+      });
+    } catch (error) {
+      console.error("Error fetching comics:", error);
+    }
+  };
+
+  const handleSearchDebounced = debounce(handleSearch, 500);
+  const handleChangeText = (text) => {
+    setSearchText(text);
+    // handleSearch();
+  };
+
   useEffect(() => {
     fetchCurrentUser();
   }, []);
@@ -55,7 +83,7 @@ const Home = () => {
   const renderItem = ({ item }) => {
     switch (item.type) {
       case "header":
-        return <HeaderInfo currentUser={currentUser} />;
+        return <HeaderInfo />;
       case "search":
         return (
           <View
@@ -66,12 +94,13 @@ const Home = () => {
             </TouchableOpacity>
             <TextInput
               value={searchText}
-              onChangeText={setSearchText}
+              onChangeText={handleChangeText}
               placeholder="Bạn đang tìm kiếm truyện gì?"
               style={[
                 tw`flex-1 text-base text-gray-800`,
                 { fontFamily: "REM_thin" },
               ]}
+              onSubmitEditing={handleSearch}
             />
           </View>
         );

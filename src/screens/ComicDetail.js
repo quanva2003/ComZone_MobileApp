@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import CurrencySplitter from "../assistants/Spliter";
 import { Icon } from "react-native-elements";
 import ComicsOfSeller from "../components/comicDetail/ComicsOfSeller";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { CartContext } from "../context/CartContext";
 
 // Utility functions for cart management
 const getCart = async () => {
@@ -43,20 +44,26 @@ const ComicDetail = ({ route }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isInCart, setIsInCart] = useState(false);
+  // const [cartCount, setCartCount] = useState(0);
   const scrollViewRef = useRef(null);
+  const { addToCart, cartCount } = useContext(CartContext);
 
   const checkIfInCart = async () => {
     const cart = await getCart();
     setIsInCart(cart.some((item) => item.id === comic.id));
   };
-
-  const addToCart = async () => {
+  const updateCartCount = async () => {
+    const cart = await getCart();
+    setCartCount(cart.length);
+  };
+  const handleAddToCart = async () => {
     const cart = await getCart();
     if (!cart.some((item) => item.id === comic.id)) {
       cart.push(comic);
       await saveCart(cart);
       setIsInCart(true);
       setModalVisible(true);
+      addToCart(comic);
     }
   };
 
@@ -67,6 +74,7 @@ const ComicDetail = ({ route }) => {
     }
     (async () => {
       await checkIfInCart();
+      // await updateCartCount();
       setLoading(false);
     })();
   }, [comic]);
@@ -94,9 +102,17 @@ const ComicDetail = ({ route }) => {
         onPress={() => navigation.push("Cart")}
         style={tw`absolute top-4 right-4 z-10 bg-white rounded-full p-2 shadow`}
       >
-        <Icon type="MaterialIcons" name="shopping-cart" size={20} />
+        <View style={tw`relative`}>
+          <Icon type="MaterialIcons" name="shopping-cart" size={24} />
+          {cartCount > 0 && (
+            <View
+              style={tw`absolute -top-3 -right-4 bg-[#232323] rounded-full w-5 h-5 flex items-center justify-center`}
+            >
+              <Text style={tw`text-white text-xs`}>{cartCount}</Text>
+            </View>
+          )}
+        </View>
       </TouchableOpacity>
-
       {/* Current Image */}
       <View style={tw`relative`}>
         <Image source={{ uri: currentImage }} style={tw`w-full h-100 mb-4`} />
@@ -162,12 +178,12 @@ const ComicDetail = ({ route }) => {
             {/* Add to Cart */}
             <TouchableOpacity
               style={tw`flex-1`}
-              onPress={addToCart}
+              onPress={handleAddToCart}
               disabled={isInCart}
             >
               <View
                 style={tw`flex-row gap-2 border-2 rounded-lg p-3 justify-center ${
-                  isInCart && "bg-emerald-700"
+                  isInCart ? "bg-emerald-700" : ""
                 }`}
               >
                 <Icon type="MaterialIcons" name="shopping-cart" size={20} />
