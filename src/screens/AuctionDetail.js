@@ -90,12 +90,11 @@ const AuctionDetail = ({ route }) => {
     ? new Date(auction.endTime).getTime()
     : Date.now(); // Fallback to prevent errors
 
-  const allImages = [
-    auction.comics.coverImage,
-    ...auction.comics.previewChapter,
-  ];
+  const coverImage =
+    auction.comics?.coverImage ||
+    "https://media.istockphoto.com/id/1222357475/vector/image-preview-icon-picture-placeholder-for-website-or-ui-ux-design-vector-illustration.jpg?s=612x612&w=0&k=20&c=KuCo-dRBYV7nz2gbk4J9w1WtTAgpTdznHu55W9FjimE=";
+  const allImages = [coverImage, ...auction.comics.previewChapter];
   console.log("all", allImages);
-
   const [currentImage, setCurrentImage] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -131,7 +130,11 @@ const AuctionDetail = ({ route }) => {
 
       {/* Current Image */}
       <View style={tw`relative`}>
-        <Image source={{ uri: currentImage }} style={tw`w-full h-100 mb-4`} />
+        <Image
+          source={{ uri: currentImage }}
+          style={tw`w-full h-100 mb-4`}
+          onError={() => setCurrentImage("fallback-image-url")} // Handle image load failure
+        />
         <View
           style={tw`absolute bottom-7 left-2 bg-white px-2 py-1 rounded-full border border-gray-300`}
         >

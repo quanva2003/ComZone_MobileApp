@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -12,12 +12,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import tw from "twrnc";
 import Svg, { Line, Path } from "react-native-svg";
 import { CheckBox, Stack } from "react-native-elements";
+import { CartContext } from "../context/CartContext";
 const Cart = ({ navigation }) => {
   const [cart, setCart] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [selectedComics, setSelectedComics] = useState({});
   const [isAllSelected, setIsAllSelected] = useState(false);
   const [editingSeller, setEditingSeller] = useState(null);
+  const { removeFromCart } = useContext(CartContext);
   const loadCartData = async () => {
     try {
       const cartData = await AsyncStorage.getItem("cart");
@@ -123,8 +125,9 @@ const Cart = ({ navigation }) => {
 
   const handleDeleteComic = (comicId) => {
     const updatedCart = cart.filter((comic) => comic.id !== comicId);
+    removeFromCart(comicId);
     setCart(updatedCart);
-    AsyncStorage.setItem("cart", JSON.stringify(updatedCart)); // Update AsyncStorage
+    AsyncStorage.setItem("cart", JSON.stringify(updatedCart));
   };
 
   const handleCheckout = () => {
