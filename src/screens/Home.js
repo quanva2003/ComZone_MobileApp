@@ -70,7 +70,7 @@ const Home = () => {
     { type: "search" },
     {
       type: "section",
-      title: "Truyện tranh nguyên seal",
+      title: "Truyện tranh",
       component: ComicSealed,
     },
     {

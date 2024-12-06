@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  TextInput,
 } from "react-native";
 import tw from "twrnc";
 import CurrentAddress from "../components/address/CurrentAddress";
@@ -28,6 +29,7 @@ const Checkout = ({ route, navigation }) => {
   const [userAddress, setUserAddress] = useState(null);
   const [selectedAddress, setSelectedAddress] = useState();
   const [isLoading, setIsLoading] = useState(false);
+  const [isHandleLoading, setIsHandleLoading] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
   const [selectedMethod, setSelectedMethod] = useState(null);
   const [deliveryDetails, setDeliveryDetails] = useState([]);
@@ -134,7 +136,6 @@ const Checkout = ({ route, navigation }) => {
         });
         return acc;
       }, {});
-      console.log("asdjalkjsdklajklsdjlkajds", groupedSelectedComics);
 
       try {
         const deliveryDetailsPromises = Object.keys(groupedSelectedComics).map(
@@ -147,7 +148,8 @@ const Checkout = ({ route, navigation }) => {
                 },
               }
             );
-            console.log("seller details", sellerDetails);
+            console.log("sellerDetails:", sellerDetails);
+
             setSellerDetailsGroup((prev) => [...prev, sellerDetails.data]);
 
             const sellerAddress = {
@@ -233,7 +235,7 @@ const Checkout = ({ route, navigation }) => {
       return;
     }
 
-    setIsLoading(true);
+    setIsHandleLoading(true);
 
     // Group comics by seller
     const groupedSelectedComics = selectedComics.reduce((acc, comic) => {
@@ -281,7 +283,7 @@ const Checkout = ({ route, navigation }) => {
             provinceId: selectedAddress.province.id,
             districtId: selectedAddress.district.id,
             wardId: selectedAddress.ward.id,
-            address: selectedAddress.detailedAddress,
+            address: selectedAddress.fullAddress,
           },
           {
             headers: {
@@ -299,17 +301,17 @@ const Checkout = ({ route, navigation }) => {
             },
           }
         );
-        console.log("asdasd", fetchSellerAddress.data);
         const sellerDetails = fetchSellerAddress.data;
+        console.log("asdasd", sellerDetails);
         const newSellerDeliveryInfo = await axios.post(
           `${process.env.BASE_URL}delivery-information`,
           {
-            name: sellerDetails.name,
-            phone: sellerDetails.phone,
+            name: sellerDetails.user.name,
+            phone: sellerDetails.verifiedPhone,
             provinceId: sellerDetails.province.id,
             districtId: sellerDetails.district.id,
             wardId: sellerDetails.ward.id,
-            address: sellerDetails.detailedAddress,
+            address: sellerDetails.fullAddress,
           },
           {
             headers: {
@@ -318,13 +320,16 @@ const Checkout = ({ route, navigation }) => {
           }
         );
         console.log("done new seller delivery info");
-
+        const deliveryFee =
+          deliveryDetails.find((detail) => detail.sellerId === sellerId)
+            ?.deliveryFee || 0;
         // Create delivery
         const resDelivery = await axios.post(
           `${process.env.BASE_URL}deliveries/order`,
           {
-            fromAddressId: newUserDeliveryInfo.data.id,
-            toAddressId: newSellerDeliveryInfo.data.id,
+            fromAddressId: newSellerDeliveryInfo.data.id,
+            toAddressId: newUserDeliveryInfo.data.id,
+            deliveryFee: deliveryFee,
           },
           {
             headers: {
@@ -346,7 +351,7 @@ const Checkout = ({ route, navigation }) => {
           `${process.env.BASE_URL}orders`,
           {
             sellerId: sellerId,
-            totalPrice: Number(sellerTotalPrice),
+            totalPrice: Number(sellerTotalPrice + deliveryFee),
             paymentMethod: selectedMethod.toUpperCase(),
             deliveryId: resDelivery.data.id,
             addressId: selectedAddress.id,
@@ -392,16 +397,14 @@ const Checkout = ({ route, navigation }) => {
 
         await AsyncStorage.setItem("cart", JSON.stringify(parsedCart));
       }
-
+      setIsHandleLoading(false);
       await AsyncStorage.removeItem("selectedComics");
       navigation.navigate("OrderComplete");
-
-      Alert.alert("Thành công", "Đơn hàng đã được đặt thành công!");
     } catch (error) {
       console.error("Error submitting order:", error);
       Alert.alert("Lỗi", "Không thể đặt hàng. Vui lòng thử lại.");
     } finally {
-      setIsLoading(false);
+      setIsHandleLoading(false);
     }
   };
   const calculateTotalPrice = () => {
@@ -461,7 +464,13 @@ const Checkout = ({ route, navigation }) => {
           THANH TOÁN
         </Text>
       </View>
-
+      {isHandleLoading && (
+        <View
+          style={tw`absolute top-0 bottom-0 left-0 right-0 bg-black/50 z-50 items-center justify-center`}
+        >
+          <ActivityIndicator size="large" color="white" />
+        </View>
+      )}
       {/* Content */}
       <ScrollView style={tw`flex-1 p-4 mb-10`}>
         {/* Address */}
@@ -575,29 +584,21 @@ const Checkout = ({ route, navigation }) => {
                   </View>
                 </View>
               ))}
-              <View style={tw`p-2 border-t border-gray-200`}>
-                <TouchableOpacity
-                  onPress={() => openNoteBottomSheet(sellerId)}
-                  style={tw`flex-row items-center justify-between`}
-                >
-                  <View style={tw`flex-row items-center`}>
-                    <Ionicons
-                      name="chatbubble-outline"
-                      size={20}
-                      style={tw`mr-2`}
-                    />
-                    <Text style={tw`text-base`}>
-                      {notes[sellerId]
-                        ? `Ghi chú: ${notes[sellerId]}`
-                        : "Thêm ghi chú cho người bán"}
-                    </Text>
-                  </View>
-                  {notes[sellerId] ? (
-                    <Ionicons name="create-outline" size={20} />
-                  ) : (
-                    <Ionicons name="add-outline" size={20} />
-                  )}
-                </TouchableOpacity>
+              <View style={tw`p-2 border-t border-gray-200 flex gap-2`}>
+                <Text style={[tw`text-base`, { fontFamily: "REM_bold" }]}>
+                  Ghi chú cho người bán
+                </Text>
+                <TextInput
+                  style={tw`border border-gray-300 rounded-lg p-2`}
+                  placeholder="Nhập ghi chú vào đây..."
+                  value={notes[sellerId] || ""}
+                  onChangeText={(text) =>
+                    setNotes((prev) => ({
+                      ...prev,
+                      [sellerId]: text,
+                    }))
+                  }
+                />
               </View>
             </View>
           ))
@@ -635,37 +636,6 @@ const Checkout = ({ route, navigation }) => {
           )}
         </View>
         <View style={tw`h-6`}></View>
-        <BottomSheet
-          ref={bottomSheetRef}
-          index={-1}
-          snapPoints={snapPoints}
-          enablePanDownToClose
-        >
-          <View style={tw`p-4`}>
-            <Text style={[tw`text-xl mb-3`, { fontFamily: "REM_bold" }]}>
-              Ghi chú cho đơn hàng
-            </Text>
-            <BottomSheetTextInput
-              multiline
-              numberOfLines={4}
-              value={notes[currentNoteSellerId] || ""}
-              onChangeText={(text) =>
-                setNotes((prev) => ({
-                  ...prev,
-                  [currentNoteSellerId]: text,
-                }))
-              }
-              placeholder="Nhập ghi chú cho người bán (không bắt buộc)"
-              style={tw`border border-gray-300 rounded-md p-2 h-24`}
-            />
-            <TouchableOpacity
-              onPress={saveSellerNote}
-              style={tw`bg-black py-3 rounded-md mt-3`}
-            >
-              <Text style={tw`text-white text-center`}>Lưu ghi chú</Text>
-            </TouchableOpacity>
-          </View>
-        </BottomSheet>
       </ScrollView>
 
       {/* Footer */}

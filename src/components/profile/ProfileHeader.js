@@ -130,22 +130,22 @@ const ProfileHeader = (currentUser) => {
           <TouchableOpacity>
             <View style={tw`flex flex-col items-center px-2`}>
               <Svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="28"
-                height="28"
-                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                viewBox="0 0 18 14"
                 fill="none"
-                stroke="#000000"
-                stroke-width="3"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="lucide lucide-circle-plus"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                <Circle cx="12" cy="12" r="10" />
-                <Path d="M8 12h8" />
-                <Path d="M12 8v8" />
+                <Path
+                  d="M10.5751 11.9339H3.37539C2.3813 11.9339 1.57542 11.1281 1.57539 10.134L1.5752 3.38413C1.57517 2.38999 2.38106 1.58408 3.3752 1.58408H14.1748C15.1689 1.58408 15.9748 2.3895 15.9748 3.38364L15.9749 6.53408M2.02485 4.73396H15.5249M12.8249 10.1659L14.6656 8.33396M14.6656 8.33396L16.4249 10.0831M14.6656 8.33396L14.6656 12.4159"
+                  stroke="black"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
               </Svg>
-              <Text style={[{ fontFamily: "REM_bold" }, tw`text-base`]}>
+
+              <Text style={[{ fontFamily: "REM_bold" }, tw`text-md`]}>
                 NẠP TIỀN
               </Text>
             </View>
@@ -153,22 +153,22 @@ const ProfileHeader = (currentUser) => {
           <TouchableOpacity>
             <View style={tw`flex flex-col items-center px-5 border-l border-r`}>
               <Svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="28"
-                height="28"
-                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                viewBox="0 0 18 18"
                 fill="none"
-                stroke="#000000"
-                stroke-width="3"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="lucide lucide-circle-plus"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                <Circle cx="12" cy="12" r="10" />
-                <Path d="M8 12h8" />
-                <Path d="M12 8v8" />
+                <Path
+                  d="M4.50005 4.50008V7.65008M13.5 4.50008V7.65008M13.05 10.8001H14.85C15.5956 10.8001 16.2 10.1957 16.2 9.45008V3.15008C16.2 2.4045 15.5956 1.80008 14.85 1.80008H3.15005C2.40446 1.80008 1.80005 2.40449 1.80005 3.15008V9.45008C1.80005 10.1957 2.40446 10.8001 3.15005 10.8001H4.95005M6.45375 13.6543L8.99933 16.1999M8.99933 16.1999L11.3734 13.8258M8.99933 16.1999L8.99944 10.9932M10.8 6.30008C10.8 7.29419 9.99416 8.10008 9.00005 8.10008C8.00594 8.10008 7.20005 7.29419 7.20005 6.30008C7.20005 5.30597 8.00594 4.50008 9.00005 4.50008C9.99416 4.50008 10.8 5.30597 10.8 6.30008Z"
+                  stroke="black"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
               </Svg>
-              <Text style={[{ fontFamily: "REM_bold" }, tw`text-base`]}>
+
+              <Text style={[{ fontFamily: "REM_bold" }, tw`text-md`]}>
                 RÚT TIỀN
               </Text>
             </View>
@@ -176,22 +176,22 @@ const ProfileHeader = (currentUser) => {
           <TouchableOpacity>
             <View style={tw`flex flex-col items-center px-2`}>
               <Svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="28"
-                height="28"
-                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                viewBox="0 0 20 20"
                 fill="none"
-                stroke="#000000"
-                stroke-width="3"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="lucide lucide-circle-plus"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                <Circle cx="12" cy="12" r="10" />
-                <Path d="M8 12h8" />
-                <Path d="M12 8v8" />
+                <Path
+                  d="M5.15385 5.8H14.8462M5.15385 10.6H14.8462M2.8 1H17.2C18.1941 1 19 1.80589 19 2.8V19L16 17.2L13 19L10 17.2L7 19L4 17.2L1 19V2.8C1 1.80589 1.80589 1 2.8 1Z"
+                  stroke="black"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
               </Svg>
-              <Text style={[{ fontFamily: "REM_bold" }, tw`text-base`]}>
+
+              <Text style={[{ fontFamily: "REM_bold" }, tw`text-md`]}>
                 LỊCH SỬ VÍ
               </Text>
             </View>

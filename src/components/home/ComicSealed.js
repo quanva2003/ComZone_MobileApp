@@ -19,10 +19,11 @@ const ComicSealed = () => {
   const fetchComics = async () => {
     try {
       const response = await axios.get(
-        `${process.env.BASE_URL}comics/status/available`
+        `${process.env.BASE_URL}comics/count/status/available?load=15`
       );
+      console.log("comic 15:", response.data[0]);
 
-      setComics(response.data.slice(0, 20));
+      setComics(response.data[0]);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching comics:", error);
@@ -81,7 +82,7 @@ const ComicSealed = () => {
         <FlatList
           data={comics}
           renderItem={renderItem}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item.id}
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={tw`flex-row`}

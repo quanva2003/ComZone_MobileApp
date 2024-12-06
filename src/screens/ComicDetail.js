@@ -186,8 +186,18 @@ const ComicDetail = ({ route }) => {
                   isInCart ? "bg-emerald-700" : ""
                 }`}
               >
-                <Icon type="MaterialIcons" name="shopping-cart" size={20} />
-                <Text style={{ fontFamily: "REM" }}>
+                <Icon
+                  type="MaterialIcons"
+                  name="shopping-cart"
+                  size={20}
+                  color={isInCart && "white"}
+                />
+                <Text
+                  style={[
+                    { fontFamily: "REM" },
+                    tw`${isInCart ? "text-white" : "text-black"}`,
+                  ]}
+                >
                   {isInCart ? "Đã có trong giỏ hàng" : "Thêm vào giỏ hàng"}
                 </Text>
               </View>
