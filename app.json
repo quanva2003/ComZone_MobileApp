@@ -25,6 +25,15 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": ["expo-font"]
+    "plugins": [
+      "expo-font",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Cho phép ứng dụng truy cập vào ảnh của bạn.",
+          "saveToPhotos": true
+        }
+      ]
+    ]
   }
 }

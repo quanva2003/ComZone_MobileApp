@@ -46,7 +46,7 @@ const OrderComplete = () => {
         </TouchableOpacity>
         <TouchableOpacity
           style={tw`bg-sky-500 rounded-lg py-3 px-10 mt-5`}
-          onPress={() => navigation.push("Main")}
+          onPress={() => navigation.push("OrderManagement")}
         >
           <Text style={[tw`text-white text-base`, { fontFamily: "REM_bold" }]}>
             Xem đơn hàng
