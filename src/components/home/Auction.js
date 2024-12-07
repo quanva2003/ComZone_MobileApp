@@ -14,6 +14,7 @@ import CurrencySplitter from "../../assistants/Spliter";
 import CountDown from "react-native-countdown-component";
 import { useNavigation } from "@react-navigation/native";
 import CustomCountDown from "../countdown/CustomCountdown";
+import { privateAxios } from "../../middleware/axiosInstance";
 
 const Auction = () => {
   const [ongoingAuctions, setOngoingAuctions] = useState([]);
@@ -21,10 +22,11 @@ const Auction = () => {
   const navigate = useNavigation();
   const fetchAuctions = async () => {
     try {
-      const response = await axios.get(`${process.env.BASE_URL}auction`);
+      const response = await privateAxios.get(`auction`);
       const auctionComics = response.data.filter(
         (auction) => auction.status === "ONGOING"
       );
+
       setOngoingAuctions(auctionComics);
       setLoading(false);
     } catch (error) {
