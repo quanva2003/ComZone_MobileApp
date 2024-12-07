@@ -20,6 +20,8 @@ const SignIn = () => {
   const logInGoogle = async () => {
     axios.get(`${process.env.BASE_URL}auth/google/login`);
   };
+  console.log("url", process.env.BASE_URL);
+
   const logInAccount = async () => {
     await AsyncStorage.removeItem("token", token);
 

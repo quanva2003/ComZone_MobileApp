@@ -7,30 +7,9 @@ import { useNavigation } from "@react-navigation/native";
 import { privateAxios } from "../../middleware/axiosInstance";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const ProfileHeader = (currentUser) => {
-  // const navigation = useNavigation(); // Call useNavigation inside the component
-
-  // const handleLogout = async () => {
-  //   try {
-  //     // Call the API to log out the user
-  //     const response = await privateAxios.post("/auth/logout");
-
-  //     console.log("re", response);
-
-  //     // Assuming the logout API returns a success message
-  //     await AsyncStorage.removeItem("userToken");
-  //     await AsyncStorage.removeItem("userId");
-
-  //     // Use the navigation to redirect after logout
-  //     navigation.navigate("SignIn");
-
-  //     Alert.alert("Success", "You have logged out successfully!");
-  //   } catch (error) {
-  //     console.error("Logout error:", error);
-  //     Alert.alert("Logout Error", "Something went wrong. Please try again.");
-  //   }
-  // };
-  // console.log(currentUser);
+const ProfileHeader = ({ currentUser }) => {
+  const navigate = useNavigation(); // Call useNavigation inside
+  console.log("currentUser", currentUser);
 
   return (
     <View style={tw`flex flex-col gap-5`}>
@@ -40,25 +19,13 @@ const ProfileHeader = (currentUser) => {
         <View style={tw`flex flex-row gap-2`}>
           <Image
             source={{
-              uri: currentUser.currentUser?.avatar,
+              uri: currentUser?.avatar,
             }}
             style={tw`w-20 h-20 rounded-full border-2 border-white`}
           />
           <Text style={[{ fontFamily: "REM_bold" }, tw`text-lg text-white`]}>
-            {currentUser.currentUser?.name}
+            {currentUser?.name}
           </Text>
-          {/* <TouchableOpacity onPress={handleLogout}>
-            <View>
-              <Text
-                style={[
-                  { fontFamily: "REM_regular", color: "white" },
-                  tw`text-lg`,
-                ]}
-              >
-                Log out
-              </Text>
-            </View>
-          </TouchableOpacity> */}
         </View>
         <View>
           <TouchableOpacity>
@@ -105,8 +72,8 @@ const ProfileHeader = (currentUser) => {
                 Số dư ví:{" "}
               </Text>
               <Text style={[{ fontFamily: "REM_bold" }, tw`text-lg`]}>
-                {currentUser.currentUser?.balance
-                  ? `${CurrencySplitter(currentUser.currentUser.balance)}`
+                {currentUser?.balance
+                  ? `${CurrencySplitter(currentUser.balance)}`
                   : "0"}
                 đ
               </Text>
@@ -116,10 +83,8 @@ const ProfileHeader = (currentUser) => {
                 Hiện có thể rút:
               </Text>
               <Text style={[{ fontFamily: "REM_bold" }, tw`text-sm`]}>
-                {currentUser.currentUser?.nonWithdrawableAmount
-                  ? `${CurrencySplitter(
-                      currentUser.currentUser.nonWithdrawableAmount
-                    )}`
+                {currentUser?.nonWithdrawableAmount
+                  ? `${CurrencySplitter(currentUser.nonWithdrawableAmount)}`
                   : "0"}{" "}
                 đ
               </Text>
@@ -127,7 +92,11 @@ const ProfileHeader = (currentUser) => {
           </View>
         </View>
         <View style={tw`flex flex-row items-center justify-between mt-3`}>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() =>
+              navigate.navigate("WalletDeposit", { userInfo: currentUser })
+            }
+          >
             <View style={tw`flex flex-col items-center px-3`}>
               <Svg
                 width="18"

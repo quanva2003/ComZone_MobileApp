@@ -28,6 +28,8 @@ const Comic = () => {
       const response = await axios.get(
         `${process.env.BASE_URL}comics/status/available`
       );
+      console.log(response.data);
+
       setComics(response.data);
       setFilteredComics(response.data); // Initialize filtered comics
       setLoading(false);

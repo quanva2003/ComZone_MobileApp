@@ -226,7 +226,7 @@ const AuctionsHistory = ({ route }) => {
               onPress={() => {
                 if (auction.status === "ONGOING") {
                   navigation.navigate("AuctionDetail", {
-                    auction: auction,
+                    auctionData: auction,
                   });
                 } else {
                   navigation.navigate("AuctionHistoryDetail", { auction });

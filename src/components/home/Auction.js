@@ -22,9 +22,12 @@ const Auction = () => {
   const fetchAuctions = async () => {
     try {
       const response = await axios.get(`${process.env.BASE_URL}auction`);
+      console.log("res auction:", response.data);
       const auctionComics = response.data.filter(
         (auction) => auction.status === "ONGOING"
       );
+      console.log("auctionComics", auctionComics);
+
       setOngoingAuctions(auctionComics);
       setLoading(false);
     } catch (error) {
@@ -56,48 +59,6 @@ const Auction = () => {
             {item.comics.title}
           </Text>
         </View>
-        {/* <Text
-          style={[tw`text-xs text-gray-500`, { fontFamily: "REM_regular" }]}
-        >
-          {item.comics.sellerId.name}
-        </Text>
-        <View style={tw`mt-2 items-center`}>
-          <Text style={[{ fontFamily: "REM_bold" }]}>Giá hiện tại:</Text>
-          <Text style={[tw`text-sm`, { fontFamily: "REM_bold" }]}>
-            {CurrencySplitter(item.currentPrice)}đ
-          </Text>
-        </View> */}
-        {/* <View style={tw`flex-col gap-2 mt-2 items-center`}>
-          <Text
-            style={[tw`text-xs text-gray-500`, { fontFamily: "REM_regular" }]}
-          >
-            Thời gian còn lại:{" "}
-          </Text>
-          <CountDown
-            until={(endTime - Date.now()) / 1000}
-            size={16}
-            onFinish={() => console.log("Auction ended")}
-            digitStyle={{
-              backgroundColor: "white",
-              borderWidth: 1,
-              borderColor: "#ccc",
-              borderRadius: 5,
-            }}
-            digitTxtStyle={{ color: "black" }}
-            timeLabelStyle={{
-              color: "grey",
-              fontWeight: "semi-bold",
-              fontSize: 16,
-              fontFamily: "REM",
-            }}
-            separatorStyle={{
-              color: "black",
-            }}
-            timeToShow={["H", "M", "S"]}
-            timeLabels={{ d: "Ngày", h: "Giờ", m: "Phút", s: "Giây" }}
-          />
-          
-        </View> */}
         <CustomCountDown endTime={new Date(item?.endTime).getTime()} />
         <View style={tw`mt-3 flex items-center w-full`}>
           <TouchableOpacity

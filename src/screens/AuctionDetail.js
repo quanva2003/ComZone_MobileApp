@@ -35,6 +35,8 @@ import { privateAxios, publicAxios } from "../middleware/axiosInstance";
 const AuctionDetail = ({ route }) => {
   const navigation = useNavigation();
   const { auctionData } = route.params;
+  console.log("auctionData:", auctionData);
+
   const socket = useSocket();
   const [highestBid, setHighestBid] = useState(null); // Track the highest bid
   const [auction, setAuction] = useState(auctionData);
