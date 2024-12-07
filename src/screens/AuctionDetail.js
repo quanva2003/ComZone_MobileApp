@@ -71,8 +71,6 @@ const AuctionDetail = ({ route }) => {
   // Use the socket from custom hook
   useEffect(() => {
     if (highestBid?.user?.id === userId) {
-      console.log("123", highestBid);
-
       setIsHighest(true);
     } else {
       setIsHighest(false);
@@ -85,7 +83,7 @@ const AuctionDetail = ({ route }) => {
         const responseBid = await publicAxios.get(
           `/bids/auction/${auction.id}`
         );
-        console.log("1", responseBid);
+
         const bidData = responseBid.data;
         // setBids(bidData);
         setHighestBid(responseBid.data[0]);
@@ -328,104 +326,119 @@ const AuctionDetail = ({ route }) => {
 
         {/* Chip Component */}
       </View>
+      {auction.comics.sellerId.id !== userId && (
+        <View>
+          {hasDeposited ? (
+            <View style={tw`p-2 `}>
+              {isHighest ? (
+                <View
+                  style={{
+                    fontSize: 20,
+                    color: "#28a745",
+                    fontWeight: "bold",
+                    padding: 10,
+                    borderRadius: 5,
+                    backgroundColor: "#d4edda",
+                    marginBottom: 5,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: "#28a745",
+                      fontWeight: "bold",
+                      textAlign: "center",
+                    }}
+                  >
+                    Bạn là người có giá cao nhất!
+                  </Text>
+                </View>
+              ) : (
+                <TouchableOpacity
+                  style={[
+                    tw`py-2 rounded-lg bg-black items-center justify-center mt-3 w-full`,
+                  ]}
+                  onPress={handleOpenBottomSheet} // Open bottom sheet for bidding
+                >
+                  <Text
+                    style={[tw`text-xl text-white`, { fontFamily: "REM_bold" }]}
+                  >
+                    RA GIÁ
+                  </Text>
+                </TouchableOpacity>
+              )}
 
-      <View>
-        {hasDeposited ? (
-          <View style={tw`p-2 `}>
-            {isHighest ? (
+              <View style={tw`w-full flex items-center justify-center py-2`}>
+                <TouchableOpacity style={tw`py-2 px-6 rounded-lg bg-black`}>
+                  <Text
+                    style={[tw`text-xl text-white`, { fontFamily: "REM_bold" }]}
+                  >
+                    MUA NGAY VỚI GIÁ {auction.maxPrice.toLocaleString("vi-VN")}đ
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ) : (
+            <View
+              style={[
+                tw`py-2 px-4 mt-3 w-full`,
+                { flexDirection: "row", alignItems: "center" },
+              ]}
+            >
               <View
-                style={{
-                  fontSize: 20,
-                  color: "#28a745",
-                  fontWeight: "bold",
-                  padding: 10,
-                  borderRadius: 5,
-                  backgroundColor: "#d4edda",
-                  marginBottom: 5,
-                }}
+                style={[
+                  tw`mr-4`,
+                  { flexDirection: "row", alignItems: "center" },
+                ]}
               >
-                <Text style={{ color: "#28a745", fontWeight: "bold", textAlign:"center" }}>
-                  Bạn là người có giá cao nhất!
+                <Text
+                  style={[
+                    tw`text-sm`,
+                    { color: "#000", fontFamily: "REM_bold" },
+                  ]}
+                >
+                  Số tiền cần cọc:
+                </Text>
+                <Text style={[tw`text-base ml-2 `, { fontFamily: "REM_bold" }]}>
+                  {CurrencySplitter(auction.currentPrice + auction.priceStep)} đ
                 </Text>
               </View>
-            ) : (
+
               <TouchableOpacity
                 style={[
-                  tw`py-2 rounded-lg bg-black items-center justify-center mt-3 w-full`,
+                  tw`py-2 px-1 rounded-full border items-center justify-center `,
+                  {
+                    backgroundColor: "#fff",
+                    borderColor: "#000",
+                    boxShadow: "2px 2px",
+                    width: "40%", // This ensures the TouchableOpacity takes full width of the parent
+                  },
                 ]}
-                onPress={handleOpenBottomSheet} // Open bottom sheet for bidding
+                onPress={handleOpenDepositModal}
               >
                 <Text
-                  style={[tw`text-xl text-white`, { fontFamily: "REM_bold" }]}
+                  style={[
+                    tw`text-sm`,
+                    { color: "#000", fontFamily: "REM_bold" },
+                  ]}
                 >
-                  RA GIÁ
-                </Text>
-              </TouchableOpacity>
-            )}
-
-            <View style={tw`w-full flex items-center justify-center py-2`}>
-              <TouchableOpacity style={tw`py-2 px-6 rounded-lg bg-black`}>
-                <Text
-                  style={[tw`text-xl text-white`, { fontFamily: "REM_bold" }]}
-                >
-                  MUA NGAY VỚI GIÁ {auction.maxPrice.toLocaleString("vi-VN")}đ
+                  Đặt cọc tại đây
                 </Text>
               </TouchableOpacity>
             </View>
-          </View>
-        ) : (
-          <View
-            style={[
-              tw`py-2 px-4 mt-3 w-full`,
-              { flexDirection: "row", alignItems: "center" },
-            ]}
-          >
-            <View
-              style={[tw`mr-4`, { flexDirection: "row", alignItems: "center" }]}
-            >
-              <Text
-                style={[tw`text-sm`, { color: "#000", fontFamily: "REM_bold" }]}
-              >
-                Số tiền cần cọc:
-              </Text>
-              <Text style={[tw`text-base ml-2 `, { fontFamily: "REM_bold" }]}>
-                {CurrencySplitter(auction.currentPrice + auction.priceStep)} đ
-              </Text>
-            </View>
-
-            <TouchableOpacity
-              style={[
-                tw`py-2 px-1 rounded-full border items-center justify-center `,
-                {
-                  backgroundColor: "#fff",
-                  borderColor: "#000",
-                  boxShadow: "2px 2px",
-                  width: "40%", // This ensures the TouchableOpacity takes full width of the parent
-                },
-              ]}
-              onPress={handleOpenDepositModal}
-            >
-              <Text
-                style={[tw`text-sm`, { color: "#000", fontFamily: "REM_bold" }]}
-              >
-                Đặt cọc tại đây
-              </Text>
-            </TouchableOpacity>
-          </View>
-        )}
-        <CustomModal
-          auction={auction}
-          visible={modalVisible}
-          onClose={handleCloseDepositModal}
-          title="Xác nhận đặt cọc"
-          description="Bạn có chắc chắn muốn đặt cọc cho phiên đấu giá này không?"
-          onConfirm={handleConfirmDeposit}
-          confirmText="Xác nhận"
-          cancelText="Hủy"
-        />
-        {/* RA GIÁ Button */}
-      </View>
-
+          )}
+          <CustomModal
+            auction={auction}
+            visible={modalVisible}
+            onClose={handleCloseDepositModal}
+            title="Xác nhận đặt cọc"
+            description="Bạn có chắc chắn muốn đặt cọc cho phiên đấu giá này không?"
+            onConfirm={handleConfirmDeposit}
+            confirmText="Xác nhận"
+            cancelText="Hủy"
+          />
+          {/* RA GIÁ Button */}
+        </View>
+      )}
       <View style={tw`px-4 py-2`}>
         <Text style={[tw`text-lg`, { fontFamily: "REM_bold" }]}>
           Mô tả nội dung

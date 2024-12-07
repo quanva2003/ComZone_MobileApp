@@ -33,6 +33,7 @@ import OrderDetail from "./src/screens/OrderDetail";
 import FeedbackSeller from "./src/screens/FeedbackSeller";
 import AuctionsHistory from "./src/screens/AuctionsHistory";
 import AuctionHistoryDetail from "./src/screens/AuctionHistoryDetail";
+import useSocket from "./src/utils/socket";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -110,34 +111,8 @@ const MainTabs = () => {
 };
 
 export default function App() {
-  // useEffect(() => {
-  //   const initializeSocket = async () => {
-  //     try {
-  //       const token = await AsyncStorage.getItem("token");
-  //       const userId = await AsyncStorage.getItem("userId");
+  // const socket = useSocket();
 
-  //       console.log("token", token);
-  //       console.log("userId", userId);
-
-  //       if (token && userId) {
-  //         const url = process.env.BASE_URL;
-  //         const socketInstance = await connectSocket(url);
-  //         socketInstance.emit("joinRoom", userId);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching token or userId:", error);
-  //     }
-  //   };
-
-  //   initializeSocket();
-
-  //   return () => {
-  //     if (socket?.connected) {
-  //       socket.disconnect();
-  //       console.log("Socket disconnected");
-  //     }
-  //   };
-  // }, []);
   const [loaded, error] = useFonts({
     REM: require("./assets/fonts/REM.ttf"),
     REM_italic: require("./assets/fonts/REM-Italic.ttf"),
