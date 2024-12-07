@@ -183,11 +183,11 @@ const AuctionHistoryDetail = ({ route, navigation }) => {
             {bids.map((bid, index) => (
               <View
                 key={bid.id}
-                style={tw`flex-row justify-between items-center py-3 ${
+                style={tw`flex items-center py-3 ${
                   index !== bids.length - 1 ? "border-b border-gray-200" : ""
                 }`}
               >
-                <View style={tw`flex-row items-center`}>
+                <View style={tw`flex-row items-center justify-between w-full`}>
                   <Text style={[tw`text-gray-500`, { fontFamily: "REM" }]}>
                     {new Date(bid.createdAt).toLocaleString()}
                   </Text>

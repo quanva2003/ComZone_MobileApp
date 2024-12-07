@@ -25,6 +25,7 @@ const Auction = () => {
   const fetchAuctions = async () => {
     try {
       const response = await axios.get(`${process.env.BASE_URL}auction`);
+      console.log(response.data);
       const auctionComics = response.data.filter(
         (auction) => auction.status === "ONGOING"
       );
@@ -81,7 +82,7 @@ const Auction = () => {
           <TouchableOpacity
             style={tw`bg-black py-1 px-3 rounded-md `}
             onPress={() =>
-              navigate.navigate("AuctionDetail", { auction: item })
+              navigate.navigate("AuctionDetail", { auctionData: item })
             }
           >
             <Text style={[tw`text-white text-xs`, { fontFamily: "REM" }]}>

@@ -21,6 +21,7 @@ const ComicSealed = () => {
       const response = await axios.get(
         `${process.env.BASE_URL}comics/count/status/available?load=15`
       );
+      console.log("comic:", response.data);
 
       setComics(response.data[0]);
       setLoading(false);

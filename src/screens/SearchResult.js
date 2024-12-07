@@ -31,6 +31,8 @@ const SearchResults = () => {
     const response = await axios.get(
       `${process.env.BASE_URL}comics/status/available`
     );
+    console.log(response.data);
+
     const comics = response.data;
 
     const filteredComics = comics.filter((comic) =>

@@ -16,6 +16,8 @@ import { Icon } from "react-native-elements";
 import ComicsOfSeller from "../components/comicDetail/ComicsOfSeller";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { CartContext } from "../context/CartContext";
+import axios from "axios";
+import FeedbackSection from "../components/comicDetail/FeedbackSection";
 
 // Utility functions for cart management
 const getCart = async () => {
@@ -44,7 +46,8 @@ const ComicDetail = ({ route }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isInCart, setIsInCart] = useState(false);
-  // const [cartCount, setCartCount] = useState(0);
+  const [token, setToken] = useState(null);
+  const [feedbacks, setFeedbacks] = useState([]);
   const scrollViewRef = useRef(null);
   const { addToCart, cartCount } = useContext(CartContext);
 
@@ -67,6 +70,29 @@ const ComicDetail = ({ route }) => {
     }
   };
 
+  const fetchToken = async () => {
+    const storedToken = await AsyncStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  };
+  const fetchFeedbacks = async () => {
+    try {
+      // Replace with your actual API endpoint
+      const response = await axios.get(
+        `${process.env.BASE_URL}seller-feedback/seller/some/${comic.sellerId.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setFeedbacks(response.data);
+    } catch (error) {
+      console.error("Failed to fetch feedbacks:", error);
+    }
+  };
+
   useEffect(() => {
     setCurrentImage(comic.coverImage);
     if (scrollViewRef.current) {
@@ -75,9 +101,13 @@ const ComicDetail = ({ route }) => {
     (async () => {
       await checkIfInCart();
       // await updateCartCount();
+      await fetchFeedbacks();
       setLoading(false);
     })();
   }, [comic]);
+  useEffect(() => {
+    fetchToken();
+  }, []);
 
   if (loading) {
     return (
@@ -224,7 +254,9 @@ const ComicDetail = ({ route }) => {
           </Text>
         </View>
       </View>
-
+      <View style={tw`px-6 py-2`}>
+        <FeedbackSection feedbacks={feedbacks} />
+      </View>
       {/* Seller's Other Comics */}
       <View style={tw`px-6 py-2`}>
         <ComicsOfSeller seller={comic.sellerId} />
