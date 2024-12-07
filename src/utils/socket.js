@@ -6,7 +6,7 @@ const useSocket = () => {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const socketInstance = io(process.env.BASE_URL); // Adjust to your base URL
+    const socketInstance = io(process.env.BASE_URL); 
 
     socketInstance.on("connect", () => {
       console.log("Socket connected:", socketInstance.id);

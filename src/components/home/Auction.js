@@ -48,12 +48,14 @@ const Auction = () => {
           source={{ uri: item.comics.coverImage }}
           style={tw`w-35 h-45 rounded-lg`}
         />
-        <Text
-          style={[tw`text-sm mt-2 text-gray-800`, { fontFamily: "REM" }]}
-          numberOfLines={2}
-        >
-          {item.comics.title}
-        </Text>
+        <View style={tw`h-14`}>
+          <Text
+            style={[tw`text-sm mt-2 text-gray-800`, { fontFamily: "REM" }]}
+            numberOfLines={2}
+          >
+            {item.comics.title}
+          </Text>
+        </View>
         {/* <Text
           style={[tw`text-xs text-gray-500`, { fontFamily: "REM_regular" }]}
         >

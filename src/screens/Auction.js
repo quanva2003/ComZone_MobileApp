@@ -61,18 +61,20 @@ const Auction = () => {
   const renderItem = ({ item }) => {
     return (
       <View
-        style={tw`bg-white rounded-lg shadow-sm py-4 px-2 mb-4 w-45 items-center`}
+        style={tw`bg-white rounded-lg shadow-sm py-4 px-1 mb-4 w-43 items-center`}
       >
         <Image
           source={{ uri: item.comics.coverImage }}
-          style={tw`w-40 h-60 rounded-lg`}
+          style={tw`w-40 h-60  rounded-lg`}
         />
-        <Text
-          style={[tw`text-sm mt-2 text-gray-800`, { fontFamily: "REM" }]}
-          numberOfLines={2}
-        >
-          {item.comics.title}
-        </Text>
+        <View style={tw`h-14`}>
+          <Text
+            style={[tw`text-sm mt-2 text-gray-800`, { fontFamily: "REM" }]}
+            numberOfLines={2}
+          >
+            {item.comics.title}
+          </Text>
+        </View>
 
         <CustomCountDown endTime={new Date(item?.endTime).getTime()} />
         <View style={tw`mt-3 flex items-center w-full`}>

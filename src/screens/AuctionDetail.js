@@ -26,31 +26,14 @@ import CountDown from "react-native-countdown-component";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import CustomCountDown from "../components/countdown/CustomCountdown";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
-import { io } from "socket.io-client";
 import useSocket from "../utils/socket";
-
-// Utility functions for cart management
-const getCart = async () => {
-  try {
-    const cartData = await AsyncStorage.getItem("cart");
-    return cartData ? JSON.parse(cartData) : [];
-  } catch (error) {
-    console.error("Failed to get cart:", error);
-    return [];
-  }
-};
-
-const saveCart = async (cart) => {
-  try {
-    await AsyncStorage.setItem("cart", JSON.stringify(cart));
-  } catch (error) {
-    console.error("Failed to save cart:", error);
-  }
-};
+import CustomModal from "../components/customModalAuction/customModalAuction";
+import { privateAxios } from "../middleware/axiosInstance";
 
 const AuctionDetail = ({ route }) => {
   const navigation = useNavigation();
   const { auction } = route.params;
+
   console.log("auction", auction);
   console.log("asdasd", auction.comics.coverImage);
   const bottomSheetRef = useRef(null);
@@ -119,9 +102,42 @@ const AuctionDetail = ({ route }) => {
   const [currentImage, setCurrentImage] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [isInCart, setIsInCart] = useState(false);
-  const scrollViewRef = useRef(null);
 
+  const scrollViewRef = useRef(null);
+  const [hasDeposited, setHasDeposited] = useState(false);
+
+  useEffect(() => {
+    const checkDepositStatus = async () => {
+      try {
+        const response = await privateAxios.get(
+          `deposits/auction/user/${auction?.id}`
+        );
+        console.log("Deposit status response:", response.data);
+
+        if (response.data) {
+          setHasDeposited(true);
+        } else {
+          setHasDeposited(false);
+        }
+      } catch (error) {
+        console.error("Error checking deposit status:", error);
+        setHasDeposited(false); // Handle errors gracefully
+      }
+    };
+
+    checkDepositStatus();
+  }, [auction]);
+  const handleOpenDepositModal = () => setModalVisible(true);
+  const handleCloseDepositModal = () => setModalVisible(false);
+
+  const handleConfirmDeposit = () => {
+    setModalVisible(false);
+    Alert.alert(
+      "Đặt cọc thành công",
+      "Bạn đã đặt cọc thành công cho phiên đấu giá."
+    );
+    // Add additional deposit logic here
+  };
   useEffect(() => {
     setCurrentImage(auction.comics.coverImage);
     if (scrollViewRef.current) {
@@ -211,11 +227,13 @@ const AuctionDetail = ({ route }) => {
         {/* Description */}
       </View>
       <View style={tw`flex-col gap-2 mt-2 items-center bg-[#232323] p-2`}>
-        <Text style={[tw`text-xs text-white`, { fontFamily: "REM_regular" }]}>
-          Thời gian còn lại:{" "}
-        </Text>
+        
+        <CustomCountDown
+          endTime={new Date(auction?.endTime).getTime()}
+          detail={"detail"}
+        />
 
-        <CustomCountDown endTime={new Date(auction?.endTime).getTime()} />
+        {/* Current Price and Price Step Section */}
         <View style={tw`flex-row w-full p-2 justify-between`}>
           <View style={tw`flex-col gap-2 items-center w-1/2`}>
             <Text
@@ -227,16 +245,61 @@ const AuctionDetail = ({ route }) => {
               {CurrencySplitter(auction.currentPrice)} đ
             </Text>
           </View>
+          <View style={tw`w-[1px] h-full bg-gray-400 mx-2`} />
+          <View style={tw`flex-col gap-2 items-center w-1/2`}>
+            <Text
+              style={[tw`text-sm text-white`, { fontFamily: "REM_regular" }]}
+            >
+              Bước giá
+            </Text>
+            <Text style={[tw`text-2xl text-white`, { fontFamily: "REM_bold" }]}>
+              {CurrencySplitter(auction.priceStep)} đ
+            </Text>
+          </View>
+        </View>
+
+        {/* Chip Component */}
+        {hasDeposited ? (
           <TouchableOpacity
-            style={tw`py-2 px-3 rounded-lg bg-black w-1/2 items-center justify-center`}
-            onPress={handleOpenBottomSheet}
+            style={tw`py-2 px-3 rounded-lg bg-black w-1/2 items-center justify-center mt-3`}
+            onPress={handleOpenBottomSheet} // Open bottom sheet for bidding
           >
             <Text style={[tw`text-xl text-white`, { fontFamily: "REM_bold" }]}>
               RA GIÁ
             </Text>
           </TouchableOpacity>
-        </View>
+        ) : (
+          <TouchableOpacity
+            style={[
+              tw`py-2 px-4 rounded-full border items-center justify-center mt-3`,
+              {
+                backgroundColor: "#fff",
+                borderColor: "#000",
+                boxShadow: "2px 2px",
+              },
+            ]}
+            onPress={handleOpenDepositModal}
+          >
+            <Text
+              style={[tw`text-sm`, { color: "#000", fontFamily: "REM_bold" }]}
+            >
+              Đặt cọc tại đây
+            </Text>
+          </TouchableOpacity>
+        )}
+        <CustomModal
+          auction={auction}
+          visible={modalVisible}
+          onClose={handleCloseDepositModal}
+          title="Xác nhận đặt cọc"
+          description="Bạn có chắc chắn muốn đặt cọc cho phiên đấu giá này không?"
+          onConfirm={handleConfirmDeposit}
+          confirmText="Xác nhận"
+          cancelText="Hủy"
+        />
+        {/* RA GIÁ Button */}
       </View>
+
       <View style={tw`w-full flex items-center justify-center py-2`}>
         <TouchableOpacity style={tw`py-2 px-6 rounded-lg bg-black`}>
           <Text style={[tw`text-xl text-white`, { fontFamily: "REM_bold" }]}>
