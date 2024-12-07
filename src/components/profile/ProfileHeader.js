@@ -8,29 +8,29 @@ import { privateAxios } from "../../middleware/axiosInstance";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ProfileHeader = (currentUser) => {
-  const navigation = useNavigation(); // Call useNavigation inside the component
+  // const navigation = useNavigation(); // Call useNavigation inside the component
 
-  const handleLogout = async () => {
-    try {
-      // Call the API to log out the user
-      const response = await privateAxios.post("/auth/logout");
+  // const handleLogout = async () => {
+  //   try {
+  //     // Call the API to log out the user
+  //     const response = await privateAxios.post("/auth/logout");
 
-      console.log("re", response);
+  //     console.log("re", response);
 
-      // Assuming the logout API returns a success message
-      await AsyncStorage.removeItem("userToken");
-      await AsyncStorage.removeItem("userId");
+  //     // Assuming the logout API returns a success message
+  //     await AsyncStorage.removeItem("userToken");
+  //     await AsyncStorage.removeItem("userId");
 
-      // Use the navigation to redirect after logout
-      navigation.navigate("SignIn");
+  //     // Use the navigation to redirect after logout
+  //     navigation.navigate("SignIn");
 
-      Alert.alert("Success", "You have logged out successfully!");
-    } catch (error) {
-      console.error("Logout error:", error);
-      Alert.alert("Logout Error", "Something went wrong. Please try again.");
-    }
-  };
-  console.log(currentUser);
+  //     Alert.alert("Success", "You have logged out successfully!");
+  //   } catch (error) {
+  //     console.error("Logout error:", error);
+  //     Alert.alert("Logout Error", "Something went wrong. Please try again.");
+  //   }
+  // };
+  // console.log(currentUser);
 
   return (
     <View style={tw`flex flex-col gap-5`}>
@@ -47,7 +47,7 @@ const ProfileHeader = (currentUser) => {
           <Text style={[{ fontFamily: "REM_bold" }, tw`text-lg text-white`]}>
             {currentUser.currentUser?.name}
           </Text>
-          <TouchableOpacity onPress={handleLogout}>
+          {/* <TouchableOpacity onPress={handleLogout}>
             <View>
               <Text
                 style={[
@@ -58,7 +58,7 @@ const ProfileHeader = (currentUser) => {
                 Log out
               </Text>
             </View>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
         <View>
           <TouchableOpacity>
@@ -126,9 +126,9 @@ const ProfileHeader = (currentUser) => {
             </View>
           </View>
         </View>
-        <View style={tw`flex flex-row items-stretch justify-between mt-3`}>
+        <View style={tw`flex flex-row items-center justify-between mt-3`}>
           <TouchableOpacity>
-            <View style={tw`flex flex-col items-center px-2`}>
+            <View style={tw`flex flex-col items-center px-3`}>
               <Svg
                 width="18"
                 height="18"
@@ -145,13 +145,13 @@ const ProfileHeader = (currentUser) => {
                 />
               </Svg>
 
-              <Text style={[{ fontFamily: "REM_bold" }, tw`text-md`]}>
+              <Text style={[{ fontFamily: "REM_bold" }, tw`text-sm`]}>
                 NẠP TIỀN
               </Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity>
-            <View style={tw`flex flex-col items-center px-5 border-l border-r`}>
+            <View style={tw`flex flex-col items-center px-8 border-l border-r`}>
               <Svg
                 width="18"
                 height="18"
@@ -168,7 +168,7 @@ const ProfileHeader = (currentUser) => {
                 />
               </Svg>
 
-              <Text style={[{ fontFamily: "REM_bold" }, tw`text-md`]}>
+              <Text style={[{ fontFamily: "REM_bold" }, tw`text-sm`]}>
                 RÚT TIỀN
               </Text>
             </View>
@@ -191,7 +191,7 @@ const ProfileHeader = (currentUser) => {
                 />
               </Svg>
 
-              <Text style={[{ fontFamily: "REM_bold" }, tw`text-md`]}>
+              <Text style={[{ fontFamily: "REM_bold" }, tw`text-sm`]}>
                 LỊCH SỬ VÍ
               </Text>
             </View>
