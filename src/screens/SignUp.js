@@ -32,26 +32,7 @@ const SignIn = () => {
       <TouchableOpacity style={styles.signInButton}>
         <Text style={styles.buttonText}>Gửi mã xác thực</Text>
       </TouchableOpacity>
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <View style={{ height: 1, width: 145, backgroundColor: "#000" }}></View>
-        <Text style={styles.orText}>hoặc</Text>
-        <View style={{ height: 1, width: 145, backgroundColor: "#000" }}></View>
-      </View>
-      <TouchableOpacity style={styles.button}>
-        <Image
-          source={require("../../assets/gg-logo.png")}
-          style={styles.icon}
-        />
-        <Text style={{ fontSize: 18, fontFamily: "REM_regular" }}>
-          Đăng nhập với Google
-        </Text>
-      </TouchableOpacity>
+
       <View style={styles.formFooter}>
         <Text style={{ fontFamily: "REM_regular" }}>Đã có tài khoản?</Text>
         <TouchableOpacity onPress={() => navigate.push("SignIn")}>

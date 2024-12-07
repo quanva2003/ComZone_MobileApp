@@ -35,7 +35,7 @@ const ProfileOrder = () => {
                 />
               </Svg>
 
-              <Text style={[{ fontFamily: "REM_bold" }, tw`text-md`]}>
+              <Text style={[{ fontFamily: "REM_bold" }, tw`text-sm`]}>
                 Chờ xác nhận
               </Text>
             </View>
@@ -64,7 +64,7 @@ const ProfileOrder = () => {
                 />
               </Svg>
 
-              <Text style={[{ fontFamily: "REM_bold" }, tw`text-md`]}>
+              <Text style={[{ fontFamily: "REM_bold" }, tw`text-sm`]}>
                 Đang giao hàng
               </Text>
             </View>
@@ -92,7 +92,7 @@ const ProfileOrder = () => {
                 />
               </Svg>
 
-              <Text style={[{ fontFamily: "REM_bold" }, tw`text-md`]}>
+              <Text style={[{ fontFamily: "REM_bold" }, tw`text-sm`]}>
                 Đánh giá
               </Text>
             </View>

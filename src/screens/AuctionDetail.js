@@ -116,14 +116,14 @@ const AuctionDetail = ({ route }) => {
     "https://media.istockphoto.com/id/1222357475/vector/image-preview-icon-picture-placeholder-for-website-or-ui-ux-design-vector-illustration.jpg?s=612x612&w=0&k=20&c=KuCo-dRBYV7nz2gbk4J9w1WtTAgpTdznHu55W9FjimE=";
   const allImages = [coverImage, ...auction.comics.previewChapter];
   console.log("all", allImages);
-  const [currentImage, setCurrentImage] = useState("");
+  const [currentImage, setCurrentImage] = useState(coverImage);
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isInCart, setIsInCart] = useState(false);
   const scrollViewRef = useRef(null);
 
   useEffect(() => {
-    setCurrentImage(auction.comics.coverImage);
+    setCurrentImage(auction.comics.coverImage || coverImage);
     if (scrollViewRef.current) {
       scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: true });
     }
@@ -152,9 +152,9 @@ const AuctionDetail = ({ route }) => {
       {/* Current Image */}
       <View style={tw`relative`}>
         <Image
-          source={{ uri: currentImage }}
+          source={{ uri: currentImage || coverImage }}
           style={tw`w-full h-100 mb-4`}
-          onError={() => setCurrentImage("fallback-image-url")} // Handle image load failure
+          onError={() => setCurrentImage(coverImage)} // Handle image load failure
         />
         <View
           style={tw`absolute bottom-7 left-2 bg-white px-2 py-1 rounded-full border border-gray-300`}
@@ -179,7 +179,7 @@ const AuctionDetail = ({ route }) => {
               onPress={() => setCurrentImage(url)}
             >
               <Image
-                source={{ uri: url }}
+                source={{ uri: url || coverImage }}
                 style={tw.style(
                   `w-16 h-16 rounded-xl`,
                   url === currentImage ? `border-2 border-gray-800` : `border-2`

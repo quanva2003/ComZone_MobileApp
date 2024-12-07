@@ -31,6 +31,9 @@ import Comic from "./src/screens/Comic";
 import { io } from "socket.io-client";
 import OrderDetail from "./src/screens/OrderDetail";
 import FeedbackSeller from "./src/screens/FeedbackSeller";
+import AuctionsHistory from "./src/screens/AuctionsHistory";
+import AuctionHistoryDetail from "./src/screens/AuctionHistoryDetail";
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 SplashScreen.preventAutoHideAsync();
@@ -185,6 +188,14 @@ export default function App() {
               <Stack.Screen name="SearchResults" component={SearchResults} />
               <Stack.Screen name="OrderDetail" component={OrderDetail} />
               <Stack.Screen name="FeedbackSeller" component={FeedbackSeller} />
+              <Stack.Screen
+                name="AuctionsHistory"
+                component={AuctionsHistory}
+              />
+              <Stack.Screen
+                name="AuctionHistoryDetail"
+                component={AuctionHistoryDetail}
+              />
             </Stack.Navigator>
           </SafeAreaProvider>
         </NavigationContainer>
