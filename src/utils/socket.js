@@ -1,4 +1,3 @@
-// useSocket.js
 import { useState, useEffect } from "react";
 import { io } from "socket.io-client";
 
@@ -6,25 +5,25 @@ const useSocket = () => {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const socketInstance = io(process.env.BASE_URL); 
+    const newSocket = io(process.env.BASE_URL);
+    setSocket(newSocket);
 
-    socketInstance.on("connect", () => {
-      console.log("Socket connected:", socketInstance.id);
-      setSocket(socketInstance);
+    newSocket.on("connect", () => {
+      console.log("Socket connected:", newSocket.id);
     });
 
-    socketInstance.on("connect_error", (error) => {
+    newSocket.on("connect_error", (error) => {
       console.error("Socket connection error:", error);
     });
 
-    // Cleanup socket connection on unmount
+    // Cleanup on unmount
     return () => {
-      if (socketInstance) {
-        socketInstance.disconnect();
+      if (newSocket) {
+        newSocket.disconnect();
         console.log("Socket disconnected");
       }
     };
-  }, []);
+  }, []); // Empty dependency array means this effect runs once
 
   return socket;
 };

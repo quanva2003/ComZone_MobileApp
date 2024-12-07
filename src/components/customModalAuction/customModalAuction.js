@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, TouchableOpacity, Modal, Alert } from "react-native";
 import tw from "twrnc";
 import { privateAxios } from "../../middleware/axiosInstance";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const CustomModal = ({
   visible,
@@ -13,13 +14,15 @@ const CustomModal = ({
   confirmText = "Confirm",
   cancelText = "Cancel",
 }) => {
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
+    const userId = await AsyncStorage.getItem("userId");
+
     if (userId) {
       // Make the real API call to place the deposit
-      depositApiCall(auctionId)
+      depositApiCall(auction)
         .then(() => {
           console.log("Deposit successful");
-          onDepositSuccess(); // Assuming this is a callback passed as a prop
+          onConfirm(); // Assuming this is a callback passed as a prop
           onClose();
         })
         .catch((error) => {
