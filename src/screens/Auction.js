@@ -25,6 +25,7 @@ const Auction = () => {
   const fetchAuctions = async () => {
     try {
       const response = await axios.get(`${process.env.BASE_URL}auction`);
+      console.log(response.data);
       const auctionComics = response.data.filter(
         (auction) => auction.status === "ONGOING"
       );

@@ -35,6 +35,8 @@ import { privateAxios, publicAxios } from "../middleware/axiosInstance";
 const AuctionDetail = ({ route }) => {
   const navigation = useNavigation();
   const { auctionData } = route.params;
+  console.log("auctionData:", auctionData);
+
   const socket = useSocket();
   const [highestBid, setHighestBid] = useState(null); // Track the highest bid
   const [auction, setAuction] = useState(auctionData);
@@ -399,7 +401,7 @@ const AuctionDetail = ({ route }) => {
                   Số tiền cần cọc:
                 </Text>
                 <Text style={[tw`text-base ml-2 `, { fontFamily: "REM_bold" }]}>
-                  {CurrencySplitter(auction.currentPrice + auction.priceStep)} đ
+                  {CurrencySplitter(auction.depositAmount)} đ
                 </Text>
               </View>
 
