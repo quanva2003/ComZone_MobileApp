@@ -1,6 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
+console.log(process.env.BASE_URL);
+
 // Axios instance setup
 const privateAxios = axios.create({
   baseURL: process.env.BASE_URL,

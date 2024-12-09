@@ -24,6 +24,7 @@ const SignIn = () => {
 
   const logInAccount = async () => {
     await AsyncStorage.removeItem("token", token);
+    console.log(process.env.BASE_URL);
 
     const responseLogin = await axios.post(
       `${process.env.BASE_URL}auth/login`,

@@ -23,6 +23,8 @@ const SearchResults = () => {
   const [searchText, setSearchText] = useState(initialSearchText || "");
   const [results, setResults] = useState(initialResults);
   const navigation = useNavigation();
+  console.log(process.env.BASE_URL);
+
   useEffect(() => {
     setSearchText(initialSearchText || "");
   }, [initialSearchText]);

@@ -16,15 +16,20 @@ const ComicsOfSeller = (seller) => {
   const [comics, setComics] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
+  console.log(seller.seller.id);
+  console.log(process.env.BASE_URL);
+
   const fetchComics = async () => {
     try {
       const response = await axios.get(
         `${process.env.BASE_URL}comics/seller/${seller.seller.id}`
       );
+      console.log(response.data);
+
       setComics(response.data.slice(0, 20));
       setLoading(false);
     } catch (error) {
-      console.error("Error fetching comics:", error);
+      console.error("Error fetching comics of seller:", error);
       setLoading(false);
     }
   };

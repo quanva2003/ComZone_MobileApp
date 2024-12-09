@@ -22,7 +22,7 @@ const StarRating = ({ rating }) => {
 const FeedbackSection = ({ feedbacks }) => {
   console.log("feedbacks:", feedbacks);
 
-  if (!feedbacks || feedbacks.feedback.length === 0) {
+  if (!feedbacks || feedbacks.length === 0) {
     return (
       <View style={tw`py-4`}>
         <Text style={[tw`text-lg text-center`, { fontFamily: "REM_bold" }]}>

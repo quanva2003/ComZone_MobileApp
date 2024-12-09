@@ -18,6 +18,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const WalletDeposit = ({ navigation, route }) => {
   const [depositAmount, setDepositAmount] = useState("");
   const { userInfo } = route.params || {};
+  console.log(process.env.BASE_URL);
   if (!userInfo) {
     return (
       <View style={tw`flex-1 justify-center items-center`}>

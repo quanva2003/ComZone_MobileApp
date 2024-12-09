@@ -14,6 +14,8 @@ const Profile = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const navigation = useNavigation();
   const [token, setToken] = useState(null);
+  console.log(process.env.BASE_URL);
+
   const handleLogout = async () => {
     try {
       console.log("base", process.env.BASE_URL);

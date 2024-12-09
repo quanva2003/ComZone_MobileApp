@@ -50,6 +50,7 @@ const ComicDetail = ({ route }) => {
   const [feedbacks, setFeedbacks] = useState([]);
   const scrollViewRef = useRef(null);
   const { addToCart, cartCount } = useContext(CartContext);
+  console.log(process.env.BASE_URL);
 
   const checkIfInCart = async () => {
     const cart = await getCart();
@@ -87,6 +88,8 @@ const ComicDetail = ({ route }) => {
           },
         }
       );
+      console.log(response.data);
+
       setFeedbacks(response.data);
     } catch (error) {
       console.error("Failed to fetch feedbacks:", error);

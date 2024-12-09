@@ -5,6 +5,8 @@ const useSocket = () => {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
+    console.log(process.env.BASE_URL);
+
     const newSocket = io(process.env.BASE_URL);
     setSocket(newSocket);
 
