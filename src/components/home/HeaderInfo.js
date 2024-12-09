@@ -44,7 +44,7 @@ const HeaderInfo = () => {
         </View>
       </View>
       <View style={tw`flex flex-row gap-2`}>
-        <TouchableOpacity onPress={() => navigate.push("SignUp")}>
+        {/* <TouchableOpacity onPress={() => navigate.push("SignUp")}>
           <View style={[styles.shadowContainer, tw`p-2 rounded-full bg-white`]}>
             <Icon type="MaterialIcons" name="chat-bubble-outline" size={20} />
           </View>
@@ -53,7 +53,7 @@ const HeaderInfo = () => {
           <View style={[styles.shadowContainer, tw`p-2 rounded-full bg-white`]}>
             <Icon type="MaterialIcons" name="notifications-none" size={20} />
           </View>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <TouchableOpacity onPress={() => navigate.push("Cart")}>
           <View style={[styles.shadowContainer, tw`p-2 rounded-full bg-white`]}>
             <Icon type="MaterialIcons" name="shopping-cart" size={20} />

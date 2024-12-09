@@ -14,6 +14,7 @@ import { useNavigation } from "@react-navigation/native";
 import HeaderInfo from "../components/home/HeaderInfo";
 import { Icon } from "react-native-elements"; // Assuming you're using react-native-elements
 import CurrencySplitter from "../assistants/Spliter";
+import { publicAxios } from "../middleware/axiosInstance";
 
 const Comic = () => {
   const [comics, setComics] = useState([]);
@@ -26,7 +27,7 @@ const Comic = () => {
 
   const fetchComics = async () => {
     try {
-      const response = await axios.get(
+      const response = await publicAxios.get(
         `${process.env.BASE_URL}comics/status/available`
       );
       console.log(response.data);

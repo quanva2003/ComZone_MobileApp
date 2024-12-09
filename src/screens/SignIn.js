@@ -21,10 +21,8 @@ const SignIn = () => {
     axios.get(`${process.env.BASE_URL}auth/google/login`);
   };
   console.log("url", process.env.BASE_URL);
-
   const logInAccount = async () => {
     await AsyncStorage.removeItem("token", token);
-    console.log(process.env.BASE_URL);
 
     const responseLogin = await axios.post(
       `${process.env.BASE_URL}auth/login`,
@@ -33,9 +31,11 @@ const SignIn = () => {
         password,
       }
     );
-    console.log(responseLogin.data.id);
+    console.log("res", responseLogin.data.id);
 
     const token = responseLogin.data.accessToken;
+    console.log("token", token);
+
     AsyncStorage.setItem("userId", responseLogin.data.id);
     await AsyncStorage.setItem("token", token);
     console.log("Login Successful, Token Saved");

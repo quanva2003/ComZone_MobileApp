@@ -45,7 +45,7 @@ const Auction = () => {
 
     return (
       <View
-        style={tw`bg-white rounded-lg shadow-sm py-4 px-2 mb-4 w-43 items-center`}
+        style={tw`bg-white rounded-lg shadow-sm py-4 px-2 mb-4 w-43 items-center mx-2`}
       >
         <Image
           source={{ uri: item.comics.coverImage }}
@@ -88,7 +88,7 @@ const Auction = () => {
             keyExtractor={(item) => item.id.toString()}
             numColumns={2}
             showsHorizontalScrollIndicator={false}
-            columnWrapperStyle={tw`justify-around`}
+            columnWrapperStyle={tw`justify-start`}
             key="auction-list"
           />
 

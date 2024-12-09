@@ -14,6 +14,7 @@ import { useNavigation } from "@react-navigation/native";
 const SignIn = () => {
   const navigate = useNavigation();
   const [showPassword, setShowPassword] = useState(false);
+  console.log(process.env.BASE_URL);
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
