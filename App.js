@@ -34,7 +34,8 @@ import FeedbackSeller from "./src/screens/FeedbackSeller";
 import AuctionsHistory from "./src/screens/AuctionsHistory";
 import AuctionHistoryDetail from "./src/screens/AuctionHistoryDetail";
 import useSocket from "./src/utils/socket";
-
+import Ionicons from "@expo/vector-icons/Ionicons";
+import Notification from "./src/screens/Notification";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 SplashScreen.preventAutoHideAsync();
@@ -88,6 +89,19 @@ const MainTabs = () => {
               name="book"
               color={focused ? "#fff" : "#666"}
               size={focused ? 30 : 24} // Increase size if focused
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Thông báo"
+        component={Notification}
+        options={{
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name="notifications-sharp"
+              size={24}
+              color={focused ? "#fff" : "#666"}
             />
           ),
         }}
