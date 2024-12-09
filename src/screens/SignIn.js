@@ -24,6 +24,7 @@ const SignIn = () => {
 
   const logInAccount = async () => {
     await AsyncStorage.removeItem("token", token);
+    // await AsyncStorage.removeItem("userId", userId);
 
     const responseLogin = await axios.post(
       `${process.env.BASE_URL}auth/login`,
@@ -32,7 +33,6 @@ const SignIn = () => {
         password,
       }
     );
-    console.log(responseLogin.data.id);
 
     const token = responseLogin.data.accessToken;
     AsyncStorage.setItem("userId", responseLogin.data.id);
