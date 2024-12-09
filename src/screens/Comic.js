@@ -22,6 +22,7 @@ const Comic = () => {
   const [searchText, setSearchText] = useState("");
 
   const navigation = useNavigation();
+  console.log(process.env.BASE_URL);
 
   const fetchComics = async () => {
     try {

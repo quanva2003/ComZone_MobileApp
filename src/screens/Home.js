@@ -22,6 +22,8 @@ const Home = () => {
   const [searchText, setSearchText] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
   const [searchResults, setSearchResults] = useState([]);
+  console.log(process.env.BASE_URL);
+
   const fetchCurrentUser = async () => {
     try {
       const storedUser = await AsyncStorage.getItem("currentUser");
