@@ -31,27 +31,29 @@ import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import useSocket from "../utils/socket";
 import CustomModal from "../components/customModalAuction/customModalAuction";
 import { privateAxios, publicAxios } from "../middleware/axiosInstance";
+import { AuctionResult } from "../components/auction/AuctionResult";
 
 const AuctionDetail = ({ route }) => {
   const navigation = useNavigation();
   const { auctionData } = route.params;
-  console.log("auctionData:", auctionData);
-  console.log(process.env.BASE_URL);
-
   const socket = useSocket();
   const [highestBid, setHighestBid] = useState(null); // Track the highest bid
   const [auction, setAuction] = useState(auctionData);
   const [isHighest, setIsHighest] = useState(false);
+  const [auctionEnded, setAuctionEnded] = useState(false);
   const bottomSheetRef = useRef(null);
 
   const [userId, setUserId] = useState(null);
+  const handleAuctionEnd = () => {
+    setAuctionEnded(true);
+  };
 
   useEffect(() => {
     const fetchUserId = async () => {
       try {
         const fetchedUserId = await AsyncStorage.getItem("userId");
         if (fetchedUserId !== null) {
-          setUserId(fetchedUserId); // Save userId in the state
+          setUserId(fetchedUserId);
         } else {
           console.log("No userId found");
         }
@@ -61,13 +63,13 @@ const AuctionDetail = ({ route }) => {
     };
     fetchUserId();
   }, []);
-  // Bottom sheet snap points
+
   const snapPoints = useMemo(() => ["60%"], []);
 
-  // State for bid input
+  const [bids, setBids] = useState([]);
   const [bidPrice, setBidPrice] = useState("");
+  const [winner, setWinner] = useState(false);
 
-  // Callback to open bottom sheet
   const handleOpenBottomSheet = useCallback(() => {
     bottomSheetRef.current?.snapToIndex(0);
   }, []);
@@ -88,7 +90,9 @@ const AuctionDetail = ({ route }) => {
         );
 
         const bidData = responseBid.data;
-        // setBids(bidData);
+        console.log("zzzz", bidData);
+
+        setBids(bidData);
         setHighestBid(responseBid.data[0]);
       } catch (error) {
         console.error("Error fetching comic details:", error);
@@ -98,6 +102,35 @@ const AuctionDetail = ({ route }) => {
     };
     fetchBid();
   }, [auction.id]);
+  useEffect(() => {
+    if (!userId) {
+      setWinner(null);
+      return;
+    }
+    console.log("12312321");
+
+    let userParticipated = false;
+
+    if (bids?.length > 0) {
+      userParticipated = bids.some((bid) => bid.user.id === userId);
+    }
+    if (
+      auction?.status === "SUCCESSFUL" ||
+      auction?.status === "COMPLETED" ||
+      auction?.status === "FAILED"
+    ) {
+      if (auction.winner?.id === userId) {
+        setWinner(true);
+      } else if (userParticipated) {
+        setWinner(false);
+      } else {
+        setWinner(null);
+      }
+    } else {
+      setWinner(null);
+    }
+  }, [auction?.status, auction?.winner, userId, bids]);
+
   const handleSubmitBid = async () => {
     const numericBidPrice = parseFloat(bidPrice.replace(/[^0-9]/g, ""));
     const currentPrice = auction.currentPrice;
@@ -281,13 +314,15 @@ const AuctionDetail = ({ route }) => {
             </Text>
           </View>
         </View>
-
-        {/* Description */}
+      </View>
+      <View>
+        <AuctionResult isWinner={winner} />
       </View>
       <View style={tw`flex-col gap-2 mt-2 items-center bg-[#232323] p-2`}>
         <CustomCountDown
           endTime={new Date(auction?.endTime).getTime()}
           detail={"detail"}
+          onAuctionEnd={handleAuctionEnd}
         />
 
         {/* Current Price and Price Step Section */}
@@ -332,7 +367,7 @@ const AuctionDetail = ({ route }) => {
       </View>
       {auction.comics.sellerId.id !== userId && (
         <View>
-          {hasDeposited ? (
+          {hasDeposited && auctionData.status === "ONGOING" ? (
             <View style={tw`p-2 `}>
               {isHighest ? (
                 <View
@@ -406,28 +441,29 @@ const AuctionDetail = ({ route }) => {
                   {CurrencySplitter(auction.depositAmount)} đ
                 </Text>
               </View>
-
-              <TouchableOpacity
-                style={[
-                  tw`py-2 px-1 rounded-full border items-center justify-center `,
-                  {
-                    backgroundColor: "#fff",
-                    borderColor: "#000",
-                    boxShadow: "2px 2px",
-                    width: "40%", // This ensures the TouchableOpacity takes full width of the parent
-                  },
-                ]}
-                onPress={handleOpenDepositModal}
-              >
-                <Text
+              {!auctionEnded && auctionData.status !== "UPCOMING" && (
+                <TouchableOpacity
                   style={[
-                    tw`text-sm`,
-                    { color: "#000", fontFamily: "REM_bold" },
+                    tw`py-2 px-1 rounded-full border items-center justify-center `,
+                    {
+                      backgroundColor: "#fff",
+                      borderColor: "#000",
+                      boxShadow: "2px 2px",
+                      width: "40%", // This ensures the TouchableOpacity takes full width of the parent
+                    },
                   ]}
+                  onPress={handleOpenDepositModal}
                 >
-                  Đặt cọc tại đây
-                </Text>
-              </TouchableOpacity>
+                  <Text
+                    style={[
+                      tw`text-sm`,
+                      { color: "#000", fontFamily: "REM_bold" },
+                    ]}
+                  >
+                    Đặt cọc tại đây
+                  </Text>
+                </TouchableOpacity>
+              )}
             </View>
           )}
           <CustomModal

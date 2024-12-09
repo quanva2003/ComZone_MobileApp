@@ -31,7 +31,6 @@ const SignIn = () => {
         password,
       }
     );
-    console.log("res", responseLogin.data.id);
 
     const token = responseLogin.data.accessToken;
     console.log("token", token);

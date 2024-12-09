@@ -2,13 +2,14 @@ import React, { useState, useEffect } from "react";
 import { View, Text } from "react-native";
 import tw from "twrnc";
 
-const CustomCountDown = ({ endTime, detail }) => {
+const CustomCountDown = ({ endTime, detail, onAuctionEnd }) => {
   const [timeRemaining, setTimeRemaining] = useState(
     Math.max(0, endTime - Date.now())
   );
+  const [auctionEnded, setAuctionEnded] = useState(false);
+
   const formatEndTime = (endTime) => {
     const date = new Date(endTime);
-
     return date.toLocaleString("vi-VN", {
       timeZone: "Asia/Ho_Chi_Minh",
       weekday: "short",
@@ -29,6 +30,10 @@ const CustomCountDown = ({ endTime, detail }) => {
 
       if (newTime === 0) {
         clearInterval(interval);
+        setAuctionEnded(true);
+        if (onAuctionEnd) {
+          onAuctionEnd();
+        }
       }
     }, 1000);
 
@@ -48,21 +53,38 @@ const CustomCountDown = ({ endTime, detail }) => {
       2,
       "0"
     );
+
     const seconds = String(totalSeconds % 60).padStart(2, "0");
+
     return { days, hours, minutes, seconds };
   };
+
   const time = formatTime(timeRemaining);
 
   return (
     <View>
-      <Text
-        style={[
-          tw`text-base text-white`,
-          { fontFamily: "REM_regular", color: detail ? "white" : "black" },
-        ]}
-      >
-        Kết thúc sau: {detail && formatEndTime(endTime)}
-      </Text>
+      {auctionEnded ? (
+        <Text
+          style={{
+            fontFamily: "REM",
+            fontSize: 20,
+            paddingBottom: 10,
+            color: "red",
+            textAlign: "center",
+          }}
+        >
+          Phiên đấu giá đã kết thúc vào {formatEndTime(endTime)}
+        </Text>
+      ) : (
+        <Text
+          style={[
+            tw`text-base text-white`,
+            { fontFamily: "REM_regular", color: detail ? "white" : "black" },
+          ]}
+        >
+          Kết thúc sau: {detail && formatEndTime(endTime)}
+        </Text>
+      )}
 
       <View style={tw`flex-row items-center gap-1 mt-2 justify-center`}>
         <View style={tw`flex-col items-center gap-1`}>
@@ -133,7 +155,6 @@ const CustomCountDown = ({ endTime, detail }) => {
             Giây
           </Text>
         </View>
-        {/* <Text style={tw`text-lg text-gray-800`}>{formatTime(timeRemaining)}</Text> */}
       </View>
     </View>
   );

@@ -21,13 +21,17 @@ const Auction = () => {
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
   const navigate = useNavigation();
-
+  console.log("1", process.env.BASE_URL);
   const fetchAuctions = async () => {
     try {
       const response = await axios.get(`${process.env.BASE_URL}auction`);
       console.log(response.data);
       const auctionComics = response.data.filter(
-        (auction) => auction.status === "ONGOING"
+        (auction) =>
+          auction.status === "ONGOING" ||
+          auction.status === "SUCCESSFUL" ||
+          auction.status === "FAILED" ||
+          auction.status === "COMPLETED"
       );
       setOngoingAuctions(auctionComics);
       setFilteredAuctions(auctionComics);

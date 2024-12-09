@@ -14,17 +14,19 @@ import CurrencySplitter from "../../assistants/Spliter";
 import CountDown from "react-native-countdown-component";
 import { useNavigation } from "@react-navigation/native";
 import CustomCountDown from "../countdown/CustomCountdown";
+import { privateAxios } from "../../middleware/axiosInstance";
 
 const Auction = () => {
   const [ongoingAuctions, setOngoingAuctions] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigation();
+ 
   const fetchAuctions = async () => {
     try {
       const response = await axios.get(`${process.env.BASE_URL}auction`);
       console.log("res auction:", response.data);
       const auctionComics = response.data.filter(
-        (auction) => auction.status === "ONGOING"
+        (auction) => auction.status === "ONGOING" || auction.status === "SUCCESSFUL"|| auction.status === "FAILED"
       );
       console.log("auctionComics", auctionComics);
 
