@@ -19,6 +19,7 @@ const AuctionHistoryDetail = ({ route, navigation }) => {
   const [bids, setBids] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [token, setToken] = useState(null);
+  console.log(process.env.BASE_URL);
 
   useEffect(() => {
     fetchToken();

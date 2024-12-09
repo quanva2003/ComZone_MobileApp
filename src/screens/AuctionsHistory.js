@@ -22,6 +22,7 @@ const AuctionsHistory = ({ route }) => {
   const [userId, setUserId] = useState(null);
   const [activeTab, setActiveTab] = useState("ALL");
   const navigation = useNavigation();
+  console.log(process.env.BASE_URL);
 
   const [routes] = useState([
     { key: "ALL", title: "Tất cả" },

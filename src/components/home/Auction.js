@@ -20,6 +20,7 @@ const Auction = () => {
   const [ongoingAuctions, setOngoingAuctions] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigation();
+  console.log("1", process.env.BASE_URL);
   const fetchAuctions = async () => {
     try {
       const response = await axios.get(`${process.env.BASE_URL}auction`);

@@ -34,6 +34,7 @@ const OrderManagement = ({ route }) => {
     { key: "SUCCESSFUL", title: "Hoàn tất" },
     { key: "CANCELLED", title: "Đã hủy" },
   ]);
+  console.log(process.env.BASE_URL);
 
   const fetchOrdersWithItems = async () => {
     try {

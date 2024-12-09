@@ -22,6 +22,7 @@ const AddressList = () => {
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const { selectedAddress } = route.params || {};
   const MAX_ADDRESSES = 3;
+  console.log(process.env.BASE_URL);
 
   const fetchAddresses = async () => {
     try {

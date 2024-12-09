@@ -16,6 +16,8 @@ const ComicSealed = () => {
   const [comics, setComics] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
+  console.log(process.env.BASE_URL);
+
   const fetchComics = async () => {
     try {
       const response = await axios.get(

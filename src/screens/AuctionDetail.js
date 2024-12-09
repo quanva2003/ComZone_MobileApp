@@ -36,6 +36,7 @@ const AuctionDetail = ({ route }) => {
   const navigation = useNavigation();
   const { auctionData } = route.params;
   console.log("auctionData:", auctionData);
+  console.log(process.env.BASE_URL);
 
   const socket = useSocket();
   const [highestBid, setHighestBid] = useState(null); // Track the highest bid
@@ -128,6 +129,7 @@ const AuctionDetail = ({ route }) => {
         "Bid Submitted",
         `Your bid of ${CurrencySplitter(numericBidPrice)} đ has been placed`
       );
+      setBidPrice("");
     } else {
       console.error("Socket not connected.");
     }

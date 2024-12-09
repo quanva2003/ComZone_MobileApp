@@ -40,6 +40,8 @@ const Checkout = ({ route, navigation }) => {
   const bottomSheetRef = useRef(null);
   const [currentNoteSellerId, setCurrentNoteSellerId] = useState(null);
   const snapPoints = useMemo(() => ["25%"], []);
+  console.log(process.env.BASE_URL);
+
   const openNoteBottomSheet = (sellerId) => {
     console.log("Opening bottom sheet for seller", sellerId);
     setCurrentNoteSellerId(sellerId);
@@ -61,6 +63,8 @@ const Checkout = ({ route, navigation }) => {
 
   const currentUserAddress = async () => {
     if (token) {
+      console.log(process.env.BASE_URL);
+
       try {
         setIsLoading(true);
         const resUserAddress = await axios.get(
