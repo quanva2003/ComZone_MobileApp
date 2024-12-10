@@ -5,7 +5,8 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  FlatList, // Import FlatList instead of ScrollView
+  FlatList,
+  Modal, // Import FlatList instead of ScrollView
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import tw from "twrnc";
@@ -17,11 +18,13 @@ import Auction from "../components/home/Auction";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { debounce } from "lodash";
 import axios from "axios";
+import PushNotificationScreen from "./PushNotification";
 const Home = () => {
   const navigation = useNavigation();
   const [searchText, setSearchText] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
   const [searchResults, setSearchResults] = useState([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   console.log(process.env.BASE_URL);
 
   const fetchCurrentUser = async () => {
@@ -62,8 +65,20 @@ const Home = () => {
     setSearchText(text);
     // handleSearch();
   };
+  const checkFirstVisit = async () => {
+    try {
+      const hasVisited = await AsyncStorage.getItem("hasVisitedHome");
+      if (!hasVisited) {
+        setIsModalVisible(true);
+        await AsyncStorage.setItem("hasVisitedHome", "true");
+      }
+    } catch (error) {
+      console.error("Error checking first visit:", error);
+    }
+  };
 
   useEffect(() => {
+    checkFirstVisit();
     fetchCurrentUser();
   }, []);
 
@@ -126,12 +141,33 @@ const Home = () => {
   };
 
   return (
-    <FlatList
-      data={data}
-      renderItem={renderItem}
-      keyExtractor={(item, index) => index.toString()}
-      contentContainerStyle={tw`p-5`}
-    />
+    <View style={tw`flex-1`}>
+      <Modal
+        visible={isModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setIsModalVisible(false)} // Close the modal on back press
+      >
+        <View style={tw`flex-1 justify-center items-center bg-black/50`}>
+          <View style={tw`flex-1 w-4/5 bg-white rounded-lg p-5`}>
+            <PushNotificationScreen />
+            <TouchableOpacity
+              style={tw`mt-4 bg-red-500 rounded-full p-3`}
+              onPress={() => setIsModalVisible(false)}
+            >
+              <Text style={tw`text-white text-center`}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <FlatList
+        data={data}
+        renderItem={renderItem}
+        keyExtractor={(item, index) => index.toString()}
+        contentContainerStyle={tw`p-5`}
+      />
+    </View>
   );
 };
 
