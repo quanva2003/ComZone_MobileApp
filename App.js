@@ -36,7 +36,8 @@ import Notification from "./src/screens/Notification";
 import { SocketProvider } from "./src/context/SocketContext";
 import { NotificationProvider } from "./src/context/NotificationContext";
 import TransactionHistory from "./src/screens/TransactionHistory";
-
+import AddNewAddress from "./src/screens/AddNewAddress";
+import EditAddress from "./src/screens/EditAddress";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 SplashScreen.preventAutoHideAsync();
@@ -205,6 +206,11 @@ export default function App() {
                     name="TransactionHistory"
                     component={TransactionHistory}
                   />
+                  <Stack.Screen
+                    name="AddNewAddress"
+                    component={AddNewAddress}
+                  />
+                  <Stack.Screen name="EditAddress" component={EditAddress} />
                 </Stack.Navigator>
               </SafeAreaProvider>
             </NavigationContainer>

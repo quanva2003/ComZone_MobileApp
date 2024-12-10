@@ -6,7 +6,11 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native";
 import tw from "twrnc";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -44,9 +48,11 @@ const AddressList = () => {
     }
   };
 
-  useEffect(() => {
-    fetchAddresses();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchAddresses();
+    }, [])
+  );
   useEffect(() => {
     if (selectedAddress) {
       console.log("b", selectedAddress.id);
@@ -120,6 +126,20 @@ const AddressList = () => {
             {item.fullAddress}
           </Text>
         </View>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate("EditAddress", {
+              addressId: item.id,
+              fullName: item.fullName,
+              phone: item.phone,
+              isDefault: item.isDefault,
+            })
+          }
+        >
+          <Text style={[tw`text-sky-700`, { fontFamily: "REM_regular" }]}>
+            Sửa
+          </Text>
+        </TouchableOpacity>
       </TouchableOpacity>
     );
   };
@@ -157,10 +177,10 @@ const AddressList = () => {
         />
       )}
       {/* Add New Address Button */}
-      {addresses.length < MAX_ADDRESSES && (
+      {!loading && addresses.length < MAX_ADDRESSES && (
         <TouchableOpacity
           style={tw`mt-4 bg-white py-2 px-4 rounded-lg flex-row items-center gap-2 justify-center`}
-          onPress={() => navigation.navigate("AddAddress")}
+          onPress={() => navigation.navigate("AddNewAddress")}
         >
           <Svg
             xmlns="http://www.w3.org/2000/svg"
