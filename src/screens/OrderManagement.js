@@ -259,10 +259,26 @@ const OrderManagement = ({ route }) => {
                   key={orderItem.id}
                   style={tw`flex-row items-center mt-2 border-t border-gray-300 pt-2`}
                 >
-                  <Image
-                    source={{ uri: orderItem.comics.coverImage }}
-                    style={tw`h-22 w-16 mr-4`}
-                  />
+                  <View style={tw`relative`}>
+                    {orderItem.comics.type === "AUCTION" && (
+                      <View style={tw`absolute top-0 left-0 w-12 h-12 z-10`}>
+                        <View
+                          style={[
+                            tw`absolute bg-red-500 w-15 h-5 top-3 left-[-10px] items-center justify-center`,
+                            { transform: [{ rotate: "-45deg" }] },
+                          ]}
+                        >
+                          <Text style={tw`text-white text-xs font-bold`}>
+                            Đấu giá
+                          </Text>
+                        </View>
+                      </View>
+                    )}
+                    <Image
+                      source={{ uri: orderItem.comics.coverImage }}
+                      style={tw`h-22 w-16 mr-4`}
+                    />
+                  </View>
                   <View style={tw`h-24 flex justify-between`}>
                     <Text
                       numberOfLines={2}
