@@ -142,7 +142,9 @@ const ProfileHeader = ({ currentUser }) => {
               </Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigate.navigate("TransactionHistory")}
+          >
             <View style={tw`flex flex-col items-center px-2`}>
               <Svg
                 width="18"
