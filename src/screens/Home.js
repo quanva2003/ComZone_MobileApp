@@ -17,6 +17,7 @@ import Auction from "../components/home/Auction";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { debounce } from "lodash";
 import axios from "axios";
+import PushNotificationScreen from "./PushNotification";
 const Home = () => {
   const navigation = useNavigation();
   const [searchText, setSearchText] = useState("");
@@ -126,12 +127,15 @@ const Home = () => {
   };
 
   return (
-    <FlatList
-      data={data}
-      renderItem={renderItem}
-      keyExtractor={(item, index) => index.toString()}
-      contentContainerStyle={tw`p-5`}
-    />
+    <View>
+      <PushNotificationScreen />
+      <FlatList
+        data={data}
+        renderItem={renderItem}
+        keyExtractor={(item, index) => index.toString()}
+        contentContainerStyle={tw`p-5`}
+      />
+    </View>
   );
 };
 
