@@ -35,6 +35,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import Notification from "./src/screens/Notification";
 import { SocketProvider } from "./src/context/SocketContext";
 import { NotificationProvider } from "./src/context/NotificationContext";
+import TransactionHistory from "./src/screens/TransactionHistory";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 SplashScreen.preventAutoHideAsync();
@@ -198,6 +199,10 @@ export default function App() {
                   <Stack.Screen
                     name="AuctionHistoryDetail"
                     component={AuctionHistoryDetail}
+                  />
+                  <Stack.Screen
+                    name="TransactionHistory"
+                    component={TransactionHistory}
                   />
                 </Stack.Navigator>
               </SafeAreaProvider>
