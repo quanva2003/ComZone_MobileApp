@@ -127,15 +127,12 @@ const Home = () => {
   };
 
   return (
-    <View>
-      <PushNotificationScreen />
-      <FlatList
-        data={data}
-        renderItem={renderItem}
-        keyExtractor={(item, index) => index.toString()}
-        contentContainerStyle={tw`p-5`}
-      />
-    </View>
+    <FlatList
+      data={data}
+      renderItem={renderItem}
+      keyExtractor={(item, index) => index.toString()}
+      contentContainerStyle={tw`p-5`}
+    />
   );
 };
 

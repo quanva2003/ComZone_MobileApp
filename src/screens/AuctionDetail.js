@@ -73,6 +73,18 @@ const AuctionDetail = ({ route }) => {
     fetchUserId();
   }, []);
 
+  useEffect(() => {
+    const handleAuctionUpdated = (data) => {
+      setAuction(data);
+    };
+
+    socket.on("auctionUpdated", handleAuctionUpdated);
+
+    return () => {
+      socket.off("auctionUpdated", handleAuctionUpdated);
+    };
+  }, [auction]);
+
   const snapPoints = useMemo(() => ["60%"], []);
 
   const [bids, setBids] = useState([]);
@@ -99,6 +111,8 @@ const AuctionDetail = ({ route }) => {
 
     const comic = { ...auctionData.comics };
     comic.price = price;
+    comic.auctionId = auction?.id;
+    comic.type = type;
 
     console.log("Updated comic auction:", comic);
 
@@ -398,7 +412,7 @@ const AuctionDetail = ({ route }) => {
                 auctionData.maxPrice && (
                 <Text
                   style={{
-                    fontSize: "17px",
+                    fontSize: 17,
                     paddingTop: "10px",
                     fontFamily: "REM",
                     fontWeight: "400",
@@ -485,24 +499,26 @@ const AuctionDetail = ({ route }) => {
             </View>
           ) : (
             !auctionEnded && (
-              <TouchableOpacity
-                style={[
-                  tw`py-2 rounded-lg bg-black items-center justify-center mt-3 w-full`,
-                ]}
-                onPress={handleOpenBottomSheet}
-              >
-                <Text
-                  style={[tw`text-xl text-white`, { fontFamily: "REM_bold" }]}
+              <View style={tw`w-full flex items-center justify-center py-2`}>
+                <TouchableOpacity
+                  style={[
+                    tw`py-2 rounded-lg bg-black items-center justify-center mt-3 w-11/12`,
+                  ]}
+                  onPress={handleOpenBottomSheet}
                 >
-                  RA GIÁ
-                </Text>
-              </TouchableOpacity>
+                  <Text
+                    style={[tw`text-xl text-white`, { fontFamily: "REM_bold" }]}
+                  >
+                    RA GIÁ
+                  </Text>
+                </TouchableOpacity>
+              </View>
             )
           )}
-          {!auctionEnded && (
+          {!auctionEnded && hasDeposited && (
             <View style={tw`w-full flex items-center justify-center py-2`}>
               <TouchableOpacity
-                style={tw`py-2 px-6 rounded-lg bg-black`}
+                style={tw`py-2 px-4 rounded-lg bg-black`}
                 onPress={() => handleBuy(auction, auction.maxPrice, "maxPrice")}
               >
                 <Text

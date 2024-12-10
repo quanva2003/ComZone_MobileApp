@@ -20,6 +20,7 @@ import CurrencySplitter from "../assistants/Spliter";
 import PaymentDetail from "../components/checkout/PaymentDetail";
 import BottomSheet, { BottomSheetTextInput } from "@gorhom/bottom-sheet";
 import { useRoute } from "@react-navigation/native";
+import { useSocketContext } from "../context/SocketContext";
 
 const Checkout = ({ route, navigation }) => {
   const { selectedComics } = route.params || { selectedComics: [] };
@@ -53,6 +54,7 @@ const Checkout = ({ route, navigation }) => {
       console.error("Bottom sheet ref is null");
     }
   };
+  const socket = useSocketContext();
 
   const saveSellerNote = () => {
     if (currentNoteSellerId) {
@@ -343,8 +345,9 @@ const Checkout = ({ route, navigation }) => {
         );
         console.log("done delivery order");
 
-        // Determine order type
-        const orderType = sellerGroup.comics.some(({ auctionId }) => auctionId)
+        const orderType = sellerGroup.comics.some(
+          ({ comic }) => comic?.auctionId
+        )
           ? "AUCTION"
           : "TRADITIONAL";
         // Create order
@@ -385,6 +388,15 @@ const Checkout = ({ route, navigation }) => {
             }
           );
           orderedComicIds.push(comic.id);
+
+          if (orderType === "AUCTION") {
+            socket.emit("updateAuctionStatus", {
+              auctionId: comic?.auctionId,
+              currentPrice: price,
+              user: userInfo,
+              type: comic?.type,
+            });
+          }
         }
       }
       console.log("done create order items");
