@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import tw from "twrnc";
 import axios from "axios";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import CustomCountDown from "../components/countdown/CustomCountdown";
 import HeaderInfo from "../components/home/HeaderInfo";
 import { Icon } from "react-native-elements"; // Assuming you're using react-native-elements
@@ -42,9 +42,11 @@ const Auction = () => {
     }
   };
 
-  useEffect(() => {
-    fetchAuctions();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchAuctions();
+    }, [])
+  );
 
   const handleChangeText = (text) => {
     setSearchText(text);

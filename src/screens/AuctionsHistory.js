@@ -14,6 +14,7 @@ import tw from "twrnc";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import Svg, { Path, Rect } from "react-native-svg";
+import { convertToVietnameseDate } from "../utils/convertToVietnameseDate";
 
 const AuctionsHistory = ({ route }) => {
   const [auctions, setAuctions] = useState([]);
@@ -288,6 +289,14 @@ const AuctionsHistory = ({ route }) => {
                     ]}
                   >
                     {auction.comics.title}
+                  </Text>
+                  <Text
+                    numberOfLines={2}
+                    ellipsizeMode="tail"
+                    style={tw`text-sm max-w-[300px]`}
+                  >
+                    Vui lòng thanh toán trước{" "}
+                    {convertToVietnameseDate(auction.paymentDeadline)}nếu không sẽ mất cọc
                   </Text>
 
                   {/* Bid Information */}

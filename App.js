@@ -22,20 +22,19 @@ import OrderManagement from "./src/screens/OrderManagement";
 import AddressList from "./src/screens/AddressList";
 import WalletDeposit from "./src/screens/WalletDeposit";
 import AuctionDetail from "./src/screens/AuctionDetail";
-import socket, { connectSocket } from "./src/utils/socket";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { CartProvider } from "./src/context/CartContext";
 import SearchResults from "./src/screens/SearchResult";
 import Auction from "./src/screens/Auction";
 import Comic from "./src/screens/Comic";
-import { io } from "socket.io-client";
 import OrderDetail from "./src/screens/OrderDetail";
 import FeedbackSeller from "./src/screens/FeedbackSeller";
 import AuctionsHistory from "./src/screens/AuctionsHistory";
 import AuctionHistoryDetail from "./src/screens/AuctionHistoryDetail";
-import useSocket from "./src/utils/socket";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Notification from "./src/screens/Notification";
+import { SocketProvider } from "./src/context/SocketContext";
+import { NotificationProvider } from "./src/context/NotificationContext";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 SplashScreen.preventAutoHideAsync();
@@ -125,8 +124,6 @@ const MainTabs = () => {
 };
 
 export default function App() {
-  // const socket = useSocket();
-
   const [loaded, error] = useFonts({
     REM: require("./assets/fonts/REM.ttf"),
     REM_italic: require("./assets/fonts/REM-Italic.ttf"),
@@ -150,44 +147,63 @@ export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <CartProvider>
-        <NavigationContainer>
-          <SafeAreaProvider>
-            <StatusBar style="auto" />
-            <Stack.Navigator
-              screenOptions={{
-                headerShown: false,
-                contentStyle: { marginTop: 25 },
-              }}
-              initialRouteName="SignIn"
-            >
-              <Stack.Screen name="SignIn" component={SignIn} />
-              <Stack.Screen name="SignUp" component={SignUp} />
-              <Stack.Screen name="Main" component={MainTabs} />
-              <Stack.Screen name="ComicDetail" component={ComicDetail} />
-              <Stack.Screen name="AuctionDetail" component={AuctionDetail} />
-              <Stack.Screen name="Cart" component={Cart} />
-              <Stack.Screen name="Checkout" component={Checkout} />
-              <Stack.Screen name="OrderComplete" component={OrderComplete} />
-              <Stack.Screen
-                name="OrderManagement"
-                component={OrderManagement}
-              />
-              <Stack.Screen name="AddressList" component={AddressList} />
-              <Stack.Screen name="WalletDeposit" component={WalletDeposit} />
-              <Stack.Screen name="SearchResults" component={SearchResults} />
-              <Stack.Screen name="OrderDetail" component={OrderDetail} />
-              <Stack.Screen name="FeedbackSeller" component={FeedbackSeller} />
-              <Stack.Screen
-                name="AuctionsHistory"
-                component={AuctionsHistory}
-              />
-              <Stack.Screen
-                name="AuctionHistoryDetail"
-                component={AuctionHistoryDetail}
-              />
-            </Stack.Navigator>
-          </SafeAreaProvider>
-        </NavigationContainer>
+        <SocketProvider>
+          <NotificationProvider>
+            <NavigationContainer>
+              <SafeAreaProvider>
+                <StatusBar style="auto" />
+                <Stack.Navigator
+                  screenOptions={{
+                    headerShown: false,
+                    contentStyle: { marginTop: 25 },
+                  }}
+                  initialRouteName="SignIn"
+                >
+                  <Stack.Screen name="SignIn" component={SignIn} />
+                  <Stack.Screen name="SignUp" component={SignUp} />
+                  <Stack.Screen name="Main" component={MainTabs} />
+                  <Stack.Screen name="ComicDetail" component={ComicDetail} />
+                  <Stack.Screen
+                    name="AuctionDetail"
+                    component={AuctionDetail}
+                  />
+                  <Stack.Screen name="Cart" component={Cart} />
+                  <Stack.Screen name="Checkout" component={Checkout} />
+                  <Stack.Screen
+                    name="OrderComplete"
+                    component={OrderComplete}
+                  />
+                  <Stack.Screen
+                    name="OrderManagement"
+                    component={OrderManagement}
+                  />
+                  <Stack.Screen name="AddressList" component={AddressList} />
+                  <Stack.Screen
+                    name="WalletDeposit"
+                    component={WalletDeposit}
+                  />
+                  <Stack.Screen
+                    name="SearchResults"
+                    component={SearchResults}
+                  />
+                  <Stack.Screen name="OrderDetail" component={OrderDetail} />
+                  <Stack.Screen
+                    name="FeedbackSeller"
+                    component={FeedbackSeller}
+                  />
+                  <Stack.Screen
+                    name="AuctionsHistory"
+                    component={AuctionsHistory}
+                  />
+                  <Stack.Screen
+                    name="AuctionHistoryDetail"
+                    component={AuctionHistoryDetail}
+                  />
+                </Stack.Navigator>
+              </SafeAreaProvider>
+            </NavigationContainer>
+          </NotificationProvider>
+        </SocketProvider>
       </CartProvider>
     </GestureHandlerRootView>
   );

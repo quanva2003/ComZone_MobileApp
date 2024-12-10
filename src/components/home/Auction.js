@@ -12,7 +12,7 @@ import tw from "twrnc";
 import axios from "axios";
 import CurrencySplitter from "../../assistants/Spliter";
 import CountDown from "react-native-countdown-component";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import CustomCountDown from "../countdown/CustomCountdown";
 import { privateAxios } from "../../middleware/axiosInstance";
 
@@ -20,13 +20,17 @@ const Auction = () => {
   const [ongoingAuctions, setOngoingAuctions] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigation();
- 
+
   const fetchAuctions = async () => {
     try {
       const response = await axios.get(`${process.env.BASE_URL}auction`);
       console.log("res auction:", response.data);
       const auctionComics = response.data.filter(
-        (auction) => auction.status === "ONGOING" || auction.status === "SUCCESSFUL"|| auction.status === "FAILED"
+        (auction) =>
+          auction.status === "ONGOING" ||
+          auction.status === "SUCCESSFUL" ||
+          auction.status === "FAILED" ||
+          auction.status === "COMPLETED"
       );
       console.log("auctionComics", auctionComics);
 
@@ -38,16 +42,18 @@ const Auction = () => {
     }
   };
 
-  useEffect(() => {
-    fetchAuctions();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchAuctions();
+    }, [])
+  );
 
   const renderItem = ({ item }) => {
     const endTime = new Date(item.endTime).getTime();
 
     return (
       <View
-        style={tw`bg-white rounded-lg shadow-sm py-4 px-2 mb-4 w-43 items-center mx-2`}
+        style={tw`bg-white rounded-lg shadow-sm py-4 px-2 mb-4 w-43 items-center`}
       >
         <Image
           source={{ uri: item.comics.coverImage }}
@@ -90,7 +96,7 @@ const Auction = () => {
             keyExtractor={(item) => item.id.toString()}
             numColumns={2}
             showsHorizontalScrollIndicator={false}
-            columnWrapperStyle={tw`justify-start`}
+            columnWrapperStyle={tw`justify-around`}
             key="auction-list"
           />
 

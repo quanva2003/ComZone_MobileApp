@@ -28,25 +28,35 @@ import CountDown from "react-native-countdown-component";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import CustomCountDown from "../components/countdown/CustomCountdown";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
-import useSocket from "../utils/socket";
 import CustomModal from "../components/customModalAuction/customModalAuction";
 import { privateAxios, publicAxios } from "../middleware/axiosInstance";
 import { AuctionResult } from "../components/auction/AuctionResult";
+import { useSocketContext } from "../context/SocketContext";
+import AuctionNotification from "../components/auction/AuctionNotification";
 
 const AuctionDetail = ({ route }) => {
+  const socket = useSocketContext();
+
   const navigation = useNavigation();
   const { auctionData } = route.params;
-  const socket = useSocket();
   const [highestBid, setHighestBid] = useState(null); // Track the highest bid
   const [auction, setAuction] = useState(auctionData);
   const [isHighest, setIsHighest] = useState(false);
   const [auctionEnded, setAuctionEnded] = useState(false);
   const bottomSheetRef = useRef(null);
-
+  const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState(null);
+
   const handleAuctionEnd = () => {
     setAuctionEnded(true);
+    setLoading(false);
   };
+  useEffect(() => {
+    if (socket) {
+      console.log("Socket connected11111:", socket.id);
+      // You can listen to events or emit events with the socket here
+    }
+  }, [socket]);
 
   useEffect(() => {
     const fetchUserId = async () => {
@@ -69,11 +79,14 @@ const AuctionDetail = ({ route }) => {
   const [bids, setBids] = useState([]);
   const [bidPrice, setBidPrice] = useState("");
   const [winner, setWinner] = useState(false);
+  const handleWinnerUpdate = (isWinner) => {
+    setWinner(isWinner);
+  };
 
   const handleOpenBottomSheet = useCallback(() => {
     bottomSheetRef.current?.snapToIndex(0);
   }, []);
-  // Use the socket from custom hook
+
   useEffect(() => {
     if (highestBid?.user?.id === userId) {
       setIsHighest(true);
@@ -97,7 +110,6 @@ const AuctionDetail = ({ route }) => {
       } catch (error) {
         console.error("Error fetching comic details:", error);
       } finally {
-        setLoading(false);
       }
     };
     fetchBid();
@@ -152,7 +164,6 @@ const AuctionDetail = ({ route }) => {
     };
     console.log("bidPayload", bidPayload);
 
-    // Ensure socket is connected before emitting the event
     if (socket) {
       socket.emit("placeBid", bidPayload, (response) => {
         console.log("Bid placed successfully:", response);
@@ -191,8 +202,6 @@ const AuctionDetail = ({ route }) => {
   console.log("all", allImages);
   const [currentImage, setCurrentImage] = useState(coverImage);
   const [modalVisible, setModalVisible] = useState(false);
-  const [loading, setLoading] = useState(true);
-
   const scrollViewRef = useRef(null);
   const [hasDeposited, setHasDeposited] = useState(false);
 
@@ -234,19 +243,21 @@ const AuctionDetail = ({ route }) => {
     if (scrollViewRef.current) {
       scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: true });
     }
+    setLoading(false);
   }, [auction]);
 
-  //   if (loading) {
-  //     return (
-  //       <View style={tw`flex-1 justify-center items-center`}>
-  //         <ActivityIndicator size="large" color="#000" />
-  //       </View>
-  //     );
-  //   }
+  if (loading) {
+    return (
+      <View style={tw`flex-1 justify-center items-center`}>
+        <ActivityIndicator size="large" color="#000" />
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={tw`flex-1`} ref={scrollViewRef}>
       {/* Back Button */}
+
       <TouchableOpacity
         style={tw`absolute top-4 left-4 z-10 bg-white rounded-full p-2 shadow`}
         onPress={() => navigation.goBack()}
@@ -271,7 +282,10 @@ const AuctionDetail = ({ route }) => {
           </Text>
         </View>
       </View>
-
+      <AuctionNotification
+        auctionId={auction.id}
+        onWinnerUpdate={handleWinnerUpdate}
+      />
       {/* Thumbnail Navigator */}
       <View style={tw`mb-2 p-3`}>
         <ScrollView
@@ -362,97 +376,39 @@ const AuctionDetail = ({ route }) => {
             </Text>
           </View>
         </View>
-
-        {/* Chip Component */}
       </View>
+
       {auction.comics.sellerId.id !== userId && (
         <View>
-          {hasDeposited && auctionData.status === "ONGOING" ? (
-            <View style={tw`p-2 `}>
-              {isHighest ? (
-                <View
+          {!hasDeposited ? (
+            <View>
+              {auctionData.currentPrice + auctionData.priceStep >
+                auctionData.maxPrice && (
+                <Text
                   style={{
-                    fontSize: 20,
-                    color: "#28a745",
-                    fontWeight: "bold",
-                    padding: 10,
-                    borderRadius: 5,
-                    backgroundColor: "#d4edda",
-                    marginBottom: 5,
+                    fontSize: "17px",
+                    paddingTop: "10px",
+                    fontFamily: "REM",
+                    fontWeight: "400",
+                    color: "red",
                   }}
                 >
-                  <Text
-                    style={{
-                      color: "#28a745",
-                      fontWeight: "bold",
-                      textAlign: "center",
-                    }}
-                  >
-                    Bạn là người có giá cao nhất!
-                  </Text>
-                </View>
-              ) : (
-                <TouchableOpacity
-                  style={[
-                    tw`py-2 rounded-lg bg-black items-center justify-center mt-3 w-full`,
-                  ]}
-                  onPress={handleOpenBottomSheet} // Open bottom sheet for bidding
-                >
-                  <Text
-                    style={[tw`text-xl text-white`, { fontFamily: "REM_bold" }]}
-                  >
-                    RA GIÁ
-                  </Text>
-                </TouchableOpacity>
+                  Chỉ có thể mua ngay với giá{" "}
+                  {auctionData.maxPrice.toLocaleString("vi-VN")}đ. Không thể ra
+                  giá nữa vì giá tối thiểu lớn hơn giá mua ngay.
+                </Text>
               )}
-
-              <View style={tw`w-full flex items-center justify-center py-2`}>
-                <TouchableOpacity style={tw`py-2 px-6 rounded-lg bg-black`}>
-                  <Text
-                    style={[tw`text-xl text-white`, { fontFamily: "REM_bold" }]}
-                  >
-                    MUA NGAY VỚI GIÁ {auction.maxPrice.toLocaleString("vi-VN")}đ
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          ) : (
-            <View
-              style={[
-                tw`py-2 px-4 mt-3 w-full`,
-                { flexDirection: "row", alignItems: "center" },
-              ]}
-            >
               <View
                 style={[
-                  tw`mr-4`,
+                  tw`py-2 px-4 mt-3 w-full`,
                   { flexDirection: "row", alignItems: "center" },
                 ]}
               >
-                <Text
+                <View
                   style={[
-                    tw`text-sm`,
-                    { color: "#000", fontFamily: "REM_bold" },
+                    tw`mr-4`,
+                    { flexDirection: "row", alignItems: "center" },
                   ]}
-                >
-                  Số tiền cần cọc:
-                </Text>
-                <Text style={[tw`text-base ml-2 `, { fontFamily: "REM_bold" }]}>
-                  {CurrencySplitter(auction.depositAmount)} đ
-                </Text>
-              </View>
-              {!auctionEnded && auctionData.status !== "UPCOMING" && (
-                <TouchableOpacity
-                  style={[
-                    tw`py-2 px-1 rounded-full border items-center justify-center `,
-                    {
-                      backgroundColor: "#fff",
-                      borderColor: "#000",
-                      boxShadow: "2px 2px",
-                      width: "40%", // This ensures the TouchableOpacity takes full width of the parent
-                    },
-                  ]}
-                  onPress={handleOpenDepositModal}
                 >
                   <Text
                     style={[
@@ -460,25 +416,116 @@ const AuctionDetail = ({ route }) => {
                       { color: "#000", fontFamily: "REM_bold" },
                     ]}
                   >
-                    Đặt cọc tại đây
+                    Số tiền cần cọc:
                   </Text>
-                </TouchableOpacity>
-              )}
+                  <Text
+                    style={[tw`text-base ml-2`, { fontFamily: "REM_bold" }]}
+                  >
+                    {CurrencySplitter(auction.depositAmount)} đ
+                  </Text>
+                </View>
+                {!auctionEnded && auctionData.status !== "UPCOMING" && (
+                  <TouchableOpacity
+                    style={[
+                      tw`py-2 px-1 rounded-full border items-center justify-center`,
+                      {
+                        backgroundColor: "#fff",
+                        borderColor: "#000",
+                        boxShadow: "2px 2px",
+                        width: "40%",
+                      },
+                    ]}
+                    onPress={handleOpenDepositModal}
+                  >
+                    <Text
+                      style={[
+                        tw`text-sm`,
+                        { color: "#000", fontFamily: "REM_bold" },
+                      ]}
+                    >
+                      Đặt cọc tại đây
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            </View>
+          ) : isHighest ? (
+            <View
+              style={{
+                fontSize: 20,
+                color: "#28a745",
+                fontWeight: "bold",
+                padding: 10,
+                borderRadius: 5,
+                backgroundColor: "#d4edda",
+                marginBottom: 5,
+              }}
+            >
+              <Text
+                style={{
+                  color: "#28a745",
+                  fontWeight: "bold",
+                  textAlign: "center",
+                }}
+              >
+                Bạn là người có giá cao nhất!
+              </Text>
+            </View>
+          ) : (
+            !auctionEnded && (
+              <TouchableOpacity
+                style={[
+                  tw`py-2 rounded-lg bg-black items-center justify-center mt-3 w-full`,
+                ]}
+                onPress={handleOpenBottomSheet}
+              >
+                <Text
+                  style={[tw`text-xl text-white`, { fontFamily: "REM_bold" }]}
+                >
+                  RA GIÁ
+                </Text>
+              </TouchableOpacity>
+            )
+          )}
+          {!auctionEnded && (
+            <View style={tw`w-full flex items-center justify-center py-2`}>
+              <TouchableOpacity style={tw`py-2 px-6 rounded-lg bg-black`}>
+                <Text
+                  style={[tw`text-xl text-white`, { fontFamily: "REM_bold" }]}
+                >
+                  MUA NGAY VỚI GIÁ {auction.maxPrice.toLocaleString("vi-VN")}đ
+                </Text>
+              </TouchableOpacity>
             </View>
           )}
-          <CustomModal
-            auction={auction}
-            visible={modalVisible}
-            onClose={handleCloseDepositModal}
-            title="Xác nhận đặt cọc"
-            description="Bạn có chắc chắn muốn đặt cọc cho phiên đấu giá này không?"
-            onConfirm={handleConfirmDeposit}
-            confirmText="Xác nhận"
-            cancelText="Hủy"
-          />
-          {/* RA GIÁ Button */}
+          {auctionEnded &&
+            auction.status === "SUCCESSFUL" &&
+            auction.winner?.id === userId && (
+              <View style={tw`w-full flex items-center justify-center py-2`}>
+                <TouchableOpacity style={tw`py-2 px-6 rounded-lg bg-green-500`}>
+                  <Text
+                    style={[tw`text-xl text-white`, { fontFamily: "REM_bold" }]}
+                  >
+                    THANH TOÁN NGAY
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
         </View>
       )}
+
+      <CustomModal
+        auction={auction}
+        visible={modalVisible}
+        onClose={handleCloseDepositModal}
+        title="Xác nhận đặt cọc"
+        description="Bạn có chắc chắn muốn đặt cọc cho phiên đấu giá này không?"
+        onConfirm={handleConfirmDeposit}
+        confirmText="Xác nhận"
+        cancelText="Hủy"
+      />
+      {/* RA GIÁ Button */}
+
       <View style={tw`px-4 py-2`}>
         <Text style={[tw`text-lg`, { fontFamily: "REM_bold" }]}>
           Mô tả nội dung
