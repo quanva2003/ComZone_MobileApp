@@ -237,7 +237,16 @@ const ComicDetail = ({ route }) => {
             </TouchableOpacity>
 
             {/* Buy Now */}
-            <TouchableOpacity style={tw`flex-1`}>
+            <TouchableOpacity
+              style={tw`flex-1`}
+              onPress={() => {
+                console.log("comic", [comic]);
+
+                navigation.navigate("Checkout", {
+                  selectedComics: [comic],
+                });
+              }}
+            >
               <View style={tw`bg-black rounded-lg p-3.7 items-center`}>
                 <Text style={[tw`text-white`, { fontFamily: "REM" }]}>
                   Mua ngay

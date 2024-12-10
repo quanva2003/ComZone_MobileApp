@@ -234,11 +234,11 @@ const OrderManagement = ({ route }) => {
               <View style={tw`flex-row items-center justify-between mb-3`}>
                 <View style={tw`flex-row items-center gap-2`}>
                   <Image
-                    source={{ uri: item.items[0].comics.sellerId.avatar }}
+                    source={{ uri: item.delivery.from.user.avatar }}
                     style={tw`h-8 w-8 rounded-full`}
                   />
                   <Text style={[tw`text-sm`, { fontFamily: "REM_bold" }]}>
-                    {item.items[0].comics.sellerId.name}
+                    {item.delivery.from.user.name}
                   </Text>
                 </View>
                 <View style={[tw`p-2`, { ...getStatusStyles(item.status) }]}>
@@ -253,6 +253,7 @@ const OrderManagement = ({ route }) => {
                   </Text>
                 </View>
               </View>
+
               {item.items.map((orderItem) => (
                 <View
                   key={orderItem.id}
