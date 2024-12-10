@@ -344,12 +344,9 @@ const Checkout = ({ route, navigation }) => {
         console.log("done delivery order");
 
         // Determine order type
-        const orderType = sellerGroup.comics.some(
-          ({ comic }) => comic.isAuction
-        )
+        const orderType = sellerGroup.comics.some(({ auctionId }) => auctionId)
           ? "AUCTION"
           : "TRADITIONAL";
-
         // Create order
         const resOrder = await axios.post(
           `${process.env.BASE_URL}orders`,

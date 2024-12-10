@@ -2,7 +2,7 @@ import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import tw from "twrnc";
 import ProfileHeader from "../components/profile/ProfileHeader";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ProfileOrder from "../components/profile/ProfileOrder";
 import ProfileAuction from "../components/profile/ProfileAuction";
@@ -57,10 +57,11 @@ const Profile = () => {
       console.error("Error retrieving currentUser:", error);
     }
   };
-  useEffect(() => {
-    fetchCurrentUser();
-  }, []);
-
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchCurrentUser();
+    }, [])
+  );
   return (
     <View>
       <View style={tw`p-5`}>

@@ -27,6 +27,7 @@ import DefaultIcon from "../../assets/announcement-icons/notification-icon-462x5
 import { useSocketContext } from "../context/SocketContext";
 import { NotificationContext } from "../context/NotificationContext";
 import { useFocusEffect } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native"; // Add this import
 
 const getAnnouncementIcon = (item, type) => {
   switch (type) {
@@ -70,22 +71,33 @@ const getAnnouncementIcon = (item, type) => {
       return DefaultIcon;
   }
 };
+
 const Notification = () => {
   const { announcements, unreadCount, markAsRead, fetchAnnouncements } =
     useContext(NotificationContext);
   const [activeTab, setActiveTab] = useState("USER");
+  const navigation = useNavigation(); // Initialize useNavigation
 
   const filteredAnnouncements = announcements.filter(
     (item) => item.recipientType === activeTab
   );
+
   useFocusEffect(
     React.useCallback(() => {
       fetchAnnouncements();
     }, [])
   );
+
   // Render individual announcement item
   const renderAnnouncementItem = ({ item }) => {
     console.log("item:", item.type);
+
+    const handlePress = () => {
+      markAsRead(item.id);
+      if (item.type === AnnouncementType.AUCTION) {
+        navigation.navigate("AuctionDetail", { auctionData: item.auction });
+      }
+    };
 
     return (
       <View style={tw`p-2`}>
@@ -93,7 +105,7 @@ const Notification = () => {
           style={tw`bg-white rounded-lg p-4 mb-2 shadow-md flex-row items-center ${
             !item.isRead ? "bg-blue-50" : ""
           }`}
-          onPress={() => markAsRead(item.id)}
+          onPress={handlePress} // Handle press
         >
           <Image
             source={getAnnouncementIcon(item, item.type)}
@@ -132,7 +144,6 @@ const Notification = () => {
   };
 
   // Render loading or empty state
-
   return (
     <View style={tw`flex-1 bg-gray-50 p-2`}>
       <Text style={tw`text-lg font-bold text-gray-800 my-4 text-center`}>

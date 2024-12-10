@@ -39,7 +39,7 @@ const AuctionDetail = ({ route }) => {
 
   const navigation = useNavigation();
   const { auctionData } = route.params;
-  const [highestBid, setHighestBid] = useState(null); // Track the highest bid
+  const [highestBid, setHighestBid] = useState(null);
   const [auction, setAuction] = useState(auctionData);
   const [isHighest, setIsHighest] = useState(false);
   const [auctionEnded, setAuctionEnded] = useState(false);
@@ -54,7 +54,6 @@ const AuctionDetail = ({ route }) => {
   useEffect(() => {
     if (socket) {
       console.log("Socket connected11111:", socket.id);
-      // You can listen to events or emit events with the socket here
     }
   }, [socket]);
 
@@ -94,6 +93,30 @@ const AuctionDetail = ({ route }) => {
       setIsHighest(false);
     }
   }, [highestBid, userId]);
+  const handleBuy = (auctionData, price, type) => {
+    if (!auctionData || !auctionData.comics) return;
+    console.log("AUCTIONDATA1", auctionData);
+
+    // Create the comic data structure
+    const comic = {
+      sellerId: auctionData.comics?.sellerId?.id,
+      sellerName: auctionData.comics?.sellerId?.name,
+      comics: [
+        {
+          comic: auctionData.comics,
+          currentPrice: price,
+          auctionId: auctionData.id,
+          quantity: 1,
+          type,
+        },
+      ],
+    };
+
+    // Navigate to the checkout screen with the selected comic
+    navigation.navigate("Checkout", {
+      selectedComics: [comic],
+    });
+  };
 
   useEffect(() => {
     const fetchBid = async () => {
@@ -489,7 +512,12 @@ const AuctionDetail = ({ route }) => {
           )}
           {!auctionEnded && (
             <View style={tw`w-full flex items-center justify-center py-2`}>
-              <TouchableOpacity style={tw`py-2 px-6 rounded-lg bg-black`}>
+              <TouchableOpacity
+                style={tw`py-2 px-6 rounded-lg bg-black`}
+                onPress={() =>
+                  handleBuy(auction, auction.maxPrice, "maxPrice")
+                }
+              >
                 <Text
                   style={[tw`text-xl text-white`, { fontFamily: "REM_bold" }]}
                 >
@@ -502,7 +530,12 @@ const AuctionDetail = ({ route }) => {
             auction.status === "SUCCESSFUL" &&
             auction.winner?.id === userId && (
               <View style={tw`w-full flex items-center justify-center py-2`}>
-                <TouchableOpacity style={tw`py-2 px-6 rounded-lg bg-green-500`}>
+                <TouchableOpacity
+                  style={tw`py-2 px-6 rounded-lg bg-green-500`}
+                  onPress={() => {
+                    handleBuy(auction, auction?.currentPrice, "currentPrice");
+                  }}
+                >
                   <Text
                     style={[tw`text-xl text-white`, { fontFamily: "REM_bold" }]}
                   >
