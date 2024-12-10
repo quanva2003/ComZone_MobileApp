@@ -13,19 +13,13 @@ import axios from "axios";
 const Profile = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const navigation = useNavigation();
-  const [token, setToken] = useState(null);
   console.log(process.env.BASE_URL);
 
   const handleLogout = async () => {
     try {
       console.log("base", process.env.BASE_URL);
-      console.log("token", token);
 
-      const response = await axios.post(`${process.env.BASE_URL}auth/logout`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await privateAxios.post("auth/logout");
 
       console.log("re", response);
 
@@ -45,14 +39,8 @@ const Profile = () => {
   };
   const fetchCurrentUser = async () => {
     try {
-      const storedUser = await AsyncStorage.getItem("currentUser");
-      const storedToken = await AsyncStorage.getItem("token");
-      if (storedUser) {
-        const parsedUser = JSON.parse(storedUser);
-        setToken(storedToken);
-        setCurrentUser(parsedUser);
-        console.log("Current Usera:", parsedUser);
-      }
+      const res = await privateAxios("/users/profile");
+      setCurrentUser(res.data);
     } catch (error) {
       console.error("Error retrieving currentUser:", error);
     }
