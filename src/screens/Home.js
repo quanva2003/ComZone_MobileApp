@@ -5,7 +5,8 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  FlatList, // Import FlatList instead of ScrollView
+  FlatList,
+  Modal, // Import FlatList instead of ScrollView
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import tw from "twrnc";
@@ -23,6 +24,7 @@ const Home = () => {
   const [searchText, setSearchText] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
   const [searchResults, setSearchResults] = useState([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   console.log(process.env.BASE_URL);
 
   const fetchCurrentUser = async () => {
@@ -63,8 +65,20 @@ const Home = () => {
     setSearchText(text);
     // handleSearch();
   };
+  const checkFirstVisit = async () => {
+    try {
+      const hasVisited = await AsyncStorage.getItem("hasVisitedHome");
+      if (!hasVisited) {
+        setIsModalVisible(true);
+        await AsyncStorage.setItem("hasVisitedHome", "true");
+      }
+    } catch (error) {
+      console.error("Error checking first visit:", error);
+    }
+  };
 
   useEffect(() => {
+    checkFirstVisit();
     fetchCurrentUser();
   }, []);
 
