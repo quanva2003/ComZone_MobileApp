@@ -1,7 +1,13 @@
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   View,
   Text,
@@ -19,7 +25,7 @@ import PaymentMethod from "../components/checkout/PaymentMethod";
 import CurrencySplitter from "../assistants/Spliter";
 import PaymentDetail from "../components/checkout/PaymentDetail";
 import BottomSheet, { BottomSheetTextInput } from "@gorhom/bottom-sheet";
-import { useRoute } from "@react-navigation/native";
+import { useFocusEffect, useRoute } from "@react-navigation/native";
 import { useSocketContext } from "../context/SocketContext";
 
 const Checkout = ({ route, navigation }) => {
@@ -440,13 +446,22 @@ const Checkout = ({ route, navigation }) => {
     fetchToken();
   }, []);
 
-  useEffect(() => {
-    console.log("NEW TOKEN SET:", token);
-    if (token) {
-      currentUserAddress();
-    }
-    calculateTotalPrice();
-  }, [token, selectedComics]);
+  useFocusEffect(
+    useCallback(() => {
+      console.log("Screen is now in focus");
+
+      // Fetch data or refresh logic here
+      if (token) {
+        currentUserAddress();
+      }
+      calculateTotalPrice();
+
+      // Cleanup if needed
+      return () => {
+        console.log("Screen is now out of focus");
+      };
+    }, [token, selectedComics])
+  );
   useEffect(() => {
     // Check if there is a new selectedAddress coming from AddressList screen
     if (route.params?.selectedAddress) {

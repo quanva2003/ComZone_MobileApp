@@ -196,8 +196,8 @@ const AuctionDetail = ({ route }) => {
       });
 
       Alert.alert(
-        "Bid Submitted",
-        `Your bid of ${CurrencySplitter(numericBidPrice)} đ has been placed`
+        "Ra giá thành công",
+        `Bạn vừa ra giá ${CurrencySplitter(numericBidPrice)} đ cho sản phẩm này`
       );
       setBidPrice("");
     } else {

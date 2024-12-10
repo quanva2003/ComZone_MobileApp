@@ -152,12 +152,12 @@ const WalletDeposit = ({ navigation, route }) => {
           ]}
           placeholder="Nhập số tiền muốn nạp"
           keyboardType="numeric"
-          value={
-            depositAmount
-              ? CurrencySplitter(depositAmount.replace(/\D/g, ""))
-              : ""
-          }
-          onChangeText={(text) => setDepositAmount(text)}
+          value={depositAmount ? CurrencySplitter(depositAmount) : ""}
+          onChangeText={(text) => {
+            console.log("text", text.replace(/\D/g, ""));
+
+            setDepositAmount(text.replace(/\D/g, ""));
+          }}
         />
 
         <View style={tw`flex-row justify-between w-full mb-4`}>
