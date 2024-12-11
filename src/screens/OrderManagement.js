@@ -15,6 +15,7 @@ import tw from "twrnc";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import Svg, { Path, Rect } from "react-native-svg";
+import AuctionIcon from "../../assets/auction.png";
 
 const OrderManagement = ({ route }) => {
   const [orders, setOrders] = useState([]);
@@ -261,19 +262,35 @@ const OrderManagement = ({ route }) => {
                 >
                   <View style={tw`relative`}>
                     {orderItem.comics.type === "AUCTION" && (
-                      <View style={tw`absolute top-0 left-0 w-12 h-12 z-10`}>
+                      <View
+                        style={tw`absolute top-0 left-0 w-24 h-24 z-10 overflow-hidden`}
+                      >
                         <View
                           style={[
-                            tw`absolute bg-red-500 w-15 h-5 top-3 left-[-10px] items-center justify-center`,
-                            { transform: [{ rotate: "-45deg" }] },
+                            tw`absolute flex-row items-center justify-center bg-red-500 text-white py-1`,
+                            {
+                              width: 120,
+                              transform: [{ rotate: "-45deg" }],
+                              top: 20,
+                              left: -35,
+                              boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+                            },
                           ]}
                         >
-                          <Text style={tw`text-white text-xs font-bold`}>
+                          {/* Auction Icon */}
+                          <Image
+                            source={AuctionIcon}
+                            style={tw`w-4 h-4 mr-1`} // Adjust size and spacing for the icon
+                            resizeMode="contain"
+                          />
+                          {/* Auction Text */}
+                          <Text style={tw`text-white font-bold text-xs`}>
                             Đấu giá
                           </Text>
                         </View>
                       </View>
                     )}
+
                     <Image
                       source={{ uri: orderItem.comics.coverImage }}
                       style={tw`h-22 w-16 mr-4`}

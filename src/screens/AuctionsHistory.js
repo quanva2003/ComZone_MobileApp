@@ -15,6 +15,7 @@ import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import Svg, { Path, Rect } from "react-native-svg";
 import { convertToVietnameseDate } from "../utils/convertToVietnameseDate";
+import { StyleSheet } from "react-native";
 
 const AuctionsHistory = ({ route }) => {
   const [auctions, setAuctions] = useState([]);
@@ -125,41 +126,65 @@ const AuctionsHistory = ({ route }) => {
     return statusTranslations[status] || status;
   };
 
-  const getStatusStyles = (status, isWin) => {
-    if (status === "SUCCESSFUL" && isWin) {
-      return {
-        backgroundColor: "#d4edda",
-        borderRadius: 8,
-        color: "#155724",
-      };
-    }
+  const getStatusChipStyles = (status) => {
     switch (status) {
+      case "SUCCESSFUL":
+        return styles.successful;
+      case "UPCOMING":
+        return styles.upcoming;
       case "ONGOING":
-        return {
-          backgroundColor: "#fff2c9",
-          borderRadius: 8,
-          color: "#f89b28",
-        };
+        return styles.ongoing;
       case "FAILED":
-      case "CANCELLED":
-        return {
-          backgroundColor: "#f8d7da",
-          borderRadius: 8,
-          color: "#721c24",
-        };
+        return styles.failed;
+      case "CANCELED":
+        return styles.canceled;
       case "COMPLETED":
-        return {
-          backgroundColor: "#d4edda",
-          borderRadius: 8,
-          color: "#155724",
-        };
+        return styles.completed;
       default:
-        return {
-          backgroundColor: "transparent",
-          borderRadius: 8,
-          color: "#000",
-        };
+        return styles.default;
     }
+  };
+
+  const styles = StyleSheet.create({
+    base: {
+      borderRadius: 8,
+      paddingVertical: 4,
+      paddingHorizontal: 10,
+      fontWeight: "bold",
+      display: "flex", // Use 'flex' for layouts
+    },
+    successful: {
+      color: "#4caf50",
+      backgroundColor: "#e8f5e9",
+    },
+    upcoming: {
+      color: "#ff9800",
+      backgroundColor: "#fff3e0",
+    },
+    ongoing: {
+      color: "#2196f3",
+      backgroundColor: "#e3f2fd",
+    },
+    failed: {
+      color: "#e91e63",
+      backgroundColor: "#fce4ec",
+    },
+    canceled: {
+      color: "#f44336",
+      backgroundColor: "#ffebee",
+    },
+    completed: {
+      color: "#009688",
+      backgroundColor: "#e0f2f1",
+    },
+    default: {
+      color: "#000",
+      backgroundColor: "#fff",
+    },
+  });
+
+  const getAuctionResultColor = (isWin) => {
+    return isWin ? "#D6FFD8" : "rgb(255 173 201)";
   };
 
   const renderScene = ({ route }) => {
@@ -213,13 +238,29 @@ const AuctionsHistory = ({ route }) => {
 
           // Determine the status text based on the auction state and user's win status
           const statusText = isWin
-            ? "Đấu giá thành công"
+            ? "Thành công"
             : auction.status === "SUCCESSFUL" ||
               (auction.status === "COMPLETED" && auction.winner?.id !== userId)
-            ? "Đấu giá thất bại"
+            ? "Thất bại"
             : translateStatus(auction.status);
 
-          const statusStyles = getStatusStyles(auction.status, isWin);
+          // Cập nhật logic cho statusStyles
+          const statusStyles = isWin
+            ? getStatusChipStyles("SUCCESSFUL")
+            : auction.status === "SUCCESSFUL" ||
+              (auction.status === "COMPLETED" && auction.winner?.id !== userId)
+            ? getStatusChipStyles("FAILED")
+            : getStatusChipStyles(auction.status);
+
+          // Cập nhật logic cho borderColor
+          const borderColor =
+            auction.status === "COMPLETED" && auction.winner?.id !== userId
+              ? getStatusChipStyles("FAILED") // Dùng màu của trạng thái "FAILED"
+              : auction.status === "COMPLETED"
+              ? "transparent"
+              : auction.status === "ONGOING"
+              ? getStatusChipStyles("ONGOING")
+              : getAuctionResultColor(isWin);
 
           return (
             <TouchableOpacity
@@ -248,23 +289,16 @@ const AuctionsHistory = ({ route }) => {
                 </View>
                 <View
                   style={[
-                    tw`p-2`,
-                    { ...statusStyles },
-                    statusText === "Đấu giá thất bại" && {
-                      backgroundColor: "#f8d7da",
-                      borderRadius: 4,
-                    },
+                    statusStyles,styles.base,
+                    { backgroundColor: statusStyles.backgroundColor },
                   ]}
                 >
                   <Text
-                    style={[
-                      { fontFamily: "REM" },
-                      tw`text-xs`,
-                      { ...statusStyles },
-                      statusText === "Đấu giá thất bại" && {
-                        color: "#721c24",
-                      },
-                    ]}
+                    style={{
+                      color: statusStyles.color,
+                      fontSize: 16,
+                      fontWeight: "bold",
+                    }}
                   >
                     {statusText}
                   </Text>
@@ -272,79 +306,70 @@ const AuctionsHistory = ({ route }) => {
               </View>
 
               {/* Comic Details */}
-              <View
-                style={tw`flex-row items-center mt-2 border-t border-gray-300 pt-2`}
-              >
+              <View style={tw`flex-row`}>
                 <Image
                   source={{ uri: auction.comics.coverImage }}
-                  style={tw`h-22 w-16 mr-4`}
+                  style={tw`h-20 w-16 mr-3`}
                 />
-                <View style={tw`h-24 flex justify-between flex-1`}>
+                <View style={tw`flex-1`}>
                   <Text
                     numberOfLines={2}
                     ellipsizeMode="tail"
-                    style={[
-                      tw`text-base max-w-[300px]`,
-                      { fontFamily: "REM_bold" },
-                    ]}
+                    style={[tw`text-sm`, { fontFamily: "REM_bold" }]}
                   >
                     {auction.comics.title}
                   </Text>
-                  <Text
-                    numberOfLines={2}
-                    ellipsizeMode="tail"
-                    style={tw`text-sm max-w-[300px]`}
-                  >
-                    Vui lòng thanh toán trước{" "}
-                    {convertToVietnameseDate(auction.paymentDeadline)}nếu không sẽ mất cọc
-                  </Text>
-
+                  {auction?.winner?.id === userId &&
+                  auction.status === "SUCCESSFUL" ? (
+                    <Text
+                      numberOfLines={2}
+                      ellipsizeMode="tail"
+                      style={tw`text-xs text-orange-500 mt-1`}
+                    >
+                      Vui lòng thanh toán trước{" "}
+                      {convertToVietnameseDate(auction?.paymentDeadline)}nếu
+                      không bạn sẽ mất cọc
+                    </Text>
+                  ) : auction?.winner?.id === userId &&
+                    auction.status === "FAILED" ? (
+                    <Text
+                      numberOfLines={2}
+                      ellipsizeMode="tail"
+                      style={tw`text-xs text-red-500 mt-1`}
+                    >
+                      Bạn đã mất cọc do không thanh toán trước{" "}
+                      {convertToVietnameseDate(auction?.paymentDeadline)}
+                    </Text>
+                  ) : null}
                   {/* Bid Information */}
-                  <View style={tw`flex-row items-center justify-between`}>
-                    <View>
-                      {/* Chỉ hiển thị giá hiện tại nếu không phải là người đặt giá cao nhất */}
-                      {(!auction.highestBid ||
-                        auction.highestBid.price !== auction.currentPrice) && (
-                        <Text
-                          style={[
-                            tw`text-sm ${
-                              auction.status === "ONGOING"
-                                ? "text-blue-600"
-                                : "text-gray-600"
-                            }`,
-                            { fontFamily: "REM" },
-                          ]}
-                        >
-                          {auction.status === "ONGOING"
-                            ? `Giá hiện tại: ${auction.currentPrice?.toLocaleString()} đ`
-                            : `Giá trúng: ${auction.currentPrice?.toLocaleString()} đ`}
-                        </Text>
-                      )}
-
-                      {/* Hiển thị thông tin highestBid */}
-                      {auction.highestBid && (
-                        <View style={tw`mt-1`}>
-                          {auction.highestBid.price === auction.currentPrice ? (
-                            <Text
-                              style={[
-                                tw`text-sm text-green-600 bg-green-100 py-1 px-2 rounded-md`,
-                                { fontFamily: "REM" },
-                              ]}
-                            >
-                              Bạn đứng đầu với mức giá:{" "}
+                  <View style={tw`mt-2`}>
+                    {auction.highestBid &&
+                    auction.highestBid.price === auction.currentPrice ? (
+                      <Text
+                        style={[
+                          tw`text-xs text-green-600 bg-green-100 rounded px-2 py-1`,
+                          { alignSelf: "flex-start" },
+                        ]}
+                      >
+                        Bạn đứng đầu với mức giá:{" "}
+                        {auction.highestBid.price?.toLocaleString()} đ
+                      </Text>
+                    ) : (
+                      <Text style={tw`text-sm`}>
+                        {auction.highestBid ? (
+                          <>
+                            Bạn đã đặt giá:{" "}
+                            <Text style={tw`text-orange-500`}>
                               {auction.highestBid.price?.toLocaleString()} đ
                             </Text>
-                          ) : (
-                            <Text style={[tw`text-sm`, { fontFamily: "REM" }]}>
-                              Bạn đã đặt giá:{" "}
-                              <Text style={{ color: "#FF7F00" }}>
-                                {auction.highestBid.price?.toLocaleString()} đ
-                              </Text>
-                            </Text>
-                          )}
-                        </View>
-                      )}
-                    </View>
+                          </>
+                        ) : (
+                          <Text style={tw`text-xs text-orange-500`}>
+                            Bạn chưa ra giá.
+                          </Text>
+                        )}
+                      </Text>
+                    )}
                   </View>
                 </View>
               </View>

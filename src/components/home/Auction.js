@@ -27,17 +27,12 @@ const Auction = () => {
       console.log("res auction:", response.data);
       const auctionComics = response.data.filter(
         (auction) =>
-          auction.status === "ONGOING" ||
-          auction.status === "SUCCESSFUL" ||
-          auction.status === "FAILED" ||
-          auction.status === "COMPLETED"
+          auction.status === "ONGOING" || auction.status === "UPCOMING"
       );
-      console.log("auctionComics", auctionComics);
-
       setOngoingAuctions(auctionComics);
-      setLoading(false);
     } catch (error) {
       console.error("Error fetching auctions:", error);
+    } finally {
       setLoading(false);
     }
   };
@@ -49,8 +44,6 @@ const Auction = () => {
   );
 
   const renderItem = ({ item }) => {
-    const endTime = new Date(item.endTime).getTime();
-
     return (
       <View
         style={tw`bg-white rounded-lg shadow-sm py-4 px-2 mb-4 w-43 items-center`}

@@ -262,7 +262,6 @@ const AuctionDetail = ({ route }) => {
       "Đặt cọc thành công",
       "Bạn đã đặt cọc thành công cho phiên đấu giá."
     );
-    // Add additional deposit logic here
   };
   useEffect(() => {
     setCurrentImage(auction.comics.coverImage || coverImage);
@@ -559,6 +558,7 @@ const AuctionDetail = ({ route }) => {
         onConfirm={handleConfirmDeposit}
         confirmText="Xác nhận"
         cancelText="Hủy"
+        navigation={navigation}
       />
       {/* RA GIÁ Button */}
 

@@ -1,3 +1,4 @@
+import { useFocusEffect } from "@react-navigation/native";
 import React, { useState, useEffect } from "react";
 import { View, Text } from "react-native";
 import tw from "twrnc";
@@ -8,37 +9,28 @@ const CustomCountDown = ({ endTime, detail, onAuctionEnd }) => {
   );
   const [auctionEnded, setAuctionEnded] = useState(false);
 
-  const formatEndTime = (endTime) => {
-    const date = new Date(endTime);
-    return date.toLocaleString("vi-VN", {
-      timeZone: "Asia/Ho_Chi_Minh",
-      weekday: "short",
-      year: "numeric",
-      day: "2-digit",
-      month: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false,
-    });
+  const updateTime = () => {
+    const newTime = Math.max(0, endTime - Date.now());
+    setTimeRemaining(newTime);
+
+    if (newTime === 0 && !auctionEnded) {
+      setAuctionEnded(true);
+      if (onAuctionEnd) {
+        onAuctionEnd();
+      }
+    }
   };
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const newTime = Math.max(0, endTime - Date.now());
-      setTimeRemaining(newTime);
+  useFocusEffect(
+    React.useCallback(() => {
+      // Recalculate the timer and start the interval when the screen is focused
+      const interval = setInterval(updateTime, 1000);
 
-      if (newTime === 0) {
+      return () => {
         clearInterval(interval);
-        setAuctionEnded(true);
-        if (onAuctionEnd) {
-          onAuctionEnd();
-        }
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [endTime]);
+      };
+    }, [endTime, auctionEnded])
+  );
 
   const formatTime = (ms) => {
     const totalSeconds = Math.floor(ms / 1000);
@@ -53,10 +45,24 @@ const CustomCountDown = ({ endTime, detail, onAuctionEnd }) => {
       2,
       "0"
     );
-
     const seconds = String(totalSeconds % 60).padStart(2, "0");
 
     return { days, hours, minutes, seconds };
+  };
+
+  const formatEndTime = (endTime) => {
+    const date = new Date(endTime);
+    return date.toLocaleString("vi-VN", {
+      timeZone: "Asia/Ho_Chi_Minh",
+      weekday: "short",
+      year: "numeric",
+      day: "2-digit",
+      month: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    });
   };
 
   const time = formatTime(timeRemaining);
