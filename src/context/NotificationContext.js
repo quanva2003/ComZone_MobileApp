@@ -59,7 +59,7 @@ export const NotificationProvider = ({ children }) => {
   const [state, dispatch] = useReducer(notificationReducer, initialState);
 
   const fetchAnnouncements = async () => {
-    const userId = AsyncStorage.getItem("userId");
+    const userId = await AsyncStorage.getItem("userId");
     if (userId) {
       try {
         const response = await privateAxios.get("/announcements/user");
