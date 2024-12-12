@@ -102,7 +102,6 @@ const Notification = () => {
 
     return (
       <View style={tw`p-2`}>
-
         <TouchableOpacity
           style={tw`bg-white rounded-lg p-4 mb-2 shadow-md flex-row items-center ${
             !item.isRead ? "bg-blue-50" : ""
@@ -148,7 +147,7 @@ const Notification = () => {
   // Render loading or empty state
   return (
     <View style={tw`flex-1 bg-gray-50 p-2`}>
-      <PushNotificationScreen />
+      {/* <PushNotificationScreen /> */}
       <Text style={tw`text-lg font-bold text-gray-800 my-4 text-center`}>
         Thông báo gần đây
       </Text>
