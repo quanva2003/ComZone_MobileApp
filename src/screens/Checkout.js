@@ -30,6 +30,7 @@ import { useSocketContext } from "../context/SocketContext";
 
 const Checkout = ({ route, navigation }) => {
   const { selectedComics } = route.params || { selectedComics: [] };
+  console.log("asdasd", selectedComics);
 
   const [totalPrice, setTotalPrice] = useState(0);
   const [token, setToken] = useState(null);

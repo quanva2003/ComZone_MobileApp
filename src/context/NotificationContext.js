@@ -59,7 +59,9 @@ export const NotificationProvider = ({ children }) => {
   const [state, dispatch] = useReducer(notificationReducer, initialState);
 
   const fetchAnnouncements = async () => {
-    const userId = AsyncStorage.getItem("userId");
+    const userId = await AsyncStorage.getItem("userId");
+    console.log("userid", userId);
+
     if (userId) {
       try {
         const response = await privateAxios.get("/announcements/user");
@@ -75,7 +77,7 @@ export const NotificationProvider = ({ children }) => {
           payload: unreadResponse.data,
         });
       } catch (error) {
-        console.error("Error fetching announcements:", error);
+        // console.error("Error fetching announcements:", error);
       }
     }
   };

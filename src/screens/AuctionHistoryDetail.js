@@ -14,22 +14,37 @@ import tw from "twrnc";
 
 const AuctionHistoryDetail = ({ route, navigation }) => {
   const { auction } = route.params;
-  console.log("auction hi", auction);
 
   const [bids, setBids] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [token, setToken] = useState(null);
-  console.log(process.env.BASE_URL);
+  const [userId, setUserId] = useState(null); // Store the logged-in user's ID
 
   useEffect(() => {
-    fetchToken();
+    fetchTokenAndUser();
   }, []);
+  const handleBuy = (auction) => {
+    console.log("auciton", auction);
 
-  const fetchToken = async () => {
+    const auctionData = { ...auction.comics };
+    auctionData.price = auction.highestBid.price;
+    auctionData.auctionId = auction.id;
+    auctionData.type = "AUCTION";
+    console.log("auction data:", auctionData);
+
+    navigation.navigate("Checkout", {
+      selectedComics: [auctionData],
+    });
+  };
+  const fetchTokenAndUser = async () => {
     const storedToken = await AsyncStorage.getItem("token");
+    const storedUser = await AsyncStorage.getItem("userId"); // Assuming user data is stored in AsyncStorage
     if (storedToken) {
       setToken(storedToken);
       fetchBids(storedToken);
+    }
+    if (storedUser) {
+      setUserId(storedUser);
     }
   };
 
@@ -44,8 +59,6 @@ const AuctionHistoryDetail = ({ route, navigation }) => {
           },
         }
       );
-      console.log("bid user", response.data);
-
       setBids(response.data);
     } catch (error) {
       console.error("Error fetching bids:", error);
@@ -57,7 +70,10 @@ const AuctionHistoryDetail = ({ route, navigation }) => {
   const translateStatus = (status) => {
     const statusTranslations = {
       ONGOING: "Đang diễn ra",
-      SUCCESSFUL: "Đấu giá thành công",
+      SUCCESSFUL:
+        userId === auction.winner?.id
+          ? "Đấu giá thành công"
+          : "Đấu giá thất bại",
       COMPLETED: "Hoàn thành",
       FAILED: "Thất bại",
       CANCELLED: "Đã hủy",
@@ -66,29 +82,19 @@ const AuctionHistoryDetail = ({ route, navigation }) => {
   };
 
   const getStatusStyles = (status) => {
-    switch (status) {
-      case "SUCCESSFUL":
-        return {
-          backgroundColor: "#d4edda",
-          color: "#155724",
-        };
-      case "FAILED":
-      case "CANCELLED":
-        return {
-          backgroundColor: "#f8d7da",
-          color: "#721c24",
-        };
-      case "COMPLETED":
-        return {
-          backgroundColor: "#d4edda",
-          color: "#155724",
-        };
-      default:
-        return {
-          backgroundColor: "transparent",
-          color: "#000",
-        };
-    }
+    const statusStyles = {
+      SUCCESSFUL:
+        userId === auction.winner?.id
+          ? { backgroundColor: "#d4edda", color: "#155724" } // Green for success
+          : { backgroundColor: "#f8d7da", color: "#721c24" }, // Red for failure
+      FAILED: { backgroundColor: "#f8d7da", color: "#721c24" }, // Red
+      CANCELLED: { backgroundColor: "#f8d7da", color: "#721c24" }, // Red
+      COMPLETED: { backgroundColor: "#d4edda", color: "#155724" }, // Green
+      ONGOING: { backgroundColor: "#fff3cd", color: "#856404" }, // Yellow
+    };
+    return (
+      statusStyles[status] || { backgroundColor: "transparent", color: "#000" }
+    ); // Default for unknown statuses
   };
 
   if (isLoading) {
@@ -175,7 +181,23 @@ const AuctionHistoryDetail = ({ route, navigation }) => {
               </Text>
             </View>
           </View>
-
+          {auction.status === "SUCCESSFUL" && userId === auction.winner?.id && (
+            <View style={tw`w-full flex items-center justify-center mb-2`}>
+              <TouchableOpacity
+                style={tw`py-3 px-6 bg-black rounded-lg`}
+                onPress={() => handleBuy(auction)}
+              >
+                <Text
+                  style={[
+                    tw`text-lg text-center text-white`,
+                    { fontFamily: "REM_bold" },
+                  ]}
+                >
+                  Thanh toán
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
           {/* Bids History */}
           <View>
             <Text style={[tw`text-lg mb-2`, { fontFamily: "REM_bold" }]}>
