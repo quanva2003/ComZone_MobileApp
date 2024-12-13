@@ -11,7 +11,7 @@ import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import tw from "twrnc";
-
+import { StyleSheet } from "react-native";
 const AuctionHistoryDetail = ({ route, navigation }) => {
   const { auction } = route.params;
 
@@ -38,7 +38,7 @@ const AuctionHistoryDetail = ({ route, navigation }) => {
   };
   const fetchTokenAndUser = async () => {
     const storedToken = await AsyncStorage.getItem("token");
-    const storedUser = await AsyncStorage.getItem("userId"); // Assuming user data is stored in AsyncStorage
+    const storedUser = await AsyncStorage.getItem("userId");
     if (storedToken) {
       setToken(storedToken);
       fetchBids(storedToken);
@@ -70,32 +70,85 @@ const AuctionHistoryDetail = ({ route, navigation }) => {
   const translateStatus = (status) => {
     const statusTranslations = {
       ONGOING: "Đang diễn ra",
-      SUCCESSFUL:
-        userId === auction.winner?.id
-          ? "Đấu giá thành công"
-          : "Đấu giá thất bại",
+      SUCCESSFUL: "Đấu giá thành công",
       COMPLETED: "Hoàn thành",
-      FAILED: "Thất bại",
+      FAILED: "Đấu giá thất bại",
       CANCELLED: "Đã hủy",
+      ALL: "Tất cả",
     };
     return statusTranslations[status] || status;
   };
-
   const getStatusStyles = (status) => {
-    const statusStyles = {
-      SUCCESSFUL:
-        userId === auction.winner?.id
-          ? { backgroundColor: "#d4edda", color: "#155724" } // Green for success
-          : { backgroundColor: "#f8d7da", color: "#721c24" }, // Red for failure
-      FAILED: { backgroundColor: "#f8d7da", color: "#721c24" }, // Red
-      CANCELLED: { backgroundColor: "#f8d7da", color: "#721c24" }, // Red
-      COMPLETED: { backgroundColor: "#d4edda", color: "#155724" }, // Green
-      ONGOING: { backgroundColor: "#fff3cd", color: "#856404" }, // Yellow
-    };
-    return (
-      statusStyles[status] || { backgroundColor: "transparent", color: "#000" }
-    ); // Default for unknown statuses
+    switch (status) {
+      case "SUCCESSFUL":
+        return styles.successful;
+      case "UPCOMING":
+        return styles.upcoming;
+      case "ONGOING":
+        return styles.ongoing;
+      case "FAILED":
+        return styles.failed;
+      case "CANCELED":
+        return styles.canceled;
+      case "COMPLETED":
+        return styles.completed;
+      default:
+        return styles.default;
+    }
   };
+  const styles = StyleSheet.create({
+    base: {
+      borderRadius: 8,
+      paddingVertical: 4,
+      paddingHorizontal: 10,
+      fontWeight: "bold",
+      alignSelf: "flex-start",
+    },
+    successful: {
+      color: "#4caf50",
+      backgroundColor: "#e8f5e9",
+    },
+    upcoming: {
+      color: "#ff9800",
+      backgroundColor: "#fff3e0",
+    },
+    ongoing: {
+      color: "#2196f3",
+      backgroundColor: "#e3f2fd",
+    },
+    failed: {
+      color: "#e91e63",
+      backgroundColor: "#fce4ec",
+    },
+    canceled: {
+      color: "#f44336",
+      backgroundColor: "#ffebee",
+    },
+    completed: {
+      color: "#009688",
+      backgroundColor: "#e0f2f1",
+    },
+    default: {
+      color: "#000",
+      backgroundColor: "#fff",
+    },
+  });
+  const isWin =
+    auction.status === "SUCCESSFUL" && auction.winner?.id === userId;
+
+  const statusText = isWin
+    ? "Đấu giá thành công"
+    : auction.status === "SUCCESSFUL" ||
+      (auction.status === "COMPLETED" && auction.winner?.id !== userId)
+    ? "Đấu giá thất bại"
+    : translateStatus(auction.status);
+
+  const statusStyles = isWin
+    ? getStatusStyles("SUCCESSFUL")
+    : auction.status === "SUCCESSFUL" ||
+      (auction.status === "COMPLETED" && auction.winner?.id !== userId)
+    ? getStatusStyles("FAILED")
+    : getStatusStyles(auction.status);
 
   if (isLoading) {
     return (
@@ -140,20 +193,19 @@ const AuctionHistoryDetail = ({ route, navigation }) => {
               </Text>
               <View
                 style={[
-                  tw`px-3 py-1 rounded-lg self-start`,
-                  getStatusStyles(auction.status),
+                  statusStyles,
+                  styles.base,
+                  { backgroundColor: statusStyles.backgroundColor },
                 ]}
               >
                 <Text
-                  style={[
-                    tw`text-sm`,
-                    {
-                      fontFamily: "REM",
-                      color: getStatusStyles(auction.status).color,
-                    },
-                  ]}
+                  style={{
+                    color: statusStyles.color,
+                    fontSize: 16,
+                    fontWeight: "bold",
+                  }}
                 >
-                  {translateStatus(auction.status)}
+                  {statusText}
                 </Text>
               </View>
             </View>
