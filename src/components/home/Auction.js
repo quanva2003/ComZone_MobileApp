@@ -27,7 +27,7 @@ const Auction = () => {
       console.log("res auction:", response.data);
       const auctionComics = response.data.filter(
         (auction) =>
-          auction.status === "ONGOING" || auction.status === "UPCOMING"
+          auction.status === "ONGOING" 
       );
       setOngoingAuctions(auctionComics);
     } catch (error) {
@@ -45,8 +45,11 @@ const Auction = () => {
 
   const renderItem = ({ item }) => {
     return (
-      <View
+      <TouchableOpacity
         style={tw`bg-white rounded-lg shadow-sm py-4 px-2 mb-4 w-43 items-center`}
+        onPress={() =>
+          navigate.navigate("AuctionDetail", { auctionData: item })
+        }
       >
         <Image
           source={{ uri: item.comics.coverImage }}
@@ -60,20 +63,11 @@ const Auction = () => {
             {item.comics.title}
           </Text>
         </View>
-        <CustomCountDown endTime={new Date(item?.endTime).getTime()} />
-        <View style={tw`mt-3 flex items-center w-full`}>
-          <TouchableOpacity
-            style={tw`bg-black py-1 px-3 rounded-md `}
-            onPress={() =>
-              navigate.navigate("AuctionDetail", { auctionData: item })
-            }
-          >
-            <Text style={[tw`text-white text-xs`, { fontFamily: "REM" }]}>
-              XEM CHI TIẾT
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+        <CustomCountDown
+          endTime={new Date(item?.endTime).getTime()}
+          auction={item}
+        />
+      </TouchableOpacity>
     );
   };
 

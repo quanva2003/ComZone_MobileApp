@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text } from "react-native";
 import tw from "twrnc";
 
-const CustomCountDown = ({ endTime, detail, onAuctionEnd }) => {
+const CustomCountDown = ({ endTime, auction, detail, onAuctionEnd }) => {
   const [timeRemaining, setTimeRemaining] = useState(
     Math.max(0, endTime - Date.now())
   );
@@ -69,7 +69,32 @@ const CustomCountDown = ({ endTime, detail, onAuctionEnd }) => {
 
   return (
     <View>
-      {auctionEnded ? (
+      {auction.status === "UPCOMING" ? (
+        // Auction is not active yet
+        detail ? (
+          <Text
+            style={[
+              tw`text-base`,
+              {
+                fontFamily: "REM_regular",
+                color: "white", // Since 'detail' is true, we set color to white
+                textAlign: "center",
+              },
+            ]}
+          >
+            Phiên đấu giá sẽ bắt đầu {formatEndTime(auction.startTime)}
+          </Text>
+        ) : (
+          <Text
+            style={[
+              tw`text-center m-2 bg-orange-200 rounded-xl`, // Tailwind styles for React Native
+              { fontFamily: "REM", color: "black" }, // Custom font and text color
+            ]}
+          >
+            Sắp bắt đầu
+          </Text>
+        )
+      ) : auctionEnded ? (
         <Text
           style={{
             fontFamily: "REM",
@@ -84,8 +109,12 @@ const CustomCountDown = ({ endTime, detail, onAuctionEnd }) => {
       ) : (
         <Text
           style={[
-            tw`text-base text-white`,
-            { fontFamily: "REM_regular", color: detail ? "white" : "black" },
+            tw`text-base`,
+            {
+              fontFamily: "REM_regular",
+              color: detail ? "white" : "black",
+              textAlign: "center",
+            },
           ]}
         >
           Kết thúc sau: {detail && formatEndTime(endTime)}

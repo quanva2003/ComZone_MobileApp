@@ -360,6 +360,7 @@ const AuctionDetail = ({ route }) => {
       <View style={tw`flex-col gap-2 mt-2 items-center bg-[#232323] p-2`}>
         <CustomCountDown
           endTime={new Date(auction?.endTime).getTime()}
+          auction={auction}
           detail={"detail"}
           onAuctionEnd={handleAuctionEnd}
         />

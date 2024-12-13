@@ -10,7 +10,6 @@ import {
 import tw from "twrnc";
 import { privateAxios } from "../middleware/axiosInstance";
 import { AnnouncementType } from "../common/enums/announcementType.enum";
-import EmptyNotification from "../../assets/announcement-icons/no-notification.jpg";
 import OrderIcon from "../../assets/announcement-icons/orderIcon.png";
 import AuctionIcon from "../../assets/announcement-icons/auction-icon.png";
 import NewExchangeRequestIcon from "../../assets/announcement-icons/exchange-icon.png";
@@ -25,6 +24,7 @@ import WalletAddIcon from "../../assets/announcement-icons/wallet-add-icon.png";
 import PayMoneyIcon from "../../assets/announcement-icons/pay-icon.png";
 import DefaultIcon from "../../assets/announcement-icons/notification-icon-462x512-tqwyit2p.png";
 import { useSocketContext } from "../context/SocketContext";
+import EmptyNotification from "../../assets/no-notification.jpg";
 import { NotificationContext } from "../context/NotificationContext";
 import { useFocusEffect } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native"; // Add this import
@@ -47,27 +47,48 @@ const getAnnouncementIcon = (item, type) => {
       // Fallback to default auction icon
       return AuctionIcon;
 
-    // Delivery-related icons
-    case AnnouncementType.DELIVERY_PICKING:
-      return PackageIcon;
-    case AnnouncementType.DELIVERY_ONGOING:
-      return ExchangeDeliveryIcon;
+    case AnnouncementType.EXCHANGE_NEW_REQUEST:
+      return NewExchangeRequestIcon;
+
+    case AnnouncementType.ORDER_CONFIRMED:
+    case AnnouncementType.EXCHANGE_APPROVED:
+    case AnnouncementType.EXCHANGE_SUCCESSFUL:
     case AnnouncementType.DELIVERY_FINISHED_SEND:
     case AnnouncementType.DELIVERY_FINISHED_RECEIVE:
+    case AnnouncementType.REFUND_APPROVE:
       return ApproveIcon;
-    case AnnouncementType.DELIVERY_FAILED_SEND:
+
+    case AnnouncementType.ORDER_FAILED:
+    case AnnouncementType.EXCHANGE_REJECTED:
+    case AnnouncementType.EXCHANGE_FAILED:
     case AnnouncementType.DELIVERY_FAILED_RECEIVE:
+    case AnnouncementType.DELIVERY_FAILED_SEND:
+    case AnnouncementType.REFUND_REJECT:
       return RejectIcon;
+
+    case AnnouncementType.EXCHANGE_NEW_DEAL:
+      return NewDealExchangeIcon;
+
+    case AnnouncementType.EXCHANGE_PAY_AVAILABLE:
+      return ExchangeWalletPayIcon;
+
+    case AnnouncementType.DELIVERY_PICKING:
+      return PackageIcon;
+
+    case AnnouncementType.ORDER_DELIVERY:
+    case AnnouncementType.EXCHANGE_DELIVERY:
+    case AnnouncementType.DELIVERY_ONGOING:
+      return ExchangeDeliveryIcon;
+
     case AnnouncementType.DELIVERY_RETURN:
       return DeliveryReturnIcon;
 
-    // Transaction-related icons
     case AnnouncementType.TRANSACTION_ADD:
       return WalletAddIcon;
+
     case AnnouncementType.TRANSACTION_SUBTRACT:
       return PayMoneyIcon;
 
-    // Default icon for unknown types
     default:
       return DefaultIcon;
   }
@@ -78,10 +99,28 @@ const Notification = () => {
     useContext(NotificationContext);
   const [activeTab, setActiveTab] = useState("USER");
   const navigation = useNavigation(); // Initialize useNavigation
-
+  const [unreadUser, setUnreadUser] = useState(0);
+  const [unreadSeller, setUnreadSeller] = useState(0);
+  const [role, setRole] = useState(false);
   const filteredAnnouncements = announcements.filter(
     (item) => item.recipientType === activeTab
   );
+  useEffect(() => {
+    const hasSellerAnnouncements = announcements.some(
+      (item) => item.recipientType === "SELLER"
+    );
+    setRole(hasSellerAnnouncements);
+    const unreadUserCount = announcements.filter(
+      (item) => item.recipientType === "USER" && !item.isRead
+    ).length;
+
+    const unreadSellerCount = announcements.filter(
+      (item) => item.recipientType === "SELLER" && !item.isRead
+    ).length;
+
+    setUnreadUser(unreadUserCount);
+    setUnreadSeller(unreadSellerCount);
+  }, [announcements]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -149,48 +188,71 @@ const Notification = () => {
     <View style={tw`flex-1 bg-gray-50 p-2`}>
       {/* <PushNotificationScreen /> */}
       <Text style={tw`text-lg font-bold text-gray-800 my-4 text-center`}>
-        Thông báo gần đây
+        Thông báo gần đây ({unreadCount})
       </Text>
-      <View style={tw`flex-row justify-center mb-4`}>
-        <Pressable
-          style={tw`px-14 py-2 rounded-full ${
-            activeTab === "USER" ? "bg-blue-500" : "bg-gray-300"
-          }`}
-          onPress={() => setActiveTab("USER")}
-        >
-          <Text
-            style={tw`text-white text-sm ${
-              activeTab === "USER" ? "font-bold" : ""
+      {role && (
+        <View style={tw`flex-row justify-center mb-4`}>
+          {/* User Tab */}
+          <Pressable
+            style={tw`px-14 py-2 rounded-full flex-row items-center relative ${
+              activeTab === "USER" ? "bg-blue-500" : "bg-gray-300"
             }`}
+            onPress={() => setActiveTab("USER")}
           >
-            Người Dùng
-          </Text>
-        </Pressable>
-        <Pressable
-          style={tw`px-14 py-2 rounded-full ml-4 ${
-            activeTab === "SELLER" ? "bg-blue-500" : "bg-gray-300"
-          }`}
-          onPress={() => setActiveTab("SELLER")}
-        >
-          <Text
-            style={tw`text-white text-sm ${
-              activeTab === "SELLER" ? "font-bold" : ""
+            <Text
+              style={tw`text-white text-sm ${
+                activeTab === "USER" ? "font-bold" : ""
+              }`}
+            >
+              Người Dùng
+            </Text>
+            {unreadUser > 0 && (
+              <View
+                style={[
+                  tw`absolute bg-red-500 w-3 h-3 rounded-full`,
+                  { top: -6, right: 6 }, // Adjust position as needed
+                ]}
+              />
+            )}
+          </Pressable>
+
+          {/* Seller Tab */}
+          <Pressable
+            style={tw`px-14 py-2 rounded-full flex-row items-center ml-4 relative ${
+              activeTab === "SELLER" ? "bg-blue-500" : "bg-gray-300"
             }`}
+            onPress={() => setActiveTab("SELLER")}
           >
-            Người Bán
-          </Text>
-        </Pressable>
-      </View>
-      <Text style={tw`text-lg font-bold text-center mb-4`}>
-        Notifications ({unreadCount})
-      </Text>
+            <Text
+              style={tw`text-white text-sm ${
+                activeTab === "SELLER" ? "font-bold" : ""
+              }`}
+            >
+              Người Bán
+            </Text>
+            {unreadSeller > 0 && (
+              <View
+                style={[
+                  tw`absolute bg-red-500 w-3 h-3 rounded-full`,
+                  { top: -6, right: 12 }, // Adjust position as needed
+                ]}
+              />
+            )}
+          </Pressable>
+        </View>
+      )}
       <FlatList
         data={filteredAnnouncements}
         renderItem={renderAnnouncementItem}
         keyExtractor={(item) => item.id.toString()}
         ListEmptyComponent={
           <View style={tw`flex-1 items-center justify-center mt-12`}>
-            <Text style={tw`text-gray-500 text-base`}>No notifications</Text>
+            <Image
+              source={EmptyNotification}
+              style={tw`w-60 h-60 mr-1`} // Adjust size and spacing for the icon
+              resizeMode="contain"
+            />
+            <Text style={tw`text-lg`}>Không có thông báo</Text>
           </View>
         }
       />

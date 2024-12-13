@@ -17,24 +17,25 @@ import { Icon } from "react-native-elements"; // Assuming you're using react-nat
 
 const Auction = () => {
   const [ongoingAuctions, setOngoingAuctions] = useState([]);
+  const [upcomingAuctions, setUpcomingAuctions] = useState([]);
   const [filteredAuctions, setFilteredAuctions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
+  const [activeTab, setActiveTab] = useState("ONGOING"); // Tracks the active tab
   const navigate = useNavigation();
-  console.log("1", process.env.BASE_URL);
+
   const fetchAuctions = async () => {
     try {
       const response = await axios.get(`${process.env.BASE_URL}auction`);
-      console.log(response.data);
-      const auctionComics = response.data.filter(
-        (auction) =>
-          auction.status === "ONGOING" ||
-          auction.status === "SUCCESSFUL" ||
-          auction.status === "FAILED" ||
-          auction.status === "COMPLETED"
+      const ongoing = response.data.filter(
+        (auction) => auction.status === "ONGOING"
       );
-      setOngoingAuctions(auctionComics);
-      setFilteredAuctions(auctionComics);
+      const upcoming = response.data.filter(
+        (auction) => auction.status === "UPCOMING"
+      );
+      setOngoingAuctions(ongoing);
+      setUpcomingAuctions(upcoming);
+      setFilteredAuctions(ongoing); // Default to ongoing auctions
       setLoading(false);
     } catch (error) {
       console.error("Error fetching auctions:", error);
@@ -42,63 +43,60 @@ const Auction = () => {
     }
   };
 
+  // Fetch auctions when the component mounts
   useFocusEffect(
     React.useCallback(() => {
       fetchAuctions();
     }, [])
   );
 
+  useEffect(() => {
+    // Update filtered auctions when activeTab changes
+    if (activeTab === "ONGOING") {
+      setFilteredAuctions(ongoingAuctions);
+    } else {
+      setFilteredAuctions(upcomingAuctions);
+    }
+  }, [activeTab, ongoingAuctions, upcomingAuctions]);
+
   const handleChangeText = (text) => {
     setSearchText(text);
-    // Filter auctions based on comic title
-    const filtered = ongoingAuctions.filter((auction) =>
+    const filtered = (
+      activeTab === "ONGOING" ? ongoingAuctions : upcomingAuctions
+    ).filter((auction) =>
       auction.comics.title.toLowerCase().includes(text.toLowerCase())
     );
     setFilteredAuctions(filtered);
   };
 
-  const handleSearch = () => {
-    // Optional: Add any additional search logic if needed
-    const filtered = ongoingAuctions.filter((auction) =>
-      auction.comics.title.toLowerCase().includes(searchText.toLowerCase())
-    );
-    setFilteredAuctions(filtered);
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setSearchText(""); // Clear search text on tab switch
   };
 
-  const renderItem = ({ item }) => {
-    return (
-      <View
-        style={tw`bg-white rounded-lg shadow-sm py-4 px-1 mb-4 w-43 items-center`}
-      >
-        <Image
-          source={{ uri: item.comics.coverImage }}
-          style={tw`w-40 h-60  rounded-lg`}
-        />
-        <View style={tw`h-14`}>
-          <Text
-            style={[tw`text-sm mt-2 text-gray-800`, { fontFamily: "REM" }]}
-            numberOfLines={2}
-          >
-            {item.comics.title}
-          </Text>
-        </View>
-
-        <CustomCountDown endTime={new Date(item?.endTime).getTime()} />
-        <View style={tw`mt-3 flex items-center w-full`}>
-          <TouchableOpacity
-            style={tw`bg-black py-1 px-3 rounded-md `}
-            onPress={() =>
-              navigate.navigate("AuctionDetail", { auctionData: item })
-            }
-          >
-            <Text style={[tw`text-white text-xs`, { fontFamily: "REM" }]}>
-              XEM CHI TIẾT
-            </Text>
-          </TouchableOpacity>
-        </View>
+  const renderItem = ({ item }) => (
+    <TouchableOpacity
+      style={tw`bg-white rounded-lg shadow-sm py-4 px-1 mb-4 w-43 items-center`}
+      onPress={() => navigate.navigate("AuctionDetail", { auctionData: item })}
+    >
+      <Image
+        source={{ uri: item.comics.coverImage }}
+        style={tw`w-40 h-60  rounded-lg`}
+      />
+      <View style={tw`h-14`}>
+        <Text
+          style={[tw`text-sm mt-2 text-gray-800`, { fontFamily: "REM" }]}
+          numberOfLines={2}
+        >
+          {item.comics.title}
+        </Text>
       </View>
-    );
-  };
+      <CustomCountDown
+        endTime={new Date(item?.endTime).getTime()}
+        auction={item}
+      />
+    </TouchableOpacity>
+  );
 
   return (
     <View style={tw`p-5`}>
@@ -113,14 +111,51 @@ const Auction = () => {
         </TouchableOpacity>
         <TextInput
           value={searchText}
-          onChangeText={(text) => setSearchText(text)}
+          onChangeText={handleChangeText}
           placeholder="Bạn đang tìm kiếm truyện gì?"
           style={[
             tw`flex-1 text-base text-gray-800`,
             { fontFamily: "REM_thin" },
           ]}
-          onSubmitEditing={handleSearch}
         />
+      </View>
+
+      {/* Tabs */}
+      <View
+        style={tw`flex-row justify-around bg-gray-200 rounded-full p-2 mt-4`}
+      >
+        <TouchableOpacity
+          style={[
+            tw`flex-1 items-center p-2 rounded-full`,
+            activeTab === "ONGOING" ? tw`bg-white` : tw`bg-gray-200`,
+          ]}
+          onPress={() => handleTabChange("ONGOING")}
+        >
+          <Text
+            style={[
+              tw`text-sm font-bold`,
+              activeTab === "ONGOING" ? tw`text-black` : tw`text-gray-500`,
+            ]}
+          >
+            Đang diễn ra
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            tw`flex-1 items-center p-2 rounded-full`,
+            activeTab === "UPCOMING" ? tw`bg-white` : tw`bg-gray-200`,
+          ]}
+          onPress={() => handleTabChange("UPCOMING")}
+        >
+          <Text
+            style={[
+              tw`text-sm font-bold`,
+              activeTab === "UPCOMING" ? tw`text-black` : tw`text-gray-500`,
+            ]}
+          >
+            Sắp diễn ra
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {loading ? (
