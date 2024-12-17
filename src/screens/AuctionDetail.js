@@ -213,7 +213,7 @@ const AuctionDetail = ({ route }) => {
   useEffect(() => {
     if (socket) {
       socket.on("bidUpdate", (data) => {
-        if (data.placeBid.auction.id === id) {
+        if (data.placeBid.auction.id === auction.id) {
           setHighestBid(data.placeBid);
           setAuction(data.placeBid.auction);
         }
