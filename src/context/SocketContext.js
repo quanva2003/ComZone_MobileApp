@@ -17,7 +17,7 @@ export const SocketProvider = ({ children }) => {
         // Fetch userId from AsyncStorage
         const userId = await AsyncStorage.getItem("userId");
         if (!userId) {
-          console.error("UserId not found in AsyncStorage.");
+          // console.error("UserId not found in AsyncStorage.");
           return;
         }
 

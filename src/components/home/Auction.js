@@ -26,8 +26,7 @@ const Auction = () => {
       const response = await axios.get(`${process.env.BASE_URL}auction`);
       console.log("res auction:", response.data);
       const auctionComics = response.data.filter(
-        (auction) =>
-          auction.status === "ONGOING" 
+        (auction) => auction.status === "ONGOING"
       );
       setOngoingAuctions(auctionComics);
     } catch (error) {
@@ -46,7 +45,7 @@ const Auction = () => {
   const renderItem = ({ item }) => {
     return (
       <TouchableOpacity
-        style={tw`bg-white rounded-lg shadow-sm py-4 px-2 mb-4 w-43 items-center`}
+        style={tw`bg-white rounded-lg shadow-sm py-4 px-2 mb-4 w-43 items-center mr-3`}
         onPress={() =>
           navigate.navigate("AuctionDetail", { auctionData: item })
         }
@@ -83,15 +82,9 @@ const Auction = () => {
             keyExtractor={(item) => item.id.toString()}
             numColumns={2}
             showsHorizontalScrollIndicator={false}
-            columnWrapperStyle={tw`justify-around`}
+            columnWrapperStyle={tw`justify-start`}
             key="auction-list"
           />
-
-          <View style={tw`items-center`}>
-            <TouchableOpacity>
-              <Text>Xem thêm</Text>
-            </TouchableOpacity>
-          </View>
         </View>
       )}
     </View>
