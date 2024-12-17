@@ -26,8 +26,7 @@ const Auction = () => {
       const response = await axios.get(`${process.env.BASE_URL}auction`);
       console.log("res auction:", response.data);
       const auctionComics = response.data.filter(
-        (auction) =>
-          auction.status === "ONGOING" 
+        (auction) => auction.status === "ONGOING"
       );
       setOngoingAuctions(auctionComics);
     } catch (error) {
@@ -63,6 +62,19 @@ const Auction = () => {
             {item.comics.title}
           </Text>
         </View>
+        <View style={tw`flex items-center justify-center mt-2 mb-2`}>
+          <View
+            style={tw`
+              bg-green-100 text-green-800 px-2 py-1 rounded-full shadow-sm flex items-center gap-1`}
+          >
+            <Text style={[tw`font-semibold`, { fontSize: 12 }]}>
+              Giá hiện tại:{" "}
+              <Text style={tw`font-bold`}>
+                {item.currentPrice.toLocaleString("vi-VN")}đ
+              </Text>
+            </Text>
+          </View>
+        </View>
         <CustomCountDown
           endTime={new Date(item?.endTime).getTime()}
           auction={item}
@@ -86,12 +98,6 @@ const Auction = () => {
             columnWrapperStyle={tw`justify-around`}
             key="auction-list"
           />
-
-          <View style={tw`items-center`}>
-            <TouchableOpacity>
-              <Text>Xem thêm</Text>
-            </TouchableOpacity>
-          </View>
         </View>
       )}
     </View>

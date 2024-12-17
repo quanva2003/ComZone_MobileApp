@@ -113,7 +113,8 @@ const CustomCountDown = ({ endTime, auction, detail, onAuctionEnd }) => {
             {
               fontFamily: "REM_regular",
               color: detail ? "white" : "black",
-              textAlign: "center",
+              textAlign: detail ? "center" : "auto",
+              marginLeft: detail ? "0px" : "20px",
             },
           ]}
         >

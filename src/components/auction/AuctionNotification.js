@@ -12,25 +12,33 @@ import { NotificationContext } from "../../context/NotificationContext";
 import { privateAxios } from "../../middleware/axiosInstance";
 
 const AuctionNotification = ({ auctionId, userId, onWinnerUpdate }) => {
-  const { auctionAnnounce, markAsRead, fetchUnreadAnnouncementForAuction } =
-    useContext(NotificationContext);
+  const {
+    auctionAnnounce,
+    markAuctionAnnounceAsRead,
+    fetchUnreadAnnouncementForAuction,
+  } = useContext(NotificationContext);
   console.log("AuctionNotification", auctionAnnounce);
 
   const [modalVisible, setModalVisible] = useState(false);
 
   const handleModalClose = () => {
     if (auctionAnnounce) {
-      markAsRead(auctionAnnounce.id); // Mark as read
-      onWinnerUpdate(auctionAnnounce.status === "SUCCESSFUL"); // Notify if the user won
+      markAuctionAnnounceAsRead();
+      onWinnerUpdate(auctionAnnounce.status === "SUCCESSFUL");
     }
     setModalVisible(false);
   };
+
   useEffect(() => {
     fetchUnreadAnnouncementForAuction(auctionId);
   }, [auctionId]);
 
   useEffect(() => {
-    if (auctionAnnounce && auctionAnnounce.auction.id === auctionId) {
+    if (
+      auctionAnnounce &&
+      auctionAnnounce.auction.id === auctionId &&
+      !auctionAnnounce.isRead
+    ) {
       setModalVisible(true);
     }
   }, [auctionAnnounce]);
@@ -86,7 +94,7 @@ const AuctionNotification = ({ auctionId, userId, onWinnerUpdate }) => {
                 style={tw`mt-4 py-2 px-4 bg-red-500 rounded-full`}
                 onPress={handleModalClose} // Corrected function call
               >
-                <Text style={tw`text-white text-center font-bold`}>Close</Text>
+                <Text style={tw`text-white text-center font-bold`}>Đóng</Text>
               </TouchableOpacity>
             </View>
           </View>

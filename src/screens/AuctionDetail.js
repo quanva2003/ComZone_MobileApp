@@ -46,6 +46,7 @@ const AuctionDetail = ({ route }) => {
   const bottomSheetRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState(null);
+  console.log("auctiondata", auctionData);
 
   const handleAuctionEnd = () => {
     setAuctionEnded(true);
@@ -75,6 +76,8 @@ const AuctionDetail = ({ route }) => {
 
   useEffect(() => {
     const handleAuctionUpdated = (data) => {
+      console.log("alibaba", data);
+
       setAuction(data);
     };
 
@@ -210,8 +213,10 @@ const AuctionDetail = ({ route }) => {
   useEffect(() => {
     if (socket) {
       socket.on("bidUpdate", (data) => {
-        setHighestBid(data.placeBid);
-        setAuction(data.placeBid.auction);
+        if (data.placeBid.auction.id === id) {
+          setHighestBid(data.placeBid);
+          setAuction(data.placeBid.auction);
+        }
       });
 
       // Cleanup on unmount or socket disconnect

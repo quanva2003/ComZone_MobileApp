@@ -128,24 +128,34 @@ const Notification = () => {
     }, [])
   );
 
-  // Render individual announcement item
+  const handlePress = (item) => {
+    console.log("Handle Press triggered", item); // Check if the function is being called
+
+    console.log("1231231111"); // Your existing log statement
+
+    if (item.type === AnnouncementType.AUCTION) {
+      navigation.navigate("AuctionDetail", { auctionData: item.auction });
+      return;
+    } else if (item.transaction) {
+      navigation.navigate("TransactionHistory");
+    } else if (item.order) {
+      if (item.recipientType === "USER") navigation.navigate("OrderManagement");
+    }
+    console.log(item);
+    markAsRead(item.id);
+  };
+
   const renderAnnouncementItem = ({ item }) => {
-    console.log("item:", item.type);
-
-    const handlePress = () => {
-      markAsRead(item.id);
-      if (item.type === AnnouncementType.AUCTION) {
-        navigation.navigate("AuctionDetail", { auctionData: item.auction });
-      }
-    };
-
     return (
       <View style={tw`p-2`}>
         <TouchableOpacity
           style={tw`bg-white rounded-lg p-4 mb-2 shadow-md flex-row items-center ${
             !item.isRead ? "bg-blue-50" : ""
           }`}
-          onPress={handlePress} // Handle press
+          onPress={() => {
+            console.log("Button Pressed"); // Check if the press event is firing
+            handlePress(item); // Then call handlePress
+          }}
         >
           <Image
             source={getAnnouncementIcon(item, item.type)}

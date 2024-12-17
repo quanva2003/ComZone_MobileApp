@@ -35,7 +35,7 @@ const Auction = () => {
       );
       setOngoingAuctions(ongoing);
       setUpcomingAuctions(upcoming);
-      setFilteredAuctions(ongoing); // Default to ongoing auctions
+      setFilteredAuctions(ongoing);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching auctions:", error);
@@ -43,7 +43,6 @@ const Auction = () => {
     }
   };
 
-  // Fetch auctions when the component mounts
   useFocusEffect(
     React.useCallback(() => {
       fetchAuctions();
@@ -51,7 +50,6 @@ const Auction = () => {
   );
 
   useEffect(() => {
-    // Update filtered auctions when activeTab changes
     if (activeTab === "ONGOING") {
       setFilteredAuctions(ongoingAuctions);
     } else {
@@ -76,12 +74,12 @@ const Auction = () => {
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
-      style={tw`bg-white rounded-lg shadow-sm py-4 px-1 mb-4 w-43 items-center`}
+      style={tw`bg-white rounded-lg shadow-sm py-4 px-2 mb-4 w-43 items-center`}
       onPress={() => navigate.navigate("AuctionDetail", { auctionData: item })}
     >
       <Image
         source={{ uri: item.comics.coverImage }}
-        style={tw`w-40 h-60  rounded-lg`}
+        style={tw`w-35 h-45 rounded-lg`}
       />
       <View style={tw`h-14`}>
         <Text
@@ -91,6 +89,20 @@ const Auction = () => {
           {item.comics.title}
         </Text>
       </View>
+      <View style={tw`flex items-center justify-center mt-2 mb-2`}>
+        <View
+          style={tw`
+            bg-green-100 text-green-800 px-2 py-1 rounded-full shadow-sm flex items-center gap-1`}
+        >
+          <Text style={[tw`font-semibold`, { fontSize: 12 }]}>
+            Giá hiện tại:{" "}
+            <Text style={tw`font-bold`}>
+              {" "}
+              {item.currentPrice.toLocaleString("vi-VN")}đ
+            </Text>
+          </Text>
+        </View>
+      </View>
       <CustomCountDown
         endTime={new Date(item?.endTime).getTime()}
         auction={item}
@@ -99,7 +111,7 @@ const Auction = () => {
   );
 
   return (
-    <View style={tw`p-5`}>
+    <View style={tw`flex-1 p-5`}>
       <HeaderInfo />
 
       {/* Search Box */}
@@ -161,7 +173,7 @@ const Auction = () => {
       {loading ? (
         <ActivityIndicator size="large" color="#000" />
       ) : (
-        <View style={tw`mt-5 pb-60`}>
+        <View style={tw`mt-5 flex-1`}>
           <FlatList
             data={filteredAuctions}
             renderItem={renderItem}
@@ -169,7 +181,6 @@ const Auction = () => {
             numColumns={2}
             showsHorizontalScrollIndicator={false}
             columnWrapperStyle={tw`justify-start gap-2`}
-            key="auction-list"
             ListEmptyComponent={
               <View style={tw`items-center justify-center mt-10`}>
                 <Text style={[tw`text-gray-500`, { fontFamily: "REM" }]}>

@@ -1,4 +1,10 @@
-import { View, Text, TouchableOpacity, FlatList } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  FlatList,
+  ActivityIndicator,
+} from "react-native";
 import React, { useState, useEffect } from "react";
 import tw from "twrnc";
 import { Ionicons } from "@expo/vector-icons";
@@ -70,17 +76,16 @@ const TransactionHistory = () => {
       console.log("aa", formattedTransactions);
 
       setTransactions(formattedTransactions);
-      setIsLoading(false);
     } catch (error) {
       console.error("Error fetching transactions:", error);
-      setIsLoading(false);
+    } finally {
+      setIsLoading(false); // Ensure loading state is false after the operation completes
     }
   };
 
   const fetchUserInfo = async () => {
     const res = await privateAxios("/users/profile");
     setUserInfo(res.data);
-    setIsLoading(false);
   };
   useEffect(() => {
     fetchUserInfo();
@@ -189,18 +194,25 @@ const TransactionHistory = () => {
           LỊCH SỬ VÍ
         </Text>
       </View>
-      {isLoading && transactions.length === 0 && (
-        <View style={tw`items-center justify-center p-4`}>
+      {isLoading ? (
+        <ActivityIndicator
+          size="large"
+          color="#000"
+          style={tw`flex-1 justify-center items-center`}
+        />
+      ) : transactions.length === 0 ? (
+        <View style={tw`flex-1 justify-center items-center p-4`}>
           <Text style={[{ fontFamily: "REM_regular" }, tw`text-gray-500`]}>
             Không có giao dịch
           </Text>
         </View>
+      ) : (
+        <FlatList
+          data={transactions}
+          renderItem={renderTransactionItem}
+          keyExtractor={(item) => item.code}
+        />
       )}
-      <FlatList
-        data={transactions}
-        renderItem={renderTransactionItem}
-        keyExtractor={(item) => item.code}
-      />
     </View>
   );
 };
