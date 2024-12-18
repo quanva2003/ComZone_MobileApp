@@ -13,7 +13,7 @@ const CustomModal = ({
   auction,
   confirmText = "Confirm",
   cancelText = "Cancel",
-  navigation, // Pass navigation prop for redirection
+  navigation,
 }) => {
   const [isDepositPromptOpen, setDepositPromptOpen] = useState(false);
 
@@ -74,11 +74,21 @@ const CustomModal = ({
           style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}
         >
           <View style={tw`w-11/12 bg-white p-6 rounded-lg`}>
-            <Text style={[tw`text-xl mb-4`, { fontFamily: "REM_bold" }]}>
+            <Text
+              style={[tw`text-xl mb-4 text-center`, { fontFamily: "REM_bold" }]}
+            >
               {title}
             </Text>
             <Text style={[tw`text-sm mb-4`, { fontFamily: "REM_regular" }]}>
               {description}
+            </Text>
+            <Text
+              style={[
+                tw`text-sm italic mb-[25px] text-[#333] p-2.5 bg-[#f0f0f0] rounded-lg`,
+                { fontFamily: "REM_regular" },
+              ]}
+            >
+              Lưu ý: Số tiền cọc sẽ được hoàn lại khi kết thúc đấu giá
             </Text>
             <View style={tw`flex-row justify-between`}>
               <TouchableOpacity
