@@ -536,9 +536,9 @@ const AuctionDetail = ({ route }) => {
           )}
 
           {!auctionEnded && hasDeposited && (
-            <View style={tw`w-full flex items-center justify-center py-2`}>
+            <View style={tw`w-full flex items-center justify-center py-2 px-4`}>
               <TouchableOpacity
-                style={tw`py-2 px-4 rounded-lg bg-black`}
+                style={tw`py-2 px-4 rounded-lg bg-black w-full`}
                 onPress={() => handleBuy(auction, auction.maxPrice, "maxPrice")}
               >
                 <Text
@@ -589,7 +589,61 @@ const AuctionDetail = ({ route }) => {
       />
 
       {/* RA GIÁ Button */}
-
+      <View style={tw`px-4`}>
+        <View style={tw`px-4 border border-gray-300 rounded-lg`}>
+          <View
+            style={tw`py-2 border-b border-gray-300 flex flex-row w-full justify-between`}
+          >
+            <Text style={{ fontFamily: "REM_regular" }}>Thể loại:</Text>
+            <Text style={{ fontFamily: "REM_bold" }}>
+              {auction.comics.genres.map((genre) => genre.name).join(", ")}
+            </Text>
+          </View>
+          <View
+            style={tw`py-2 border-b border-gray-300 flex flex-row w-full justify-between`}
+          >
+            <Text style={{ fontFamily: "REM_regular" }}>Tác giả:</Text>
+            <Text style={{ fontFamily: "REM_bold" }}>
+              {auction.comics.author}
+            </Text>
+          </View>
+          <View
+            style={tw`py-2 border-b border-gray-300 flex flex-row w-full justify-between`}
+          >
+            <Text style={{ fontFamily: "REM_regular" }}>Phân loại:</Text>
+            <Text style={{ fontFamily: "REM_bold" }}>
+              {auction.comics.quantity > 1 ? "Truyện lẻ" : "Bộ truyện"}
+            </Text>
+          </View>
+          <View
+            style={tw`py-2 border-b border-gray-300 flex flex-row w-full justify-between`}
+          >
+            <Text style={{ fontFamily: "REM_regular" }}>
+              {auction.comics.quantity > 1 ? "Số trang" : "Số quyển"}
+            </Text>
+            <Text style={{ fontFamily: "REM_bold" }}>
+              {auction.comics.quantity > 1
+                ? auction.comics.page
+                : auction.comics.quantity}
+            </Text>
+          </View>
+          <View
+            style={tw`py-2 border-b border-gray-300 flex flex-row w-full justify-between items-center`}
+          >
+            <Text style={{ fontFamily: "REM_regular" }}>Phiên bản:</Text>
+            <Text
+              style={[
+                { fontFamily: "REM_bold" },
+                tw`bg-sky-800 py-1 px-3 rounded-full text-white`,
+              ]}
+            >
+              {auction.comics.edition === "SPECIAL"
+                ? "Bản đặc biệt"
+                : "Bản giới hạn"}
+            </Text>
+          </View>
+        </View>
+      </View>
       <View style={tw`px-4 py-2`}>
         <Text style={[tw`text-lg`, { fontFamily: "REM_bold" }]}>
           Mô tả nội dung
