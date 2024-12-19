@@ -141,6 +141,26 @@ export const NotificationProvider = ({ children }) => {
       console.error("Failed to fetch unread announcement:", error);
     }
   };
+  const markAuctionAnnounceAsRead = async () => {
+    if (state.auctionAnnounce) {
+      try {
+        // Optionally, send the request to the backend to mark the auction announcement as read
+        await privateAxios.post(
+          `/announcements/${state.auctionAnnounce.id}/read`
+        );
+
+        // Update the auctionAnnounce state to set 'isRead' to true
+        dispatch({
+          type: SET_AUCTION_ANNOUNCE,
+          payload: { ...state.auctionAnnounce, isRead: true },
+        });
+
+        console.log("Auction announcement marked as read.");
+      } catch (error) {
+        console.error("Error marking auction announcement as read:", error);
+      }
+    }
+  };
   return (
     <NotificationContext.Provider
       value={{
@@ -150,6 +170,7 @@ export const NotificationProvider = ({ children }) => {
         markAsRead,
         fetchAnnouncements,
         fetchUnreadAnnouncementForAuction,
+        markAuctionAnnounceAsRead,
       }}
     >
       {children}

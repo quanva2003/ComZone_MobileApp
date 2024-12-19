@@ -289,7 +289,8 @@ const AuctionsHistory = ({ route }) => {
                 </View>
                 <View
                   style={[
-                    statusStyles,styles.base,
+                    statusStyles,
+                    styles.base,
                     { backgroundColor: statusStyles.backgroundColor },
                   ]}
                 >
@@ -324,7 +325,10 @@ const AuctionsHistory = ({ route }) => {
                     <Text
                       numberOfLines={2}
                       ellipsizeMode="tail"
-                      style={tw`text-xs text-orange-500 mt-1`}
+                      style={[
+                        tw`text-xs text-orange-500 mt-1`,
+                        { fontFamily: "REM_regular" },
+                      ]}
                     >
                       Vui lòng thanh toán trước{" "}
                       {convertToVietnameseDate(auction?.paymentDeadline)}nếu

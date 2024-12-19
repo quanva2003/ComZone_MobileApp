@@ -11,7 +11,7 @@ import SignUp from "./src/screens/SignUp";
 import { Icon } from "react-native-elements";
 import * as SplashScreen from "expo-splash-screen";
 import { useFonts } from "expo-font";
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import ComicDetail from "./src/screens/ComicDetail";
 import Profile from "./src/screens/Profile";
 import Cart from "./src/screens/Cart";
@@ -34,7 +34,7 @@ import AuctionHistoryDetail from "./src/screens/AuctionHistoryDetail";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Notification from "./src/screens/Notification";
 import { SocketProvider } from "./src/context/SocketContext";
-import { NotificationProvider } from "./src/context/NotificationContext";
+import { NotificationContext, NotificationProvider } from "./src/context/NotificationContext";
 import TransactionHistory from "./src/screens/TransactionHistory";
 import AddNewAddress from "./src/screens/AddNewAddress";
 import EditAddress from "./src/screens/EditAddress";
@@ -43,6 +43,7 @@ const Tab = createBottomTabNavigator();
 SplashScreen.preventAutoHideAsync();
 
 const MainTabs = () => {
+  const { unreadCount } = useContext(NotificationContext); // Get unread count from context
   return (
     <Tab.Navigator
       screenOptions={{
@@ -98,7 +99,7 @@ const MainTabs = () => {
       <Tab.Screen
         name="Thông báo"
         component={Notification}
-        options={{
+        options={({ route }) => ({
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name="notifications-sharp"
@@ -106,8 +107,14 @@ const MainTabs = () => {
               color={focused ? "#fff" : "#666"}
             />
           ),
-        }}
+          tabBarBadge: unreadCount > 0 ? unreadCount : null, // Show the badge if unreadCount is greater than 0
+          tabBarBadgeStyle: {
+            backgroundColor: "red", // Customize the badge background color
+            color: "white", // Customize the text color of the badge
+          },
+        })}
       />
+
       <Tab.Screen
         name="Tôi"
         component={Profile}

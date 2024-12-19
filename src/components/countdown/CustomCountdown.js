@@ -32,6 +32,16 @@ const CustomCountDown = ({ endTime, auction, detail, onAuctionEnd }) => {
     }, [endTime, auctionEnded])
   );
 
+  useEffect(() => {
+    // Kiểm tra ngay khi component được tải
+    if (timeRemaining <= 0) {
+      setAuctionEnded(true);
+      if (onAuctionEnd) {
+        onAuctionEnd();
+      }
+    }
+  }, [timeRemaining, onAuctionEnd]);
+
   const formatTime = (ms) => {
     const totalSeconds = Math.floor(ms / 1000);
     const days = String(Math.floor(totalSeconds / (3600 * 24))).padStart(
@@ -113,7 +123,8 @@ const CustomCountDown = ({ endTime, auction, detail, onAuctionEnd }) => {
             {
               fontFamily: "REM_regular",
               color: detail ? "white" : "black",
-              textAlign: "center",
+              textAlign: detail ? "center" : "auto",
+              marginLeft: detail ? "0px" : "20px",
             },
           ]}
         >

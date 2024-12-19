@@ -473,6 +473,7 @@ const Checkout = ({ route, navigation }) => {
   console.log("delivery detail", deliveryDetails);
   console.log("total deli", totalDeliveryPrice);
   console.log("selected address:", selectedAddress);
+  console.log("gr comic", groupedComics);
 
   return (
     <View style={tw`flex-1`}>
@@ -567,7 +568,15 @@ const Checkout = ({ route, navigation }) => {
               </Svg>
             </TouchableOpacity>
           ) : (
-            <Text style={tw`text-center py-4`}>Không có địa chỉ nào</Text>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate("AddressList", {
+                  selectedAddress: selectedAddress,
+                })
+              }
+            >
+              <Text style={tw`text-center py-4`}>Thêm địa chỉ</Text>
+            </TouchableOpacity>
           )}
         </View>
         {/* Comic */}
@@ -645,6 +654,7 @@ const Checkout = ({ route, navigation }) => {
                 totalPrice={totalPrice}
                 selectedMethod={selectedMethod}
                 setSelectedMethod={setSelectedMethod}
+                groupedComics={groupedComics}
               />
             )
           )}
@@ -681,9 +691,16 @@ const Checkout = ({ route, navigation }) => {
         </View>
 
         <TouchableOpacity
-          style={tw`bg-black py-4 px-4 justify-center items-center w-2/6`}
+          style={tw`bg-black py-4 px-4 justify-center items-center w-2/6 ${
+            totalDeliveryPrice === 0 ? "opacity-50" : "opacity-100"
+          }`}
           onPress={handleSubmit}
-          disabled={isLoading || !selectedAddress || !selectedMethod}
+          disabled={
+            isLoading ||
+            !selectedAddress ||
+            !selectedMethod ||
+            totalDeliveryPrice === 0
+          }
         >
           <Text
             style={[tw`text-white text-center`, { fontFamily: "REM_bold" }]}

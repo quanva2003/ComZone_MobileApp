@@ -10,6 +10,7 @@ const PaymentMethod = ({
   totalPrice,
   selectedMethod,
   setSelectedMethod,
+  groupedComics,
 }) => {
   const paymentMethods = [
     {
@@ -32,6 +33,13 @@ const PaymentMethod = ({
       ? setSelectedMethod("COD")
       : setSelectedMethod("WALLET");
   }, [userInfo, totalPrice]);
+
+  const hasAuctionComics = Object.values(groupedComics).some((comics) =>
+    comics.some((comic) => comic.type === "AUCTION")
+  );
+
+  console.log("has", groupedComics);
+
   return (
     <View style={tw`p-3 bg-white rounded-xl`}>
       <Text style={[tw`text-lg`, { fontFamily: "REM_bold" }]}>
@@ -64,37 +72,49 @@ const PaymentMethod = ({
       </View>
 
       <View style={tw`mt-3`}>
-        {paymentMethods.map((method) => (
-          <TouchableOpacity
-            key={method.id}
-            style={tw`p-2 border rounded-lg mb-3 ${
-              selectedMethod === method.id
-                ? "bg-sky-100 border-sky-500"
-                : "bg-white border-white"
-            } ${method.isDisabled ? "opacity-50" : ""}`}
-            onPress={() => !method.isDisabled && handleSelectMethod(method.id)}
-            disabled={method.isDisabled}
-          >
-            <Text
-              style={[
-                tw`text-base`,
-                {
-                  fontFamily: "REM_regular",
-                  color: method.isDisabled ? tw`text-gray-400` : tw`text-black`,
-                },
-              ]}
+        {paymentMethods.map((method) => {
+          if (method.id === "COD" && hasAuctionComics) {
+            return null;
+          }
+          return (
+            <TouchableOpacity
+              key={method.id}
+              style={tw`p-2 border rounded-lg mb-3 ${
+                selectedMethod === method.id
+                  ? "bg-sky-100 border-sky-500"
+                  : "bg-white border-white"
+              } ${method.isDisabled ? "opacity-50" : ""}`}
+              onPress={() =>
+                !method.isDisabled && handleSelectMethod(method.id)
+              }
+              disabled={method.isDisabled}
             >
-              {method.label}
-            </Text>
-            {method.isDisabled && (
               <Text
-                style={[tw`text-xs text-red-500`, { fontFamily: "REM_italic" }]}
+                style={[
+                  tw`text-base`,
+                  {
+                    fontFamily: "REM_regular",
+                    color: method.isDisabled
+                      ? tw`text-gray-400`
+                      : tw`text-black`,
+                  },
+                ]}
               >
-                Số dư của bạn không đủ, vui lòng nạp tiền
+                {method.label}
               </Text>
-            )}
-          </TouchableOpacity>
-        ))}
+              {method.isDisabled && (
+                <Text
+                  style={[
+                    tw`text-xs text-red-500`,
+                    { fontFamily: "REM_italic" },
+                  ]}
+                >
+                  Số dư của bạn không đủ, vui lòng nạp tiền
+                </Text>
+              )}
+            </TouchableOpacity>
+          );
+        })}
 
         {userInfo.balance < totalPrice && (
           <TouchableOpacity

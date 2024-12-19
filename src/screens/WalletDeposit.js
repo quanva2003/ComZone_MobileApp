@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   SafeAreaView,
   Alert,
   Linking,
+  ActivityIndicator,
 } from "react-native";
 import tw from "twrnc";
 import CurrencySplitter from "../assistants/Spliter";
@@ -14,11 +15,36 @@ import { Ionicons } from "@expo/vector-icons";
 import Svg, { Path } from "react-native-svg";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { privateAxios } from "../middleware/axiosInstance";
 
 const WalletDeposit = ({ navigation, route }) => {
   const [depositAmount, setDepositAmount] = useState("");
-  const { userInfo } = route.params || {};
-  console.log(process.env.BASE_URL);
+  const [userInfo, setUserInfo] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCurrentUser();
+  }, []);
+
+  const fetchCurrentUser = async () => {
+    try {
+      const res = await privateAxios("/users/profile");
+      setUserInfo(res.data);
+    } catch (error) {
+      console.error("Error retrieving currentUser:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <View style={tw`flex-1 justify-center items-center`}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
   if (!userInfo) {
     return (
       <View style={tw`flex-1 justify-center items-center`}>
@@ -28,6 +54,7 @@ const WalletDeposit = ({ navigation, route }) => {
       </View>
     );
   }
+
   const predefinedAmounts = [50000, 100000, 200000, 500000];
 
   const handleDeposit = async () => {
@@ -99,7 +126,6 @@ const WalletDeposit = ({ navigation, route }) => {
       Alert.alert("Lỗi", "Không thể tạo đơn nạp tiền. Vui lòng thử lại sau.");
     }
   };
-
   return (
     <SafeAreaView style={tw`flex-1 bg-white`}>
       <View style={tw`bg-black py-5 shadow-lg`}>

@@ -35,7 +35,7 @@ const SignIn = () => {
     const token = responseLogin.data.accessToken;
     console.log("token", token);
 
-    AsyncStorage.setItem("userId", responseLogin.data.id);
+    await AsyncStorage.setItem("userId", responseLogin.data.id);
     await AsyncStorage.setItem("token", token);
     console.log("Login Successful, Token Saved");
     if (token) {

@@ -62,6 +62,19 @@ const Auction = () => {
             {item.comics.title}
           </Text>
         </View>
+        <View style={tw`flex items-center justify-center mt-2 mb-2`}>
+          <View
+            style={tw`
+              bg-green-100 text-green-800 px-2 py-1 rounded-full shadow-sm flex items-center gap-1`}
+          >
+            <Text style={[tw`font-semibold`, { fontSize: 12 }]}>
+              Giá hiện tại:{" "}
+              <Text style={tw`font-bold`}>
+                {item.currentPrice.toLocaleString("vi-VN")}đ
+              </Text>
+            </Text>
+          </View>
+        </View>
         <CustomCountDown
           endTime={new Date(item?.endTime).getTime()}
           auction={item}

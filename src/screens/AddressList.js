@@ -167,7 +167,14 @@ const AddressList = () => {
       ) : error ? (
         <Text style={tw`text-red-500 text-center`}>{error}</Text>
       ) : addresses.length === 0 ? (
-        <Text style={tw`text-center text-gray-600`}>No addresses found.</Text>
+        <Text
+          style={[
+            tw`text-center text-gray-600 mt-5`,
+            { fontFamily: "REM_regular" },
+          ]}
+        >
+          Chưa có địa chỉ nào, vui lòng thêm địa chỉ nhận hàng.
+        </Text>
       ) : (
         <FlatList
           data={addresses}

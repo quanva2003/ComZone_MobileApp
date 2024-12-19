@@ -46,6 +46,7 @@ const AuctionDetail = ({ route }) => {
   const bottomSheetRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState(null);
+  console.log("auctiondata", auctionData);
 
   const handleAuctionEnd = () => {
     setAuctionEnded(true);
@@ -75,6 +76,8 @@ const AuctionDetail = ({ route }) => {
 
   useEffect(() => {
     const handleAuctionUpdated = (data) => {
+      console.log("alibaba", data);
+
       setAuction(data);
     };
 
@@ -210,8 +213,10 @@ const AuctionDetail = ({ route }) => {
   useEffect(() => {
     if (socket) {
       socket.on("bidUpdate", (data) => {
-        setHighestBid(data.placeBid);
-        setAuction(data.placeBid.auction);
+        if (data.placeBid.auction.id === auction.id) {
+          setHighestBid(data.placeBid);
+          setAuction(data.placeBid.auction);
+        }
       });
 
       // Cleanup on unmount or socket disconnect
@@ -408,20 +413,14 @@ const AuctionDetail = ({ route }) => {
         <View>
           {!hasDeposited ? (
             <View>
-              {auctionData.currentPrice + auctionData.priceStep >
+              {auctionData.currentPrice + auctionData.priceStep >=
                 auctionData.maxPrice && (
                 <Text
-                  style={{
-                    fontSize: 17,
-                    paddingTop: "10px",
-                    fontFamily: "REM",
-                    fontWeight: "400",
-                    color: "red",
-                  }}
+                  style={tw`text-[17px] pt-[10px] REM font-normal text-red-500 bg-red-100 rounded-md p-4`}
                 >
                   Chỉ có thể mua ngay với giá{" "}
-                  {auctionData.maxPrice.toLocaleString("vi-VN")}đ. Không thể ra
-                  giá nữa vì giá tối thiểu lớn hơn giá mua ngay.
+                  {auctionData.maxPrice.toLocaleString("vi-VN")}đ. Cân nhắc
+                  trước khi đặt cọc
                 </Text>
               )}
               <View
@@ -499,22 +498,43 @@ const AuctionDetail = ({ route }) => {
             </View>
           ) : (
             !auctionEnded && (
-              <View style={tw`w-full flex items-center justify-center py-2`}>
-                <TouchableOpacity
-                  style={[
-                    tw`py-2 rounded-lg bg-black items-center justify-center mt-3 w-11/12`,
-                  ]}
-                  onPress={handleOpenBottomSheet}
-                >
-                  <Text
-                    style={[tw`text-xl text-white`, { fontFamily: "REM_bold" }]}
+              <>
+                {auctionData.currentPrice + auctionData.priceStep <
+                  auctionData.maxPrice && (
+                  <View
+                    style={tw`w-full flex items-center justify-center py-2`}
                   >
-                    RA GIÁ
+                    <TouchableOpacity
+                      style={[
+                        tw`py-2 rounded-lg bg-black items-center justify-center mt-3 w-11/12`,
+                      ]}
+                      onPress={handleOpenBottomSheet}
+                    >
+                      <Text
+                        style={[
+                          tw`text-xl text-white`,
+                          { fontFamily: "REM_bold" },
+                        ]}
+                      >
+                        RA GIÁ
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+                {auctionData.currentPrice + auctionData.priceStep >=
+                  auctionData.maxPrice && (
+                  <Text
+                    style={tw`text-[17px] pt-[10px] REM font-normal text-red-500 bg-red-100 rounded-md p-4`}
+                  >
+                    Chỉ có thể mua ngay với giá{" "}
+                    {auctionData.maxPrice.toLocaleString("vi-VN")}đ.Không thể ra
+                    giá nữa vì giá tối thiểu lớn hơn giá mua ngay.
                   </Text>
-                </TouchableOpacity>
-              </View>
+                )}
+              </>
             )
           )}
+
           {!auctionEnded && hasDeposited && (
             <View style={tw`w-full flex items-center justify-center py-2`}>
               <TouchableOpacity
@@ -529,24 +549,22 @@ const AuctionDetail = ({ route }) => {
               </TouchableOpacity>
             </View>
           )}
-          {auctionEnded &&
-            auction.status === "SUCCESSFUL" &&
-            auction.winner?.id === userId && (
-              <View style={tw`w-full flex items-center justify-center py-2`}>
-                <TouchableOpacity
-                  style={tw`py-2 px-6 rounded-lg bg-green-500`}
-                  onPress={() => {
-                    handleBuy(auction, auction?.currentPrice, "currentPrice");
-                  }}
+          {auction.status === "SUCCESSFUL" && auction.winner?.id === userId && (
+            <View style={tw`w-full flex items-center justify-center py-2`}>
+              <TouchableOpacity
+                style={tw`py-2 px-6 rounded-lg bg-green-500`}
+                onPress={() => {
+                  handleBuy(auction, auction?.currentPrice, "currentPrice");
+                }}
+              >
+                <Text
+                  style={[tw`text-xl text-white`, { fontFamily: "REM_bold" }]}
                 >
-                  <Text
-                    style={[tw`text-xl text-white`, { fontFamily: "REM_bold" }]}
-                  >
-                    THANH TOÁN NGAY
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            )}
+                  THANH TOÁN NGAY
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       )}
 
@@ -555,12 +573,21 @@ const AuctionDetail = ({ route }) => {
         visible={modalVisible}
         onClose={handleCloseDepositModal}
         title="Xác nhận đặt cọc"
-        description="Bạn có chắc chắn muốn đặt cọc cho phiên đấu giá này không?"
+        description={
+          <>
+            Bạn có chắc chắn muốn đặt cọc{" "}
+            <Text style={[tw`text-red-500`]}>
+              {auction?.depositAmount.toLocaleString("vi-VN")}đ
+            </Text>{" "}
+            cho phiên đấu giá này không?
+          </>
+        }
         onConfirm={handleConfirmDeposit}
         confirmText="Xác nhận"
         cancelText="Hủy"
         navigation={navigation}
       />
+
       {/* RA GIÁ Button */}
 
       <View style={tw`px-4 py-2`}>

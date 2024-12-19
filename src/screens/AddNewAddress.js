@@ -155,7 +155,7 @@ const AddNewAddress = () => {
 
     try {
       await privateAxios.post("/user-addresses", addressData);
-      Alert.alert("Success", "Address added successfully.");
+      Alert.alert("Thành công", "Thêm địa chỉ mới thành công!");
       navigation.goBack();
     } catch (err) {
       setError(err.message);
