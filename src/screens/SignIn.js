@@ -33,7 +33,7 @@ const SignIn = () => {
     );
 
     const token = responseLogin.data.accessToken;
-    console.log("token", token);
+    console.log("token1", token);
 
     await AsyncStorage.setItem("userId", responseLogin.data.id);
     await AsyncStorage.setItem("token", token);

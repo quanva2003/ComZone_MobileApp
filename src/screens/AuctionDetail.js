@@ -89,8 +89,8 @@ const AuctionDetail = ({ route }) => {
   }, [auction]);
 
   const snapPoints = useMemo(() => ["60%"], []);
-
   const [bids, setBids] = useState([]);
+  const uniqueParticipantsCount = new Set(bids.map((bid) => bid?.user.id)).size;
   const [bidPrice, setBidPrice] = useState("");
   const [winner, setWinner] = useState(false);
   const handleWinnerUpdate = (isWinner) => {
@@ -123,24 +123,21 @@ const AuctionDetail = ({ route }) => {
       selectedComics: [comic],
     });
   };
+  const fetchBid = async () => {
+    try {
+      const responseBid = await publicAxios.get(`/bids/auction/${auction.id}`);
 
+      const bidData = responseBid.data;
+      console.log("zzzz", bidData);
+
+      setBids(bidData);
+      setHighestBid(responseBid.data[0]);
+    } catch (error) {
+      console.error("Error fetching comic details:", error);
+    } finally {
+    }
+  };
   useEffect(() => {
-    const fetchBid = async () => {
-      try {
-        const responseBid = await publicAxios.get(
-          `/bids/auction/${auction.id}`
-        );
-
-        const bidData = responseBid.data;
-        console.log("zzzz", bidData);
-
-        setBids(bidData);
-        setHighestBid(responseBid.data[0]);
-      } catch (error) {
-        console.error("Error fetching comic details:", error);
-      } finally {
-      }
-    };
     fetchBid();
   }, [auction.id]);
   useEffect(() => {
@@ -216,6 +213,7 @@ const AuctionDetail = ({ route }) => {
         if (data.placeBid.auction.id === auction.id) {
           setHighestBid(data.placeBid);
           setAuction(data.placeBid.auction);
+          fetchBid();
         }
       });
 
@@ -372,7 +370,9 @@ const AuctionDetail = ({ route }) => {
 
         {/* Current Price and Price Step Section */}
         <View style={tw`flex-row w-full p-2 justify-between`}>
-          <View style={tw`flex-col gap-2 items-center w-1/2`}>
+          {/* Row 1 */}
+          <View style={tw`w-1/2 flex-col gap-2 items-center`}>
+            {/* Current Price */}
             <Text
               style={[tw`text-sm text-white`, { fontFamily: "REM_regular" }]}
             >
@@ -396,7 +396,8 @@ const AuctionDetail = ({ route }) => {
             </Text>
           </View>
           <View style={tw`w-[1px] h-full bg-gray-400 mx-2`} />
-          <View style={tw`flex-col gap-2 items-center w-1/2`}>
+          <View style={tw`w-1/2 flex-col gap-2 items-center`}>
+            {/* Price Step */}
             <Text
               style={[tw`text-sm text-white`, { fontFamily: "REM_regular" }]}
             >
@@ -404,6 +405,45 @@ const AuctionDetail = ({ route }) => {
             </Text>
             <Text style={[tw`text-2xl text-white`, { fontFamily: "REM_bold" }]}>
               {CurrencySplitter(auction.priceStep)} đ
+            </Text>
+          </View>
+        </View>
+
+        <View style={tw`flex-row w-full p-2 justify-between`}>
+          {/* Row 2 */}
+          <View style={tw`w-1/2 flex-col gap-2 items-center`}>
+            {/* Bid Count */}
+            <Text
+              style={[tw`text-sm text-white`, { fontFamily: "REM_regular" }]}
+            >
+              Lượt ra giá
+            </Text>
+            <Text style={[tw`text-2xl text-white`, { fontFamily: "REM_bold" }]}>
+              <CountUp
+                isCounting
+                start={bids?.length || 0} // Start value defaults to 0 if bids is undefined or null
+                end={bids?.length || 0} // End value defaults to 0 if bids is undefined or null
+                duration={1}
+                thousandsSeparator=","
+                style={{
+                  fontFamily: "REM",
+                  fontSize: 28,
+                  fontWeight: "bold",
+                  textShadow: "4px 4px #000",
+                }}
+              />
+            </Text>
+          </View>
+          <View style={tw`w-[1px] h-full bg-gray-400 mx-2`} />
+          <View style={tw`w-1/2 flex-col gap-2 items-center`}>
+            {/* Participants */}
+            <Text
+              style={[tw`text-sm text-white`, { fontFamily: "REM_regular" }]}
+            >
+              Người tham gia
+            </Text>
+            <Text style={[tw`text-2xl text-white`, { fontFamily: "REM_bold" }]}>
+              {uniqueParticipantsCount}
             </Text>
           </View>
         </View>
@@ -416,7 +456,10 @@ const AuctionDetail = ({ route }) => {
               {auctionData.currentPrice + auctionData.priceStep >=
                 auctionData.maxPrice && (
                 <Text
-                  style={tw`text-[17px] pt-[10px] REM font-normal text-red-500 bg-red-100 rounded-md p-4`}
+                  style={[
+                    tw`text-[17px] pt-[10px] text-red-500 bg-red-100 rounded-md p-4`,
+                    { fontFamily: "REM_regular" },
+                  ]}
                 >
                   Chỉ có thể mua ngay với giá{" "}
                   {auctionData.maxPrice.toLocaleString("vi-VN")}đ. Cân nhắc
@@ -524,7 +567,10 @@ const AuctionDetail = ({ route }) => {
                 {auctionData.currentPrice + auctionData.priceStep >=
                   auctionData.maxPrice && (
                   <Text
-                    style={tw`text-[17px] pt-[10px] REM font-normal text-red-500 bg-red-100 rounded-md p-4`}
+                    style={[
+                      tw`text-[17px] pt-[10px]  text-red-500 bg-red-100 rounded-md p-4`,
+                      { fontFamily: "REM_regular" },
+                    ]}
                   >
                     Chỉ có thể mua ngay với giá{" "}
                     {auctionData.maxPrice.toLocaleString("vi-VN")}đ.Không thể ra
@@ -589,7 +635,7 @@ const AuctionDetail = ({ route }) => {
       />
 
       {/* RA GIÁ Button */}
-      <View style={tw`px-4`}>
+      <View style={tw`px-2`}>
         <View style={tw`px-4 border border-gray-300 rounded-lg`}>
           <View
             style={tw`py-2 border-b border-gray-300 flex flex-row w-full justify-between`}
