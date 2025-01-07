@@ -18,6 +18,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { CartContext } from "../context/CartContext";
 import axios from "axios";
 import FeedbackSection from "../components/comicDetail/FeedbackSection";
+import { getComicsCondition } from "../common/constances/comicsConditions";
 
 // Utility functions for cart management
 const getCart = async () => {
@@ -264,6 +265,212 @@ const ComicDetail = ({ route }) => {
           <Text style={[tw`text-sm mt-2`, { fontFamily: "REM_italic" }]}>
             {comic.description}
           </Text>
+        </View>
+
+        {/* New Section: Detailed Information */}
+        <View
+          style={tw`w-full flex flex-col gap-2 bg-white px-4 py-4 rounded-xl drop-shadow-md`}
+        >
+          <Text style={[tw`text-base pb-2`, { fontFamily: "REM_bold" }]}>
+            Thông tin chi tiết
+          </Text>
+
+          <View
+            style={tw`w-full flex flex-row items-center justify-between text-xs py-2 border-b`}
+          >
+            <Text style={[tw` text-gray-600`, { fontFamily: "REM_regular" }]}>
+              Thể loại
+            </Text>
+            <View style={tw`flex flex-row`}>
+              {comic.genres?.map((genre, index) => (
+                <Text
+                  key={index}
+                  style={[tw`text-sky-800`, { fontFamily: "REM_regular" }]}
+                >
+                  {genre.name}
+                  {index < comic.genres.length - 1 && ", "}
+                </Text>
+              ))}
+            </View>
+          </View>
+
+          <View
+            style={tw`w-full flex flex-row items-center justify-between text-xs py-2 border-b`}
+          >
+            <Text
+              style={[tw`w-1/2 text-gray-600`, { fontFamily: "REM_regular" }]}
+            >
+              Tác giả
+            </Text>
+            <Text style={[{ fontFamily: "REM_regular" }]}>{comic.author}</Text>
+          </View>
+
+          <View
+            style={tw`w-full flex flex-row items-center justify-between text-xs py-2 border-b`}
+          >
+            <Text style={[tw` text-gray-600`, { fontFamily: "REM_regular" }]}>
+              Phiên bản truyện
+            </Text>
+            <Text style={[, { fontFamily: "REM_regular" }]}>
+              {comic.edition.name}
+            </Text>
+          </View>
+
+          <View
+            style={tw`flex flex-row items-center justify-between text-xs py-2 border-b`}
+          >
+            <Text style={[tw` text-gray-600`, { fontFamily: "REM_regular" }]}>
+              Tình trạng
+            </Text>
+            <Text style={[tw``, { fontFamily: "REM_regular" }]}>
+              {getComicsCondition(comic.condition).conditionName}
+            </Text>
+          </View>
+
+          {comic.page && (
+            <View
+              style={tw`flex flex-row items-center justify-between text-xs py-2 border-b`}
+            >
+              <Text style={[tw` text-gray-600`, { fontFamily: "REM_regular" }]}>
+                Số trang
+              </Text>
+              <Text style={[{ fontFamily: "REM_regular" }]}>{comic.page}</Text>
+            </View>
+          )}
+
+          {comic.publicationYear && (
+            <View
+              style={tw`flex flex-row items-center justify-between text-xs py-2 border-b`}
+            >
+              <Text style={[tw` text-gray-600`, { fontFamily: "REM_regular" }]}>
+                Năm phát hành
+              </Text>
+              <Text style={[{ fontFamily: "REM_regular" }]}>
+                {comic.publicationYear}
+              </Text>
+            </View>
+          )}
+
+          <View
+            style={tw`flex flex-row items-center justify-between text-xs py-2 border-b`}
+          >
+            <Text style={[tw` text-gray-600`, { fontFamily: "REM_regular" }]}>
+              Truyện lẻ / Bộ truyện
+            </Text>
+            <Text style={[{ fontFamily: "REM_regular" }]}>
+              {comic.quantity === 1 ? "Truyện lẻ" : "Bộ truyện"}
+            </Text>
+          </View>
+
+          {comic.quantity > 1 && (
+            <View
+              style={tw`flex flex-row items-center justify-between text-xs py-2 border-b`}
+            >
+              <Text style={[tw` text-gray-600`, { fontFamily: "REM_regular" }]}>
+                Số lượng cuốn
+              </Text>
+              <Text style={[{ fontFamily: "REM_regular" }]}>
+                {comic.quantity}
+              </Text>
+            </View>
+          )}
+
+          {comic.quantity > 1 && comic.episodesList && (
+            <View
+              style={tw`flex flex-row items-center justify-between text-xs py-2 border-b`}
+            >
+              <Text style={[tw` text-gray-600`, { fontFamily: "REM_regular" }]}>
+                Tên tập, số tập:
+              </Text>
+              <View
+                style={tw`flex flex-row items-center justify-start gap-2 flex-wrap`}
+              >
+                {comic.episodesList.map((eps, index) => (
+                  <Text
+                    key={index}
+                    style={tw`px-2 py-1 rounded-md border border-gray-300`}
+                  >
+                    {/^[0-9]*$/.test(eps) && "Tập "}
+                    {eps}
+                  </Text>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {comic.merchandises.length > 0 && (
+            <View
+              style={tw`flex flex-row items-center justify-between text-xs py-2 border-b`}
+            >
+              <Text style={[tw` text-gray-600`, { fontFamily: "REM_regular" }]}>
+                Phụ kiện đính kèm
+              </Text>
+              <View
+                style={tw`flex-row flex items-center justify-start gap-2 flex-wrap`}
+              >
+                {comic.merchandises.map((mer, index) => (
+                  <Text
+                    key={index}
+                    style={tw`px-2 py-1 rounded-md border border-gray-300`}
+                  >
+                    {mer.name}
+                  </Text>
+                ))}
+              </View>
+            </View>
+          )}
+
+          <View
+            style={tw`flex flex-row items-center justify-between text-xs py-2 border-b`}
+          >
+            <Text style={[tw` text-gray-600`, { fontFamily: "REM_regular" }]}>
+              Bìa
+            </Text>
+            <Text style={[{ fontFamily: "REM_regular" }]}>
+              {comic.cover === "SOFT"
+                ? "Bìa mềm"
+                : comic.cover === "HARD"
+                ? "Bìa cứng"
+                : "Bìa rời"}
+            </Text>
+          </View>
+
+          <View
+            style={tw`flex flex-row items-center justify-between text-xs py-2 border-b`}
+          >
+            <Text style={[tw` text-gray-600`, { fontFamily: "REM_regular" }]}>
+              Màu sắc
+            </Text>
+            <Text style={[{ fontFamily: "REM_regular" }]}>
+              {comic.color === "GRAYSCALE" ? "Đen trắng" : "Có màu"}
+            </Text>
+          </View>
+
+          {comic.originCountry && (
+            <View
+              style={tw`flex flex-row items-center justify-between text-xs py-2 border-b`}
+            >
+              <Text style={[tw` text-gray-600`, { fontFamily: "REM_regular" }]}>
+                Xuất xứ
+              </Text>
+              <Text style={[{ fontFamily: "REM_regular" }]}>
+                {comic.originCountry}
+              </Text>
+            </View>
+          )}
+
+          {(comic.length || comic.width || comic.thickness) && (
+            <View
+              style={tw`flex flex-row items-center justify-between text-xs py-2 border-b`}
+            >
+              <Text style={[tw` text-gray-600`, { fontFamily: "REM_regular" }]}>
+                Kích thước
+              </Text>
+              <Text style={[{ fontFamily: "REM_regular" }]}>
+                {`${comic.length} x ${comic.width} x ${comic.thickness} (cm)`}
+              </Text>
+            </View>
+          )}
         </View>
       </View>
       <View style={tw`px-6 py-2`}>

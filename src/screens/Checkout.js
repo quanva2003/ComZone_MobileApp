@@ -401,7 +401,7 @@ const Checkout = ({ route, navigation }) => {
               auctionId: comic?.auctionId,
               currentPrice: price,
               user: userInfo,
-              type: comic?.type,
+              type: comic?.types,
             });
           }
         }

@@ -6,7 +6,6 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "jsEngine": "hermes",
     "splash": {
       "image": "./assets/hcn-logo.png",
       "resizeMode": "contain",
@@ -20,7 +19,9 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": ["android.permission.RECORD_AUDIO"],
+      "package": "com.wuanvan5076.ComZone_MobileApp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -34,6 +35,11 @@
           "saveToPhotos": true
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "dbb9f64e-b056-4e06-b794-d4269f1af7eb"
+      }
+    }
   }
 }

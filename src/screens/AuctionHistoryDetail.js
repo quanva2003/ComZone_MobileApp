@@ -29,7 +29,7 @@ const AuctionHistoryDetail = ({ route, navigation }) => {
     const auctionData = { ...auction.comics };
     auctionData.price = auction.highestBid.price;
     auctionData.auctionId = auction.id;
-    auctionData.type = "AUCTION";
+    auctionData.type = "currentPrice";
     console.log("auction data:", auctionData);
 
     navigation.navigate("Checkout", {

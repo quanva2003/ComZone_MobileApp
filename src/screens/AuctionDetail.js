@@ -115,7 +115,7 @@ const AuctionDetail = ({ route }) => {
     const comic = { ...auctionData.comics };
     comic.price = price;
     comic.auctionId = auction?.id;
-    comic.type = type;
+    comic.types = type;
 
     console.log("Updated comic auction:", comic);
 
@@ -281,6 +281,9 @@ const AuctionDetail = ({ route }) => {
       </View>
     );
   }
+  console.log("Current Price:", auctionData.currentPrice);
+  console.log("Price Step:", auctionData.priceStep);
+  console.log("Max Price:", auctionData.maxPrice);
 
   return (
     <ScrollView style={tw`flex-1`} ref={scrollViewRef}>
@@ -542,8 +545,8 @@ const AuctionDetail = ({ route }) => {
           ) : (
             !auctionEnded && (
               <>
-                {auctionData.currentPrice + auctionData.priceStep <
-                  auctionData.maxPrice && (
+                {auction.currentPrice + auction.priceStep <
+                  auction.maxPrice && (
                   <View
                     style={tw`w-full flex items-center justify-center py-2`}
                   >
@@ -564,8 +567,8 @@ const AuctionDetail = ({ route }) => {
                     </TouchableOpacity>
                   </View>
                 )}
-                {auctionData.currentPrice + auctionData.priceStep >=
-                  auctionData.maxPrice && (
+                {auction.currentPrice + auction.priceStep >=
+                  auction.maxPrice && (
                   <Text
                     style={[
                       tw`text-[17px] pt-[10px]  text-red-500 bg-red-100 rounded-md p-4`,
@@ -658,19 +661,19 @@ const AuctionDetail = ({ route }) => {
           >
             <Text style={{ fontFamily: "REM_regular" }}>Phân loại:</Text>
             <Text style={{ fontFamily: "REM_bold" }}>
-              {auction.comics.quantity > 1 ? "Truyện lẻ" : "Bộ truyện"}
+              {auction.comics.quantity > 1 ? "Bộ truyện" : "Truyện lẻ"}
             </Text>
           </View>
           <View
             style={tw`py-2 border-b border-gray-300 flex flex-row w-full justify-between`}
           >
             <Text style={{ fontFamily: "REM_regular" }}>
-              {auction.comics.quantity > 1 ? "Số trang" : "Số quyển"}
+              {auction.comics.quantity > 1 ? "Số quyển" : "Số trang"}
             </Text>
             <Text style={{ fontFamily: "REM_bold" }}>
               {auction.comics.quantity > 1
-                ? auction.comics.page
-                : auction.comics.quantity}
+                ? auction.comics.quantity
+                : auction.comics.page}
             </Text>
           </View>
           <View
