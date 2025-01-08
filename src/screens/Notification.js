@@ -43,10 +43,11 @@ const getAnnouncementIcon = (item, type) => {
       if (item.auction?.comics?.coverImage) {
         return { uri: item.auction.comics.coverImage };
       }
-
-      // Fallback to default auction icon
       return AuctionIcon;
 
+    case AnnouncementType.AUCTION_REQUEST:
+    case AnnouncementType.AUCTION_REQUEST_FAIL:
+      return { uri: item.auctionRequest?.comic?.coverImage } || AuctionIcon;
     case AnnouncementType.EXCHANGE_NEW_REQUEST:
       return NewExchangeRequestIcon;
 

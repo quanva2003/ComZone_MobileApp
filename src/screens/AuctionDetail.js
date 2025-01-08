@@ -116,6 +116,7 @@ const AuctionDetail = ({ route }) => {
     comic.price = price;
     comic.auctionId = auction?.id;
     comic.types = type;
+    comic.depositAmount = auction?.depositAmount;
 
     console.log("Updated comic auction:", comic);
 
@@ -404,7 +405,7 @@ const AuctionDetail = ({ route }) => {
             <Text
               style={[tw`text-sm text-white`, { fontFamily: "REM_regular" }]}
             >
-              Bước giá
+              Bước giá tối thiểu
             </Text>
             <Text style={[tw`text-2xl text-white`, { fontFamily: "REM_bold" }]}>
               {CurrencySplitter(auction.priceStep)} đ
@@ -591,9 +592,9 @@ const AuctionDetail = ({ route }) => {
                 onPress={() => handleBuy(auction, auction.maxPrice, "maxPrice")}
               >
                 <Text
-                  style={[tw`text-xl text-white`, { fontFamily: "REM_bold" }]}
+                  style={[tw`text-xl text-white text-center`, { fontFamily: "REM_bold" }]}
                 >
-                  MUA NGAY VỚI GIÁ {auction.maxPrice.toLocaleString("vi-VN")}đ
+                  MUA NGAY VỚI {auction.maxPrice.toLocaleString("vi-VN")}đ
                 </Text>
               </TouchableOpacity>
             </View>
