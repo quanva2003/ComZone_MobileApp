@@ -41,7 +41,7 @@ const AuctionNotification = ({ auctionId, userId, onWinnerUpdate }) => {
     ) {
       setModalVisible(true);
     }
-  }, [auctionAnnounce]);
+  }, [auctionAnnounce, auctionId]);
 
   return (
     <View>

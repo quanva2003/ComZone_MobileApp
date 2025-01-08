@@ -34,6 +34,7 @@ const Checkout = ({ route, navigation }) => {
 
   const [totalPrice, setTotalPrice] = useState(0);
   const [token, setToken] = useState(null);
+  const [depositAmount, setDepositAmount] = useState(0);
   const [userAddress, setUserAddress] = useState(null);
   const [selectedAddress, setSelectedAddress] = useState();
   const [isLoading, setIsLoading] = useState(false);
@@ -362,9 +363,11 @@ const Checkout = ({ route, navigation }) => {
           `${process.env.BASE_URL}orders`,
           {
             sellerId: sellerId,
-            totalPrice: Number(sellerTotalPrice + deliveryFee),
+            totalPrice: Number(sellerTotalPrice),
+
             paymentMethod: selectedMethod.toUpperCase(),
             deliveryId: resDelivery.data.id,
+            depositAmount: depositAmount,
             addressId: selectedAddress.id,
             note: notes[sellerId] || "",
             type: orderType,
@@ -431,6 +434,19 @@ const Checkout = ({ route, navigation }) => {
     const total = selectedComics.reduce((acc, comic) => acc + comic.price, 0);
     setTotalPrice(total);
   };
+  useEffect(() => {
+    const calculateDepositAmount = () => {
+      const deposit = selectedComics.reduce(
+        (acc, comic) => acc + (comic.depositAmount || 0),
+        0
+      );
+      setDepositAmount(deposit);
+    };
+
+    calculateDepositAmount(); // Call new function to calculate deposit
+  }, [selectedComics]);
+  console.log("hehe", depositAmount);
+
   const fetchToken = async () => {
     try {
       const storedToken = await AsyncStorage.getItem("token");
@@ -651,7 +667,7 @@ const Checkout = ({ route, navigation }) => {
             totalPrice && (
               <PaymentMethod
                 userInfo={userInfo}
-                totalPrice={totalPrice}
+                amount={totalPrice + totalDeliveryPrice - (depositAmount || 0)}
                 selectedMethod={selectedMethod}
                 setSelectedMethod={setSelectedMethod}
                 groupedComics={groupedComics}
@@ -668,6 +684,7 @@ const Checkout = ({ route, navigation }) => {
             userInfo &&
             totalPrice && (
               <PaymentDetail
+                depositAmount={depositAmount}
                 totalPrice={totalPrice}
                 totalDeliveryPrice={totalDeliveryPrice}
               />
@@ -686,7 +703,15 @@ const Checkout = ({ route, navigation }) => {
             Tổng thanh toán:
           </Text>
           <Text style={[tw`text-xl`, { fontFamily: "REM_bold" }]}>
-            {CurrencySplitter(totalPrice + totalDeliveryPrice)} đ
+            {CurrencySplitter(
+              Math.max(
+                (totalDeliveryPrice &&
+                  totalPrice + totalDeliveryPrice - depositAmount) ||
+                  totalPrice,
+                0
+              )
+            )}{" "}
+            đ
           </Text>
         </View>
 
