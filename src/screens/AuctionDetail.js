@@ -88,7 +88,9 @@ const AuctionDetail = ({ route }) => {
     };
   }, [auction]);
 
-  const snapPoints = useMemo(() => ["60%"], []);
+  const snapPoints = useMemo(() => ["10%", "60%"], []);
+  const [isReady, setIsReady] = useState(false);
+  const [bottomSheetIndex, setBottomSheetIndex] = useState(-1);
   const [bids, setBids] = useState([]);
   const uniqueParticipantsCount = new Set(bids.map((bid) => bid?.user.id)).size;
   const [bidPrice, setBidPrice] = useState("");
@@ -98,9 +100,12 @@ const AuctionDetail = ({ route }) => {
   };
 
   const handleOpenBottomSheet = useCallback(() => {
-    bottomSheetRef.current?.snapToIndex(0);
+    setBottomSheetIndex(1);
   }, []);
 
+  const handleCloseBottomSheet = useCallback(() => {
+    setBottomSheetIndex(-1);
+  }, []);
   useEffect(() => {
     if (highestBid?.user?.id === userId) {
       setIsHighest(true);
@@ -201,12 +206,12 @@ const AuctionDetail = ({ route }) => {
         `Bạn vừa ra giá ${CurrencySplitter(numericBidPrice)} đ cho sản phẩm này`
       );
       setBidPrice("");
+      bottomSheetRef.current?.close();
     } else {
       console.error("Socket not connected.");
     }
 
     // Close bottom sheet after bid
-    bottomSheetRef.current?.close();
   };
   useEffect(() => {
     if (socket) {
@@ -256,6 +261,17 @@ const AuctionDetail = ({ route }) => {
 
     checkDepositStatus();
   }, [auction.id]);
+  useEffect(() => {
+    bottomSheetRef.current?.close();
+  }, []);
+  useEffect(() => {
+    // Small delay to ensure BottomSheet isn't visible on mount
+    const timer = setTimeout(() => {
+      setIsReady(true);
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
   const handleOpenDepositModal = () => setModalVisible(true);
   const handleCloseDepositModal = () => setModalVisible(false);
 
@@ -640,49 +656,54 @@ const AuctionDetail = ({ route }) => {
 
       {/* RA GIÁ Button */}
       <AuctionPublisher comic={auction.comics} />
-      <BottomSheet
-        ref={bottomSheetRef}
-        index={-1}
-        snapPoints={snapPoints}
-        enablePanDownToClose
-      >
-        <BottomSheetView style={tw`p-4`}>
-          <Text style={[tw`text-xl mb-4`, { fontFamily: "REM_bold" }]}>
-            Ra giá
-          </Text>
-
-          <View style={tw`flex-row gap-2 items-center`}>
-            <Text style={[tw`text-sm mb-2`, { fontFamily: "REM_regular" }]}>
-              Giá đấu tối thiểu tiếp theo:
+      {isReady && (
+        <BottomSheet
+          ref={bottomSheetRef}
+          index={bottomSheetIndex}
+          snapPoints={snapPoints}
+          enablePanDownToClose={true} // This will allow users to close by dragging down
+          onClose={handleCloseBottomSheet}
+        >
+          <BottomSheetView style={tw`p-4`}>
+            <Text style={[tw`text-xl mb-4`, { fontFamily: "REM_bold" }]}>
+              Ra giá
             </Text>
-            <Text style={[tw`text-base mb-2`, { fontFamily: "REM_bold" }]}>
-              {CurrencySplitter(auction.currentPrice + auction.priceStep)} đ
-            </Text>
-          </View>
-          <TextInput
-            style={tw`border border-gray-300 p-2 rounded-lg mb-4`}
-            placeholder="Nhập giá"
-            keyboardType="numeric"
-            value={bidPrice}
-            onChangeText={(text) => {
-              // Format input as currency
-              const cleaned = text.replace(/[^0-9]/g, "");
-              setBidPrice(CurrencySplitter(cleaned));
-            }}
-          />
 
-          <TouchableOpacity
-            style={tw`bg-black p-3 rounded-lg`}
-            onPress={handleSubmitBid}
-          >
-            <Text
-              style={[tw`text-white text-center`, { fontFamily: "REM_bold" }]}
+            <View style={tw`flex-row gap-2 items-center`}>
+              <Text style={[tw`text-sm mb-2`, { fontFamily: "REM_regular" }]}>
+                Giá đấu tối thiểu tiếp theo:
+              </Text>
+              <Text style={[tw`text-base mb-2`, { fontFamily: "REM_bold" }]}>
+                {CurrencySplitter(auction.currentPrice + auction.priceStep)} đ
+              </Text>
+            </View>
+            <TextInput
+              style={tw`border border-gray-300 p-2 rounded-lg mb-4`}
+              placeholder="Nhập giá"
+              keyboardType="numeric"
+              value={bidPrice}
+              onChangeText={(text) => {
+                // Format input as currency
+                const cleaned = text.replace(/[^0-9]/g, "");
+                setBidPrice(CurrencySplitter(cleaned));
+              }}
+            />
+
+            <TouchableOpacity
+              style={tw`bg-black p-3 rounded-lg`}
+              onPress={() => {
+                handleSubmitBid();
+              }}
             >
-              XÁC NHẬN
-            </Text>
-          </TouchableOpacity>
-        </BottomSheetView>
-      </BottomSheet>
+              <Text
+                style={[tw`text-white text-center`, { fontFamily: "REM_bold" }]}
+              >
+                XÁC NHẬN
+              </Text>
+            </TouchableOpacity>
+          </BottomSheetView>
+        </BottomSheet>
+      )}
     </ScrollView>
   );
 };

@@ -42,6 +42,8 @@ const saveCart = async (cart) => {
 const ComicDetail = ({ route }) => {
   const navigation = useNavigation();
   const { comic } = route.params;
+  console.log("comic", comic);
+
   const allImages = [comic.coverImage, ...comic.previewChapter];
   const [currentImage, setCurrentImage] = useState(comic.coverImage);
   const [modalVisible, setModalVisible] = useState(false);
@@ -269,7 +271,7 @@ const ComicDetail = ({ route }) => {
 
         {/* New Section: Detailed Information */}
         <View
-          style={tw`w-full flex flex-col gap-2 bg-white px-4 py-4 rounded-xl drop-shadow-md`}
+          style={tw`w-full flex flex-col gap-2 bg-white px-4 py-4 rounded-xl `}
         >
           <Text style={[tw`text-base pb-2`, { fontFamily: "REM_bold" }]}>
             Thông tin chi tiết
@@ -323,7 +325,7 @@ const ComicDetail = ({ route }) => {
               Tình trạng
             </Text>
             <Text style={[tw``, { fontFamily: "REM_regular" }]}>
-              {getComicsCondition(comic.condition).conditionName}
+              {comic.condition.name}
             </Text>
           </View>
 
