@@ -33,6 +33,7 @@ import { privateAxios, publicAxios } from "../middleware/axiosInstance";
 import { AuctionResult } from "../components/auction/AuctionResult";
 import { useSocketContext } from "../context/SocketContext";
 import AuctionNotification from "../components/auction/AuctionNotification";
+import AuctionPublisher from "../components/auction/AuctionPulisher";
 
 const AuctionDetail = ({ route }) => {
   const socket = useSocketContext();
@@ -46,7 +47,6 @@ const AuctionDetail = ({ route }) => {
   const bottomSheetRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState(null);
-  console.log("auctiondata", auctionData);
 
   const handleAuctionEnd = () => {
     setAuctionEnded(true);
@@ -282,9 +282,6 @@ const AuctionDetail = ({ route }) => {
       </View>
     );
   }
-  console.log("Current Price:", auctionData.currentPrice);
-  console.log("Price Step:", auctionData.priceStep);
-  console.log("Max Price:", auctionData.maxPrice);
 
   return (
     <ScrollView style={tw`flex-1`} ref={scrollViewRef}>
@@ -592,7 +589,10 @@ const AuctionDetail = ({ route }) => {
                 onPress={() => handleBuy(auction, auction.maxPrice, "maxPrice")}
               >
                 <Text
-                  style={[tw`text-xl text-white text-center`, { fontFamily: "REM_bold" }]}
+                  style={[
+                    tw`text-xl text-white text-center`,
+                    { fontFamily: "REM_bold" },
+                  ]}
                 >
                   MUA NGAY VỚI {auction.maxPrice.toLocaleString("vi-VN")}đ
                 </Text>
@@ -639,69 +639,7 @@ const AuctionDetail = ({ route }) => {
       />
 
       {/* RA GIÁ Button */}
-      <View style={tw`px-2`}>
-        <View style={tw`px-4 border border-gray-300 rounded-lg`}>
-          <View
-            style={tw`py-2 border-b border-gray-300 flex flex-row w-full justify-between`}
-          >
-            <Text style={{ fontFamily: "REM_regular" }}>Thể loại:</Text>
-            <Text style={{ fontFamily: "REM_bold" }}>
-              {auction.comics.genres.map((genre) => genre.name).join(", ")}
-            </Text>
-          </View>
-          <View
-            style={tw`py-2 border-b border-gray-300 flex flex-row w-full justify-between`}
-          >
-            <Text style={{ fontFamily: "REM_regular" }}>Tác giả:</Text>
-            <Text style={{ fontFamily: "REM_bold" }}>
-              {auction.comics.author}
-            </Text>
-          </View>
-          <View
-            style={tw`py-2 border-b border-gray-300 flex flex-row w-full justify-between`}
-          >
-            <Text style={{ fontFamily: "REM_regular" }}>Phân loại:</Text>
-            <Text style={{ fontFamily: "REM_bold" }}>
-              {auction.comics.quantity > 1 ? "Bộ truyện" : "Truyện lẻ"}
-            </Text>
-          </View>
-          <View
-            style={tw`py-2 border-b border-gray-300 flex flex-row w-full justify-between`}
-          >
-            <Text style={{ fontFamily: "REM_regular" }}>
-              {auction.comics.quantity > 1 ? "Số quyển" : "Số trang"}
-            </Text>
-            <Text style={{ fontFamily: "REM_bold" }}>
-              {auction.comics.quantity > 1
-                ? auction.comics.quantity
-                : auction.comics.page}
-            </Text>
-          </View>
-          <View
-            style={tw`py-2 border-b border-gray-300 flex flex-row w-full justify-between items-center`}
-          >
-            <Text style={{ fontFamily: "REM_regular" }}>Phiên bản:</Text>
-            <Text
-              style={[
-                { fontFamily: "REM_bold" },
-                tw`bg-sky-800 py-1 px-3 rounded-full text-white`,
-              ]}
-            >
-              {auction.comics.edition === "SPECIAL"
-                ? "Bản đặc biệt"
-                : "Bản giới hạn"}
-            </Text>
-          </View>
-        </View>
-      </View>
-      <View style={tw`px-4 py-2`}>
-        <Text style={[tw`text-lg`, { fontFamily: "REM_bold" }]}>
-          Mô tả nội dung
-        </Text>
-        <Text style={[tw`text-sm mt-2`, { fontFamily: "REM_italic" }]}>
-          {auction.comics.description}
-        </Text>
-      </View>
+      <AuctionPublisher comic={auction.comics} />
       <BottomSheet
         ref={bottomSheetRef}
         index={-1}
